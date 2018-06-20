@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/highcharts": "^5.0.22",
+    "highcharts": "^6.1.0",
+    "highcharts-react-official": "^1.1.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-scripts-ts": "2.16.0"

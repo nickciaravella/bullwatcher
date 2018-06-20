@@ -3,17 +3,33 @@ import './App.css';
 
 import logo from './logo.svg';
 
+import HighchartsReact from 'highcharts-react-official'
+import * as Highcharts from 'highcharts/highstock'
+
+
 class App extends React.Component {
-  public render() {
+  private options = {
+    series: [{
+      data: [100, 102, 101, 100.42, 103]
+    }],
+    title: {
+      text: 'MSFT'
+    }
+  }
+ public render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Bull Watcher</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <div style={{ margin: '100px' }}>
+          <HighchartsReact
+            highcharts={Highcharts}
+            constructorType={'stockChart'}
+            options={this.options}
+          />
+        </div>
       </div>
     );
   }
