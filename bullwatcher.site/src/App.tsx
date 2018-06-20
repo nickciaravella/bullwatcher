@@ -3,9 +3,10 @@ import './App.css';
 
 import logo from './logo.svg';
 
-import HighchartsReact from 'highcharts-react-official'
-import * as Highcharts from 'highcharts/highstock'
+import HighchartsReact from 'highcharts-react-official';
+import * as Highcharts from 'highcharts/highstock';
 
+import SearchBox from './SearchBox'
 
 class App extends React.Component {
   private options = {
@@ -16,12 +17,13 @@ class App extends React.Component {
       text: 'MSFT'
     }
   }
- public render() {
+  public render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Bull Watcher</h1>
+          <SearchBox />
         </header>
         <div style={{ margin: '100px' }}>
           <HighchartsReact
