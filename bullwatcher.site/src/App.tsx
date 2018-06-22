@@ -6,7 +6,7 @@ import logo from './logo.svg';
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 
-import SearchBox from './SearchBox'
+import SearchBox from './SearchBox';
 
 class App extends React.Component {
   private options = {
