@@ -33,12 +33,12 @@ export class StockHistoryStore {
         for (const date in timeSeriesData) {
             if (timeSeriesData.hasOwnProperty(date)) {
                 const daily = {
-                    close: timeSeriesData[date]['4. close'],
+                    close: +timeSeriesData[date]['4. close'],
                     date: new Date(date),
-                    high: timeSeriesData[date]['2. high'],
-                    low: timeSeriesData[date]['3. low'],
-                    open: timeSeriesData[date]['1. open'],
-                    volume: timeSeriesData[date]['5. volume'],
+                    high: +timeSeriesData[date]['2. high'],
+                    low: +timeSeriesData[date]['3. low'],
+                    open: +timeSeriesData[date]['1. open'],
+                    volume: +timeSeriesData[date]['5. volume'],
                 }
                 dailyData.push(daily);
             }
