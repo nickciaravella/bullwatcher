@@ -1,3 +1,5 @@
+import { observable } from 'mobx';
+
 export interface IStockDailyHistory {
     data: IStockDaily[];
     ticker: string;
@@ -13,12 +15,15 @@ export interface IStockDaily {
 }
 
 export class StockHistoryStore {
+    @observable public stockDailyHistory: IStockDailyHistory;
 
-    public fetchDailyDataAsync(ticker: string): Promise<IStockDailyHistory> {
+    public fetchDailyDataAsync(ticker: string): Promise<void> {
         const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=6JPLGVEP5LPD9YMD';
         return fetch(url)
             .then((response) => response.json())
-            .then((json) => this._responseToDailyHistory(json));
+            .then((json) => {
+                this.stockDailyHistory = this._responseToDailyHistory(json);
+            });
     }
 
     private _responseToDailyHistory(json: any): IStockDailyHistory {
