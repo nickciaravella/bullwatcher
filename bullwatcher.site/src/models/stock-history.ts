@@ -18,6 +18,7 @@ export class StockHistoryStore {
     @observable public stockDailyHistory: IStockDailyHistory;
 
     public fetchDailyDataAsync(ticker: string): Promise<void> {
+        this.stockDailyHistory = null;
         const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=6JPLGVEP5LPD9YMD&outputsize=full`;
         return fetch(url)
             .then((response) => response.json())

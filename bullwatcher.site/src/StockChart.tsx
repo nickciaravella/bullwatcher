@@ -13,15 +13,18 @@ interface IStockChartProps {
 export default class StockChart extends React.Component<IStockChartProps, any> {
 
     private store: StockHistoryStore;
-    private ticker: string;
 
     constructor(props: any) {
         super(props);
 
         this.store = new StockHistoryStore();
-        this.ticker = props.ticker;
+        this.store.fetchDailyDataAsync(this.props.ticker);
+    }
 
-        this.store.fetchDailyDataAsync(this.ticker);
+    public componentDidUpdate (prevProps: IStockChartProps) {
+        if (this.props.ticker !== prevProps.ticker) {
+            this.store.fetchDailyDataAsync(this.props.ticker);
+        }
     }
 
     public render() {
@@ -81,7 +84,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 yAxis: 1,
             }],
             title: {
-                text: this.ticker
+                text: this.props.ticker
             },
             xAxis: {
                 range: 90*24*36e5,

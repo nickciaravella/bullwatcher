@@ -1,12 +1,16 @@
 import * as React from 'react';
 
+interface ISearchBoxProps {
+    onSearchFunc: (ticker: string) => void;
+}
+
 interface ISearchBoxState {
     query: string
 }
 
-export default class SearchBox extends React.Component<any, ISearchBoxState> {
+export default class SearchBox extends React.Component<ISearchBoxProps, ISearchBoxState> {
 
-    constructor(props: any) {
+    constructor(props: ISearchBoxProps) {
         super(props);
 
         this.state = {
@@ -35,5 +39,6 @@ export default class SearchBox extends React.Component<any, ISearchBoxState> {
     private handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         console.log("Querying for: " + this.state.query);
+        this.props.onSearchFunc(this.state.query);
     }
 }
