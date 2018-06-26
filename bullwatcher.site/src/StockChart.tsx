@@ -36,22 +36,62 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
 
     private getChartOptions(): any {
         return {
+            credits: {
+                href: "http://www.bullwatcher.com",
+                text: "bullwatcher.com",
+            },
             navigator: {
                 enabled: false
             },
             rangeSelector: {
-                enabled: false
+                buttons: [{
+                    count: 1,
+                    text: '1m',
+                    type: 'month',
+                },{
+                    count: 3,
+                    text: '3m',
+                    type: 'month'
+                },{
+                    count: 6,
+                    text: '6m',
+                    type: 'month'
+                },{
+                    count: 1,
+                    text: '1y',
+                    type: 'year'
+                },{
+                    count: 2,
+                    text: '2y',
+                    type: 'year'
+                }],
+                inputEnabled: false,
             },
             scrollbar: {
                 enabled: false
             },
             series: [{
                 data: this.getStockDailyPriceData(),
-                name: 'Close'
+                name: 'Price',
+                type: 'candlestick',
+            }, {
+                data: this.getStockDailyVolumeData(),
+                name: 'Volume',
+                type: 'column',
+                yAxis: 1,
             }],
             title: {
                 text: this.ticker
             },
+            xAxis: {
+                range: 90*24*36e5,
+            },
+            yAxis: [{
+                height: '80%'
+            }, {
+                height: '20%',
+                top: '80%'
+            }]
         }
     }
 
@@ -63,9 +103,36 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         }
 
         for (const stock of this.store.stockDailyHistory.data) {
-            dataArray.push([stock.date.valueOf(), stock.close])
+            dataArray.push([
+                stock.date.valueOf(),
+                stock.open,
+                stock.high,
+                stock.low,
+                stock.close
+            ])
         }
 
-        return dataArray;
+        dataArray.sort((first: number[], second: number[]) =>  first[0]-second[0])
+
+         return dataArray;
+    }
+
+    private getStockDailyVolumeData(): number[][] {
+        const dataArray: number[][] = []
+
+        if (!this.store.stockDailyHistory) {
+            return dataArray;
+        }
+
+        for (const stock of this.store.stockDailyHistory.data) {
+            dataArray.push([
+                stock.date.valueOf(),
+                stock.volume,
+            ])
+        }
+
+        dataArray.sort((first: number[], second: number[]) =>  first[0]-second[0])
+
+         return dataArray;
     }
 }

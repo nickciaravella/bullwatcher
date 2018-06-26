@@ -17,6 +17,8 @@ export default class App extends React.Component {
                 </header>
                 <div style={{ margin: '100px' }}>
                     <StockChart ticker='MSFT' />
+                    <StockChart ticker='AMZN' />
+                    <StockChart ticker='GOOG' />
                 </div>
             </div>
         );
