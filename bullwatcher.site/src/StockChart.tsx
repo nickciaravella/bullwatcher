@@ -3,9 +3,11 @@ import * as React from 'react';
 
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
+import { ChartType, IChartSettings } from './models/chart-settings';
 import { StockHistoryStore } from './models/stock-history';
 
 interface IStockChartProps {
+    settings: IChartSettings;
     ticker: string;
 }
 
@@ -38,6 +40,9 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
     }
 
     private getChartOptions(): any {
+        const { chartType } = this.props.settings;
+        const chartTypeStr = this.chartTypeFromEnum(chartType);
+
         return {
             credits: {
                 href: "http://www.bullwatcher.com",
@@ -76,7 +81,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
             series: [{
                 data: this.getStockDailyPriceData(),
                 name: 'Price',
-                type: 'candlestick',
+                type: `${chartTypeStr}`,
             }, {
                 data: this.getStockDailyVolumeData(),
                 name: 'Volume',
@@ -137,5 +142,14 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         dataArray.sort((first: number[], second: number[]) =>  first[0]-second[0])
 
          return dataArray;
+    }
+
+    private chartTypeFromEnum(typeEnum: ChartType): string {
+        switch (typeEnum) {
+            case ChartType.Line: return 'line';
+            case ChartType.Candlestick: return 'candlestick';
+            case ChartType.Area: return 'area';
+        }
+        return '';
     }
 }

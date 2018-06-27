@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { IChartSettings } from '../models/chart-settings'
 import StockChart from '../StockChart';
 
 interface IStockDetailPageProps {
-    match: {params: {id: string}};
+    ticker: string;
+    chartSettings: IChartSettings;
 }
 
 interface IStockDetailPageState {
@@ -11,14 +13,14 @@ interface IStockDetailPageState {
 
 export default class App extends React.Component<IStockDetailPageProps, IStockDetailPageState> {
 
-    constructor(props: {match: any}) {
+    constructor(props: IStockDetailPageProps) {
         super(props);
-        this.state = {ticker: props.match.params.id};
+        this.state = {ticker: this.props.ticker};
     }
 
-    public componentDidUpdate (prevProps: {match:any}) {
-        if (prevProps.match.params.id !== this.props.match.params.id) {
-            this.setState({ticker: this.props.match.params.id });
+    public componentDidUpdate (prevProps: IStockDetailPageProps) {
+        if (prevProps.ticker !== this.props.ticker) {
+            this.setState({ticker: this.props.ticker });
         }
       }
 
@@ -26,7 +28,7 @@ export default class App extends React.Component<IStockDetailPageProps, IStockDe
         return (
             <div className="App">
                <div style={{ margin: '100px' }}>
-                   <StockChart ticker={this.state.ticker} />
+                   <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
                 </div>
             </div>
         );

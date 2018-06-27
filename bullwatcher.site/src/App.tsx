@@ -9,6 +9,8 @@ import SearchBox from './SearchBox';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import StockChart from './StockChart';
 
+import ChartSettingsPicker from './ChartSettingsPicker';
+import { ChartSettingsStore } from './models/chart-settings'
 
 interface IAppState {
     searchTicker: string;
@@ -17,6 +19,9 @@ interface IAppState {
 export default class App extends React.Component<any, IAppState> {
 
     public render() {
+        const chartSettingsStore = new ChartSettingsStore();
+        chartSettingsStore.fetchChartSettings();
+
         return (
             <BrowserRouter>
                 <div className="App">
@@ -24,17 +29,27 @@ export default class App extends React.Component<any, IAppState> {
                         <img src={logo} className="App-logo" alt="logo" />
                         <h1 className="App-title">Bull Watcher</h1>
                         <SearchBox onSearchFunc={this.onTickerSearch} />
+                        <button>Change Chart Settings</button>
                     </header>
+                    <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
                     {this.state && this.state.searchTicker && <Redirect to={"/stocks/" + this.state.searchTicker} />}
                     <div style={{ margin: '100px' }}>
+
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (
-                                    <StockChart ticker='MSFT' />
+                                    <StockChart ticker='MSFT' settings={chartSettingsStore.chartSettings} />
                                 );
                             }} />
-                            <Route exact={true} path="/stocks/:id" component={StockDetailPage} />
+                            <Route path="/stocks/:id" render={(props) => { // tslint:disable-next-line jsx-no-lambda
+                                return (
+                                    <StockDetailPage
+                                        ticker={props.match.params.id}
+                                        chartSettings={chartSettingsStore.chartSettings} />
+                                );
+                           }} />
                         </Switch>
+
                     </div>
                 </div>
             </BrowserRouter>
