@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
-import { ChartType, IChartSettings } from './models/chart-settings';
+import { ChartType, IChartSettings, TimeRange, ValueInterval } from './models/chart-settings';
 import { StockHistoryStore } from './models/stock-history';
 
 interface IStockChartProps {
@@ -52,38 +52,29 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 enabled: false
             },
             rangeSelector: {
-                buttons: [{
-                    count: 1,
-                    text: '1m',
-                    type: 'month',
-                },{
-                    count: 3,
-                    text: '3m',
-                    type: 'month'
-                },{
-                    count: 6,
-                    text: '6m',
-                    type: 'month'
-                },{
-                    count: 1,
-                    text: '1y',
-                    type: 'year'
-                },{
-                    count: 2,
-                    text: '2y',
-                    type: 'year'
-                }],
-                inputEnabled: false,
+                enabled: false
             },
             scrollbar: {
                 enabled: false
             },
             series: [{
                 data: this.getStockDailyPriceData(),
+                dataGrouping: {
+                    forced: true,
+                    units: [
+                        [this.getChartInterval(this.props.settings.valueInterval), [1]]
+                    ]
+                },
                 name: 'Price',
                 type: `${chartTypeStr}`,
             }, {
                 data: this.getStockDailyVolumeData(),
+                dataGrouping: {
+                    forced: true,
+                    units: [
+                        [this.getChartInterval(this.props.settings.valueInterval), [1]]
+                    ]
+                },
                 name: 'Volume',
                 type: 'column',
                 yAxis: 1,
@@ -92,7 +83,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 text: this.props.ticker
             },
             xAxis: {
-                range: 90*24*36e5,
+                range: this.getChartRange(this.props.settings.timeRange),
             },
             yAxis: [{
                 height: '80%'
@@ -148,8 +139,28 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         switch (typeEnum) {
             case ChartType.Line: return 'line';
             case ChartType.Candlestick: return 'candlestick';
-            case ChartType.Area: return 'area';
         }
         return '';
+    }
+
+    private getChartRange(range: TimeRange): number {
+        const oneDay: number = 24 * 36e5;
+        switch (range) {
+            case TimeRange.TwoWeeks:    return oneDay * 14;
+            case TimeRange.OneMonth:    return oneDay * 30;
+            case TimeRange.ThreeMonths: return oneDay * 30 * 3;
+            case TimeRange.SixMonths:   return oneDay * 30 * 6;
+            case TimeRange.OneYear:     return oneDay * 30 * 12;
+            case TimeRange.TwoYears:    return oneDay * 30 * 12 * 2;
+        }
+        return 0;
+    }
+
+    private getChartInterval(interval: ValueInterval): string {
+        switch (interval) {
+            case ValueInterval.Daily: return 'day';
+            case ValueInterval.Weekly: return 'week';
+       }
+       return '';
     }
 }

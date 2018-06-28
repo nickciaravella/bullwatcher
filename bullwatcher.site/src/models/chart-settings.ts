@@ -9,8 +9,7 @@ export interface IChartSettings {
 
 export enum ChartType {
     Line,
-    Candlestick,
-    Area
+    Candlestick
 }
 
 export enum TimeRange {
