@@ -23,7 +23,8 @@ export enum TimeRange {
 
 export enum ValueInterval {
     Daily,
-    Weekly
+    Weekly,
+    Monthly
 }
 
 export enum Indicator {

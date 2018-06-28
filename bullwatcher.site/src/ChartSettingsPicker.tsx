@@ -31,6 +31,7 @@ export default class ChartSettingsPicker extends React.Component<IChartSettingsP
                     <select value={this.props.chartSettingsStore.chartSettings.valueInterval} onChange={this.handleValueIntervalChange}>
                         <option value={ValueInterval.Daily}>Daily</option>
                         <option value={ValueInterval.Weekly}>Weekly</option>
+                        <option value={ValueInterval.Monthly}>Monthly</option>
                     </select>
                 </form>
             </div>

@@ -88,7 +88,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 yAxis: 1,
             }],
             title: {
-                text: this.props.ticker
+                text: this.props.ticker.toUpperCase()
             },
             xAxis: {
                 range: this.getChartRange(this.props.settings.timeRange),
@@ -169,6 +169,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         switch (interval) {
             case ValueInterval.Daily: return 'day';
             case ValueInterval.Weekly: return 'week';
+            case ValueInterval.Monthly: return 'month';
        }
        return '';
     }
