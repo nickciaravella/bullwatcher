@@ -11,7 +11,7 @@ interface IStockDetailPageState {
     ticker: string;
 }
 
-export default class App extends React.Component<IStockDetailPageProps, IStockDetailPageState> {
+export default class StockDetailPage extends React.Component<IStockDetailPageProps, IStockDetailPageState> {
 
     constructor(props: IStockDetailPageProps) {
         super(props);
@@ -26,10 +26,8 @@ export default class App extends React.Component<IStockDetailPageProps, IStockDe
 
     public render() {
         return (
-            <div className="App">
-               <div>
-                   <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
-                </div>
+            <div>
+                <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
             </div>
         );
     }

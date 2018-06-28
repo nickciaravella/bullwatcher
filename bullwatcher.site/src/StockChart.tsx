@@ -44,6 +44,11 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         const chartTypeStr = this.chartTypeFromEnum(chartType);
 
         return {
+            chart: {
+                borderColor: 'LightGrey',
+                borderWidth: 1,
+                spacing: [40,40,40,40]
+            },
             credits: {
                 href: "http://www.bullwatcher.com",
                 text: "bullwatcher.com",
@@ -58,6 +63,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 enabled: false
             },
             series: [{
+                color: 'Crimson',
                 data: this.getStockDailyPriceData(),
                 dataGrouping: {
                     forced: true,
@@ -67,7 +73,9 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 },
                 name: 'Price',
                 type: `${chartTypeStr}`,
+                upColor: 'MediumSeaGreen',
             }, {
+                color: 'black',
                 data: this.getStockDailyVolumeData(),
                 dataGrouping: {
                     forced: true,
@@ -86,7 +94,8 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 range: this.getChartRange(this.props.settings.timeRange),
             },
             yAxis: [{
-                height: '80%'
+                height: '80%',
+                offset: 30
             }, {
                 height: '20%',
                 top: '80%'

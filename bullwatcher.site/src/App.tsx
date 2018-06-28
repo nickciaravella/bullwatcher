@@ -4,13 +4,14 @@ import './App.css';
 import logo from './logo.svg';
 
 import StockDetailPage from './pages/StockDetailPage';
-import SearchBox from './SearchBox';
+import WatchlistPage from './pages/WatchlistPage';
 
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import StockChart from './StockChart';
 
 import ChartSettingsPicker from './ChartSettingsPicker';
 import { ChartSettingsStore } from './models/chart-settings'
+import SearchBox from './SearchBox';
 
 interface IAppState {
     searchTicker: string;
@@ -48,6 +49,13 @@ export default class App extends React.Component<any, IAppState> {
                                 return (
                                     <StockDetailPage
                                         ticker={props.match.params.id}
+                                        chartSettings={chartSettingsStore.chartSettings} />
+                                );
+                           }} />
+                           <Route path="/watchlist/:tickers" render={(props) => { // tslint:disable-next-line jsx-no-lambda
+                                return (
+                                    <WatchlistPage
+                                        tickers={props.match.params.tickers}
                                         chartSettings={chartSettingsStore.chartSettings} />
                                 );
                            }} />
