@@ -27,7 +27,7 @@ export default class App extends React.Component<IStockDetailPageProps, IStockDe
     public render() {
         return (
             <div className="App">
-               <div style={{ margin: '100px' }}>
+               <div>
                    <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
                 </div>
             </div>

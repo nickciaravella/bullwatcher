@@ -29,12 +29,15 @@ export default class App extends React.Component<any, IAppState> {
                         <img src={logo} className="App-logo" alt="logo" />
                         <h1 className="App-title">Bull Watcher</h1>
                         <SearchBox onSearchFunc={this.onTickerSearch} />
-                        <button>Change Chart Settings</button>
                     </header>
-                    <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
+                    <div>
+                        <button>Change Chart Settings</button>
+                        <div style={{visibility: 'visible'}}>
+                            <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
+                        </div>
+                    </div>
                     {this.state && this.state.searchTicker && <Redirect to={"/stocks/" + this.state.searchTicker} />}
-                    <div style={{ margin: '100px' }}>
-
+                    <div style={{ margin: 'auto', paddingTop: '50px', maxWidth: '1000px'}}>
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (
@@ -49,7 +52,6 @@ export default class App extends React.Component<any, IAppState> {
                                 );
                            }} />
                         </Switch>
-
                     </div>
                 </div>
             </BrowserRouter>
