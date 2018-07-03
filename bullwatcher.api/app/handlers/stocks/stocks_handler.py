@@ -1,8 +1,5 @@
-import json
-
-
 def get_stock_history(ticker):
-    return json.dumps({
+    return {
         'ticker': ticker,
         'price': 10
-    })
+    }

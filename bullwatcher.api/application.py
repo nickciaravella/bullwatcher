@@ -4,8 +4,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from app import routes
-
 
 application = Flask(__name__, instance_relative_config=True)
 
@@ -26,6 +24,8 @@ db = SQLAlchemy(application)
 import app.database.models
 
 migrate = Migrate(application, db)
+
+from app import routes
 routes.setup_routes(application)
 
 if __name__ == "__main__":
