@@ -8,12 +8,12 @@ _exchange_csvs = [
 ]
 
 
-def get_stock_metadata(max_tickers):
+def get_stock_metadata():
     stocks = []
     for csv_url in _exchange_csvs:
         data = requests.get(csv_url)
         stocks += _parse_stock_info(data.text)
-    return sorted(stocks, key=lambda s: s.market_cap, reverse=True)[:max_tickers]
+    return sorted(stocks, key=lambda s: s.market_cap, reverse=True)
 
 
 def _parse_stock_info(csv):
@@ -26,10 +26,10 @@ def _parse_stock_info(csv):
             continue
 
         stocks.append(StockMetadata(
-            columns[0],
-            columns[1],
-            float(columns[3]),
-            columns[6]
+            columns[0].strip(),
+            columns[1].strip(),
+            float(columns[3].strip()),
+            columns[6].strip()
         ))
 
     return stocks
