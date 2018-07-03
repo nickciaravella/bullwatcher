@@ -24,4 +24,4 @@ def _get_tickers_that_need_to_sync(input_tickers):
     statuses = bullwatcherdb.get_stock_sync_statuses()
     ticker_by_sync_date = { s.ticker: s.synced_until for s in statuses }
     return [t for t in input_tickers
-              if t not in ticker_by_sync_date or ticker_by_sync_date[t] < datetime.utcnow().date()]
+              if t not in ticker_by_sync_date or ticker_by_sync_date[t].date() < datetime.utcnow().date()]
