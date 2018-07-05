@@ -45,6 +45,7 @@ export class StockHistoryStore {
             }
         }
 
+        dailyData.sort((first: IStockDaily, second: IStockDaily) => first.date.valueOf() - second.date.valueOf());
         return {
             data: dailyData,
             ticker: json['Meta Data']['2. Symbol']

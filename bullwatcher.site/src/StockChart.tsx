@@ -3,12 +3,15 @@ import * as React from 'react';
 
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
+import * as HSIndicators from 'highcharts/indicators/indicators';
 import { ChartType, IChartSettings, TimeRange, ValueInterval } from './models/chart-settings';
 import { StockHistoryStore } from './models/stock-history';
 
+HSIndicators(Highcharts);
+
 interface IStockChartProps {
-    settings: IChartSettings;
-    ticker: string;
+      settings: IChartSettings;
+       ticker: string;
 }
 
 @observer
@@ -56,6 +59,13 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
             navigator: {
                 enabled: false
             },
+            plotOptions: {
+                sma: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
             rangeSelector: {
                 enabled: false
             },
@@ -71,6 +81,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                         [this.getChartInterval(this.props.settings.valueInterval), [1]]
                     ]
                 },
+                id: 'price',
                 name: 'Price',
                 type: `${chartTypeStr}`,
                 upColor: 'MediumSeaGreen',
@@ -86,6 +97,24 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 name: 'Volume',
                 type: 'column',
                 yAxis: 1,
+            }, {
+                linkedTo: 'price',
+                params: {
+                    period: 5
+                },
+                type: 'sma'
+            }, {
+                linkedTo: 'price',
+                params: {
+                    period: 50
+                },
+                type: 'sma'
+            }, {
+                linkedTo: 'price',
+                params: {
+                    period: 200
+                },
+                type: 'sma'
             }],
             title: {
                 text: this.props.ticker.toUpperCase()
@@ -120,8 +149,6 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
             ])
         }
 
-        dataArray.sort((first: number[], second: number[]) =>  first[0]-second[0])
-
          return dataArray;
     }
 
@@ -138,8 +165,6 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 stock.volume,
             ])
         }
-
-        dataArray.sort((first: number[], second: number[]) =>  first[0]-second[0])
 
          return dataArray;
     }
