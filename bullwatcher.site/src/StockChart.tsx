@@ -4,7 +4,7 @@ import * as React from 'react';
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 import * as HSIndicators from 'highcharts/indicators/indicators';
-import { ChartType, IChartSettings, TimeRange, ValueInterval } from './models/chart-settings';
+import { ChartType, IChartSettings, Indicator, TimeRange, ValueInterval } from './models/chart-settings';
 import { StockHistoryStore } from './models/stock-history';
 
 HSIndicators(Highcharts);
@@ -43,7 +43,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
     }
 
     private getChartOptions(): any {
-        const { chartType } = this.props.settings;
+        const { chartType, indicators } = this.props.settings;
         const chartTypeStr = this.chartTypeFromEnum(chartType);
 
         return {
@@ -73,7 +73,44 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 enabled: false
             },
             series: [{
-                color: 'Crimson',
+                color: 'black',
+                data: this.getStockDailyVolumeData(),
+                dataGrouping: {
+                    forced: true,
+                    units: [
+                        [this.getChartInterval(this.props.settings.valueInterval), [1]]
+                    ]
+                },
+                name: 'Volume',
+                type: 'column',
+                visible: indicators.indexOf(Indicator.Volume) !== -1,
+                yAxis: 1,
+            }, {
+                color: "Thistle",
+                linkedTo: 'price',
+                params: {
+                    period: 10
+                },
+                type: 'sma',
+                visible: indicators.indexOf(Indicator.ShortMovingAverage) !== -1
+            }, {
+                color: "PaleTurquoise",
+                linkedTo: 'price',
+                params: {
+                    period: 50
+                },
+                type: 'sma',
+                visible: indicators.indexOf(Indicator.MediumMovingAverage) !== -1
+            }, {
+                color: "PaleGoldenRod",
+                linkedTo: 'price',
+                params: {
+                    period: 200
+                },
+                type: 'sma',
+                visible: indicators.indexOf(Indicator.LongMovingAverage) !== -1
+            }, {
+                color: chartType === ChartType.Candlestick ? 'Crimson' : "black",
                 data: this.getStockDailyPriceData(),
                 dataGrouping: {
                     forced: true,
@@ -85,36 +122,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 name: 'Price',
                 type: `${chartTypeStr}`,
                 upColor: 'MediumSeaGreen',
-            }, {
-                color: 'black',
-                data: this.getStockDailyVolumeData(),
-                dataGrouping: {
-                    forced: true,
-                    units: [
-                        [this.getChartInterval(this.props.settings.valueInterval), [1]]
-                    ]
-                },
-                name: 'Volume',
-                type: 'column',
-                yAxis: 1,
-            }, {
-                linkedTo: 'price',
-                params: {
-                    period: 5
-                },
-                type: 'sma'
-            }, {
-                linkedTo: 'price',
-                params: {
-                    period: 50
-                },
-                type: 'sma'
-            }, {
-                linkedTo: 'price',
-                params: {
-                    period: 200
-                },
-                type: 'sma'
+                yAxis: 0
             }],
             title: {
                 text: this.props.ticker.toUpperCase()
@@ -123,6 +131,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 range: this.getChartRange(this.props.settings.timeRange),
             },
             yAxis: [{
+                crosshair: true,
                 height: '80%',
                 offset: 30
             }, {

@@ -1,10 +1,10 @@
-import { observable } from 'mobx';
+import { IObservableArray, observable } from 'mobx';
 
 export interface IChartSettings {
     chartType: ChartType;
     timeRange: TimeRange;
     valueInterval: ValueInterval;
-    indicators: Indicator[]
+    indicators: IObservableArray<Indicator>
 }
 
 export enum ChartType {
@@ -28,7 +28,10 @@ export enum ValueInterval {
 }
 
 export enum Indicator {
-    Volume
+    Volume,
+    LongMovingAverage,
+    MediumMovingAverage,
+    ShortMovingAverage
 }
 
 export class ChartSettingsStore {
@@ -37,7 +40,7 @@ export class ChartSettingsStore {
     public fetchChartSettings(): void {
         this.chartSettings = {
             chartType: ChartType.Candlestick,
-            indicators: [Indicator.Volume],
+            indicators: observable.array([Indicator.Volume]),
             timeRange: TimeRange.ThreeMonths,
             valueInterval: ValueInterval.Daily,
         }

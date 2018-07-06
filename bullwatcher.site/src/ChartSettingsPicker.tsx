@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { observer } from 'mobx-react';
-import { ChartSettingsStore, ChartType, TimeRange, ValueInterval } from './models/chart-settings';
+import { ChartSettingsStore, ChartType, Indicator, TimeRange, ValueInterval } from './models/chart-settings';
 
 interface IChartSettingsPickerProps {
     chartSettingsStore: ChartSettingsStore
@@ -33,6 +33,16 @@ export default class ChartSettingsPicker extends React.Component<IChartSettingsP
                         <option value={ValueInterval.Weekly}>Weekly</option>
                         <option value={ValueInterval.Monthly}>Monthly</option>
                     </select>
+                    <label>Indicators</label>
+                    <label>Volume</label>
+                    <input type="checkbox" value={Indicator.Volume} checked={this.hasIndicator(Indicator.Volume)} onChange={this.handleIndicatorChange}/>
+                    <label>Price Momentum</label>
+                    <label>Long</label>
+                    <input type="checkbox" value={Indicator.LongMovingAverage} checked={this.hasIndicator(Indicator.LongMovingAverage)} onChange={this.handleIndicatorChange} />
+                    <label>Medium</label>
+                    <input type="checkbox" value={Indicator.MediumMovingAverage} checked={this.hasIndicator(Indicator.MediumMovingAverage)} onChange={this.handleIndicatorChange} />
+                    <label>Short</label>
+                    <input type="checkbox" value={Indicator.ShortMovingAverage} checked={this.hasIndicator(Indicator.ShortMovingAverage)} onChange={this.handleIndicatorChange} />
                 </form>
             </div>
        );
@@ -48,5 +58,19 @@ export default class ChartSettingsPicker extends React.Component<IChartSettingsP
 
     private handleValueIntervalChange = (event: React.FormEvent<HTMLSelectElement>) => {
         this.props.chartSettingsStore.chartSettings.valueInterval = +event.currentTarget.value;
+    }
+
+    private hasIndicator = (indicator: Indicator): boolean => {
+        return this.props.chartSettingsStore.chartSettings.indicators.indexOf(indicator) !== -1;
+    }
+
+    private handleIndicatorChange = (event: React.FormEvent<HTMLInputElement>) => {
+        const indicator: Indicator = +event.currentTarget.value;
+        if (this.hasIndicator(indicator)) {
+            this.props.chartSettingsStore.chartSettings.indicators.splice(
+                this.props.chartSettingsStore.chartSettings.indicators.indexOf(indicator), 1);
+        } else {
+            this.props.chartSettingsStore.chartSettings.indicators.push(indicator);
+        }
     }
 }
