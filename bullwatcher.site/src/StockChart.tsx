@@ -50,6 +50,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
             chart: {
                 borderColor: 'LightGrey',
                 borderWidth: 1,
+                height: '40%',
                 spacing: [40,40,40,40]
             },
             credits: {

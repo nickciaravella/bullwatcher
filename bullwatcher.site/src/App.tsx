@@ -41,7 +41,7 @@ export default class App extends React.Component<any, IAppState> {
                         </div>
                     </div>
                     {this.state && this.state.searchTicker && <Redirect to={"/stocks/" + this.state.searchTicker} />}
-                    <div style={{ margin: 'auto', paddingTop: '50px', maxWidth: '1000px'}}>
+                    <div style={{ margin: 'auto', paddingTop: '50px', maxWidth: '1200px'}}>
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (
