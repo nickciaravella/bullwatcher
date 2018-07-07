@@ -34,4 +34,4 @@ def _sync_daily(tickers):
     for ticker in tickers:
         dailys = alpha.get_stock_daily(ticker)
         bullwatcherdb.save_stock_daily(ticker, dailys)
-        time.sleep(0.5)
+        time.sleep(2)

@@ -1,18 +1,41 @@
 import requests
+import time
 from app.domain.stocks import StockMetadata
-
+from datetime import datetime
 
 _exchange_csvs = [
     'http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NYSE&render=download',
     'http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NASDAQ&render=download'
 ]
 
+# Assume that the CSV only changes once per day and only load the
+# data once per day.
+# Key = (url_to_csv, date)
+_cached_csvs = {}
 
 def get_stock_metadata():
     stocks = []
+    today = datetime.utcnow().date()
     for csv_url in _exchange_csvs:
-        data = requests.get(csv_url)
-        stocks += _parse_stock_info(data.text)
+        csv_key = (csv_url, today)
+        new_stocks = []
+
+        if csv_key in _cached_csvs:
+            new_stocks = _cached_csvs[csv_key]
+        else:
+            print('START -- GET ' + csv_url)
+            start = time.time()
+
+            data = requests.get(csv_url)
+
+            end = time.time()
+            print('END   -- Time: ' + str(end - start))
+
+            new_stocks = _parse_stock_info(data.text)
+            _cached_csvs[csv_key] = new_stocks
+
+        stocks += new_stocks
+
     return sorted(stocks, key=lambda s: s.market_cap, reverse=True)
 
 
