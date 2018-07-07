@@ -11,6 +11,7 @@ import StockChart from './StockChart';
 
 import ChartSettingsPicker from './ChartSettingsPicker';
 import { ChartSettingsStore } from './models/chart-settings'
+import { StockMetadataStore } from './models/stock-metadata';
 import SearchBox from './SearchBox';
 
 interface IAppState {
@@ -25,6 +26,7 @@ export default class App extends React.Component<any, IAppState> {
     public render() {
         const chartSettingsStore = new ChartSettingsStore();
         chartSettingsStore.fetchChartSettings();
+        const stockMetadataStore = new StockMetadataStore();
 
         return (
             <BrowserRouter>
@@ -52,7 +54,8 @@ export default class App extends React.Component<any, IAppState> {
                                 return (
                                     <StockDetailPage
                                         ticker={props.match.params.id}
-                                        chartSettings={chartSettingsStore.chartSettings} />
+                                        chartSettings={chartSettingsStore.chartSettings}
+                                        stockMetadataStore={stockMetadataStore} />
                                 );
                            }} />
                            <Route path="/watchlist/:tickers" render={(props) => { // tslint:disable-next-line jsx-no-lambda
