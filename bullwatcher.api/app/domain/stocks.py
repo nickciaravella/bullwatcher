@@ -9,6 +9,14 @@ class StockMetadata:
         self.market_cap = market_cap
         self.sector = sector
 
+    def to_json(self):
+        return {
+            'ticker': self.ticker,
+            'company_name': self.company_name,
+            'market_cap': self.market_cap,
+            'sector': self.sector
+        }
+
 
 class StockSyncStatus:
     def __init__(self, ticker, synced_until):
