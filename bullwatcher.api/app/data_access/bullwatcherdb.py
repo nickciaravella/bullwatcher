@@ -5,16 +5,31 @@ import time
 
 
 def save_batch_stock_metadata(stock_metadatas):
+    print('START -- DB save_batch_stock_metadata: ' + str(len(stock_metadatas)) + ' metadatas')
+    start = time.time()
+
     for metadata in stock_metadatas:
         db.session.merge(conversion.convert_stock_metadata(metadata))
     db.session.commit()
 
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
 
 def get_stock_sync_statuses():
-    return [StockSyncStatus(m.ticker, m.synced_until) for m in models.StockSyncStatus.query.all()]
+    print('START -- DB get_stock_sync_statuses')
+    start = time.time()
+
+    ret = [StockSyncStatus(m.ticker, m.synced_until) for m in models.StockSyncStatus.query.all()]
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+    return ret
 
 
 def save_stock_sync_statuses(statuses):
+    print('START -- DB save_stock_sync_statuses: ' + str(len(statuses)) + ' statuses')
+    start = time.time()
+
     for status in statuses:
         db_status = models.StockSyncStatus()
         db_status.ticker = status.ticker
@@ -22,9 +37,12 @@ def save_stock_sync_statuses(statuses):
         db.session.merge(db_status)
     db.session.commit()
 
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
 
 def save_stock_daily(ticker, dailys):
-    print('START -- DB save_stock_daily:' + ticker)
+    print('START -- DB save_stock_daily: ' + ticker)
     start = time.time()
 
     latest = db.session.query(models.StockDaily).filter(
