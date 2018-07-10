@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 
@@ -31,13 +30,13 @@ class StockSyncStatus:
 
 
 class StockDaily:
-    def __init__(self, date, info):
-        self.date = datetime.strptime(date, '%Y-%m-%d').date()
-        self.open = float(info["1. open"])
-        self.high = float(info["2. high"])
-        self.low = float(info["3. low"])
-        self.close = float(info["4. close"])
-        self.volume = float(info["5. volume"])
+    def __init__(self, date_str, open_, high, low, close, volume):
+        self.date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        self.open = open_
+        self.high = high
+        self.low = low
+        self.close = close
+        self.volume = volume
 
 
 class MovingAverage:

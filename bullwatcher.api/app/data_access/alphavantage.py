@@ -25,7 +25,13 @@ def get_stock_daily(ticker):
     url = get_url('time_series_daily', ticker)
     # url += '&outputsize=full'
     data = _make_request(url)
-    return [StockDaily(date, info) for date, info in data["Time Series (Daily)"].items()]
+    return [StockDaily(date,
+                       float(info["1. open"]),
+                       float(info["2. high"]),
+                       float(info["3. low"]),
+                       float(info["4. close"]),
+                       float(info["5. volume"])
+                       ) for date, info in data["Time Series (Daily)"].items()]
 
 # https://www.alphavantage.co/documentation/#sma
 def get_moving_average(ticker, interval):

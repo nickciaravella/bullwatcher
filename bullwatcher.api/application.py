@@ -7,13 +7,16 @@ from flask_cors import CORS
 
 
 application = Flask(__name__, instance_relative_config=True)
+application.debug = False
+
 cors = CORS(application, resources={r"*": {"origins": "*"}})
 
 database_uri = os.environ['SQLALCHEMY_DATABASE_URI']
 application.config.from_mapping(
     SECRET_KEY='dev',
     SQLALCHEMY_DATABASE_URI=database_uri,
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_RECORD_QUERIES=application.debug
 )
 
 # ensure the instance folder exists

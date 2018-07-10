@@ -34,7 +34,5 @@ def _sync_metadata(tickers):
 
 
 def _sync_daily(tickers):
-    for ticker in tickers:
-        dailys = alpha.get_stock_daily(ticker)
-        bullwatcherdb.save_stock_daily(ticker, dailys)
-        time.sleep(2)
+    dailies_dict = iex.get_stock_dailies(tickers)
+    bullwatcherdb.save_batch_stock_daily(dailies_dict)
