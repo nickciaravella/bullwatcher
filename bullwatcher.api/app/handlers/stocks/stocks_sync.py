@@ -9,8 +9,8 @@ def sync(count):
     tickers_to_sync = set(_get_tickers_that_need_to_sync(all_tickers)[:count])
 
     functions = [
-        _sync_metadata
-        _sync_daily,
+        _sync_metadata,
+        _sync_daily
     ]
     for function in functions:
         function(tickers_to_sync)
