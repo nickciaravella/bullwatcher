@@ -54,6 +54,9 @@ def save_stock_sync_statuses(statuses):
 
 
 def save_batch_stock_daily(dailies_dict):
+    # Chart API typically doesn't get updated until 2am. So to get the
+    # current day, use the Quote API.
+
     print('START -- DB save_batch_stock_daily: ' + str(len(dailies_dict)) + ' tickers')
     start = time.time()
 
@@ -89,6 +92,7 @@ def save_batch_stock_daily(dailies_dict):
     db.session.commit()
 
     end = time.time()
+    print(f'Saved {str(count)} rows.')
     print('END   -- Time: ' + str(end - start))
 
 

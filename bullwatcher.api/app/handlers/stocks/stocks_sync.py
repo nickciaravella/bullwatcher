@@ -8,6 +8,9 @@ def sync(count):
     all_tickers = iex.get_ticker_list()
     tickers_to_sync = set(_get_tickers_that_need_to_sync(all_tickers)[:count])
 
+    if not tickers_to_sync:
+        return []
+
     functions = [
         _sync_metadata,
         _sync_daily
