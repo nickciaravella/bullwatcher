@@ -14,8 +14,8 @@ def _make_request(url):
     return data
 
 count = 100
-base = 'http://127.0.0.1:5000'
-#base = 'http://bullwatcherapi-dev.us-east-1.elasticbeanstalk.com'
+#base = 'http://127.0.0.1:5000'
+base = 'http://bullwatcherapi-dev.us-east-1.elasticbeanstalk.com'
 data = _make_request(base + '/sync-stocks/' + str(count))
 total = count
 while data:
