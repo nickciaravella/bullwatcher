@@ -6,7 +6,7 @@ def setup_routes(app):
 
     @app.route('/stock-history/<ticker>')
     def stock_history(ticker):
-        return jsonify(stocks_handler.get_stock_history(ticker))
+        return jsonify([s.to_json() for s in stocks_handler.get_stock_history(ticker.upper())])
 
 
     @app.route('/sync-stocks/<int:count>')

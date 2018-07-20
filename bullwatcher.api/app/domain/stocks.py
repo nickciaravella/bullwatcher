@@ -38,6 +38,17 @@ class StockDaily:
         self.close = close
         self.volume = volume
 
+    def to_json(self):
+        return {
+            'date': str(self.date),
+            'open': self.open,
+            'high': self.high,
+            'low': self.low,
+            'close': self.close,
+            'volume': self.volume
+        }
+
+
 
 class MovingAverage:
     def __init__(self, date, interval, value):

@@ -1,8 +1,9 @@
 from application import db
 from app.database import conversion, models
-from app.domain.stocks import StockSyncStatus, StockMetadata
+from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
+from datetime import datetime
 from flask_sqlalchemy import get_debug_queries
-from sqlalchemy import func
+from sqlalchemy import func, and_
 import time
 
 
@@ -96,8 +97,48 @@ def save_batch_stock_daily(dailies_dict):
     print('END   -- Time: ' + str(end - start))
 
 
+def get_batch_stock_daily(tickers, min_date, max_date):
+    '''
+    Gets a dictionary of ticker -> list of StockDaily. The stock daily objects will be sorted by date descending
+    but may not include the min_date, max_date, or dates in between (i.e. weekends and holidays). If there are
+    no StockDaily objects found for a specific ticker, that ticker will be omitted from the dictionary.
+    '''
+    db_stock_dailies = db.session \
+        .query(models.StockDaily) \
+        .filter(and_(
+            models.StockDaily.ticker.in_(tickers),
+            models.StockDaily.date >= _to_date_int(min_date),
+            models.StockDaily.date <= _to_date_int(max_date))) \
+        .order_by(models.StockDaily.date.desc()) \
+        .all()
+
+    ret = {}
+    for db_daily in db_stock_dailies:
+        daily = StockDaily(
+            date_str=_to_date_str(db_daily.date),
+            open_=db_daily.open_price,
+            high=db_daily.high_price,
+            low=db_daily.low_price,
+            close=db_daily.close_price,
+            volume=db_daily.volume)
+
+        if db_daily.ticker in ret:
+            ret[db_daily.ticker].append(daily)
+        else:
+            ret[db_daily.ticker] = [daily]
+    return ret
+
+
 def _to_date_int(date):
     return date.day * 1 + date.month * 100 + date.year * 10000
+
+
+def _to_date_str(date_int):
+    year = date_int // 10000
+    month = (date_int // 100) % 100
+    day = date_int % 100
+    datetime_ = datetime(year, month, day)
+    return datetime_.strftime('%Y-%m-%d')
 
 
 def _print_debug_queries():
