@@ -1,5 +1,6 @@
 from application import db
 from app.database import models
+from app.data_access import bullwatcherdb
 from sqlalchemy import func
 
 # Handler to read random data from the database. It will change over time.
@@ -11,3 +12,7 @@ def stock_metadata(ticker):
         'market_cap': m.market_cap,
         'sector': m.sector
     }
+
+
+def stock_tickers():
+    return bullwatcherdb.get_all_stock_daily_tickers()

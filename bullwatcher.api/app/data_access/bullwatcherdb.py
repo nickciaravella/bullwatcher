@@ -3,7 +3,7 @@ from app.database import conversion, models
 from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
 from datetime import datetime
 from flask_sqlalchemy import get_debug_queries
-from sqlalchemy import func, and_
+from sqlalchemy import and_, func
 import time
 
 
@@ -52,6 +52,23 @@ def save_stock_sync_statuses(statuses):
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))
+
+
+def get_all_stock_daily_tickers():
+    '''
+    Gets a list of all the tickers that have StockDaily entries.
+    Out: List<string>
+    '''
+    print('START -- DB get_all_stock_daily_tickers')
+    start = time.time()
+
+    results = db.session.query(models.StockDaily.ticker.distinct().label('ticker')).all()
+
+    end = time.time()
+    print(f'Found {len(results)} tickers.')
+    print('END   -- Time: ' + str(end - start))
+
+    return [r.ticker for r in results]
 
 
 def save_batch_stock_daily(dailies_dict):
