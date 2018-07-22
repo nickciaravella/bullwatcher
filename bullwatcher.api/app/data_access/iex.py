@@ -54,12 +54,12 @@ def get_stock_dailies(tickers):
         # to the chart data.
         try:
             quote = data['quote']
-            quote_date = datetime.utcfromtimestamp(quote['closeTime']/1000.0)
-            open_date = datetime.utcfromtimestamp(quote['openTime']/1000.0)
-            if open_date > quote_date:
+            quote_datetime = datetime.utcfromtimestamp(quote['closeTime']/1000.0)
+            open_datetime = datetime.utcfromtimestamp(quote['openTime']/1000.0)
+            if open_datetime > quote_datetime:
                 print('Open date > close date, skipping this quote')
-            elif quote_date and max_date and quote_date > max_date:
-                formatted_date = quote_date.strftime('%Y-%m-%d')
+            elif quote_datetime and max_date and quote_datetime.date() > max_date:
+                formatted_date = quote_datetime.strftime('%Y-%m-%d')
                 quote_daily = StockDaily(formatted_date,
                                          quote['open'],
                                          quote['high'],
