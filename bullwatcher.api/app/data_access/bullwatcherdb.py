@@ -22,6 +22,24 @@ def save_batch_stock_metadata(stock_metadatas):
     print('END   -- Time: ' + str(end - start))
 
 
+def get_batch_stock_metadata(tickers):
+    print('START -- DB get_batch_stock_metadata: ' + str(len(tickers)) + ' tickers')
+    start = time.time()
+
+    db_metadatas = db.session.query(models.StockMetadata).filter(
+        models.StockMetadata.ticker.in_(tickers)
+    )
+
+    metadatas = [
+        StockMetadata(m.ticker, m.company_name, m.market_cap, m.sector)
+        for m in db_metadatas
+    ]
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+    return metadatas
+
+
 def get_stock_sync_statuses():
     print('START -- DB get_stock_sync_statuses')
     start = time.time()

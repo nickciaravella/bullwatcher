@@ -22,7 +22,14 @@ def is_flag(dailies):
     '''
     if len(dailies) < 8:
         return False
-    return has_spike(dailies[:5], 5) and not has_spike(dailies[5:], 1)
+    if any([not daily.high or not daily.low for daily in dailies]):
+        return False
+
+    for still_days in range(4, 8):
+        is_flag = not has_spike(dailies[:still_days], 1.75) and has_spike(dailies[still_days:10], 5.25)
+        if is_flag:
+            return True
+    return False
 
 
 def has_spike(dailies, percentage):
@@ -30,15 +37,15 @@ def has_spike(dailies, percentage):
     Returns True if there is any difference of the percentage amount from
     one StockDaily.low and another StockDaily.high
     '''
-    current_high = dailies[0].high
-    current_low = dailies[0].low
+    current_high = max(dailies[0].open, dailies[0].close)
+    current_low = min(dailies[0].open, dailies[0].close)
     for daily in dailies:
-        if is_larger_percent_difference(current_low, daily.high, percentage) or \
-           is_larger_percent_difference(current_high, daily.low, percentage) or \
+        if is_larger_percent_difference(current_low, max(daily.open, daily.close), percentage) or \
+           is_larger_percent_difference(current_high, min(daily.open, daily.close), percentage) or \
            is_larger_percent_difference(daily.high, daily.low, percentage):
             return True
-        current_high = max(current_high, daily.high)
-        current_low = min(current_low, daily.low)
+        current_high = max(current_high, max(daily.open, daily.close))
+        current_low = min(current_low, min(daily.open, daily.close))
     return False
 
 
