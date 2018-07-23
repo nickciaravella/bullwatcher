@@ -164,6 +164,42 @@ def get_batch_stock_daily(tickers, min_date, max_date):
     return ret
 
 
+def set_flag_pattern_tickers(date, tickers):
+    '''
+    Sets the tickers to be the discovered flag pattern tickers for the date.
+    Any already found tickers will be deleted and overwritten by this new set
+    of tickers.
+    In: Date, List<string>
+    Out: None
+    '''
+    print(f'START -- DB set_flag_pattern_tickers: {len(tickers)} tickers')
+    start = time.time()
+
+    tickers = set(tickers)
+
+    current_flags = db.session \
+        .query(models.PatternDaily) \
+        .filter(models.PatternDaily.flag_votes.isnot(None))
+
+    for flag in current_flags:
+        if flag.ticker not in tickers:
+            flag.flag_votes = None
+        else:
+            tickers.remove(flag.ticker)
+
+    for ticker in tickers:
+        new_flag = models.PatternDaily()
+        new_flag.date = _to_date_int(date)
+        new_flag.ticker = ticker
+        new_flag.flag_votes = 0
+        db.session.add(new_flag)
+
+    db.session.commit()
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
+
 def _to_date_int(date):
     return date.day * 1 + date.month * 100 + date.year * 10000
 

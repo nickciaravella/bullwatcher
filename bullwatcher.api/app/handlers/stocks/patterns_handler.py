@@ -1,5 +1,6 @@
 from app.data_access import bullwatcherdb
 from app.handlers.stocks.sync.patterns import flags
+from app.utils import date_utils
 from datetime import datetime, timedelta
 
 
@@ -12,6 +13,8 @@ def sync_patterns():
     while skip <= len(all_tickers):
         tickers_found += sync_tickers(all_tickers[skip:skip+top])
         skip += top
+
+    bullwatcherdb.set_flag_pattern_tickers(date_utils.next_market_day(), tickers_found)
     return sorted(bullwatcherdb.get_batch_stock_metadata(tickers_found), key=lambda m: m.market_cap, reverse=True)
 
 

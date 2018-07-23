@@ -21,3 +21,14 @@ class StockDaily(db.Model):
     open_price      = db.Column(db.Float)
     close_price     = db.Column(db.Float)
     volume          = db.Column(db.Integer)
+
+
+class PatternDaily(db.Model):
+    '''
+    Table which contains all of the tickers that were recognized as a pattern for the day.
+    If the ticker is thought to be a pattern, it will have <pattern>_votes set to 0. If not
+    <pattern>_votes will remain as None.
+    '''
+    date            = db.Column(db.Integer, primary_key=True)
+    ticker          = db.Column(db.String(10), primary_key=True)
+    flag_votes      = db.Column(db.Integer)
