@@ -5,6 +5,12 @@ from datetime import datetime, timedelta
 
 
 def sync_patterns():
+    '''
+    Searches all of the stocks to find patterns and stores them into
+    the database. Returns a list of StockMeatadata objects for the patterns
+    that it found.
+    Out: List<StockMetadata>
+    '''
     all_tickers = bullwatcherdb.get_all_stock_daily_tickers()
 
     skip = 0
@@ -15,7 +21,25 @@ def sync_patterns():
         skip += top
 
     bullwatcherdb.set_flag_pattern_tickers(date_utils.next_market_day(), tickers_found)
-    return sorted(bullwatcherdb.get_batch_stock_metadata(tickers_found), key=lambda m: m.market_cap, reverse=True)
+    return _get_sorted_metadata_for_tickers(tickers_found)
+
+
+def get_flags():
+    '''
+    Gets the list of flags for the most recent date.
+    Out: List<StockMetadata>
+    '''
+    return get_flags_for_date(bullwatcherdb.get_max_pattern_sync_date())
+
+
+def get_flags_for_date(date):
+    '''
+    Gets the list of flags for the date provided.
+    In: datetime.datetime
+    Out: List<StockMetadata>
+    '''
+    tickers = bullwatcherdb.get_flag_pattern_tickers(date)
+    return _get_sorted_metadata_for_tickers(tickers)
 
 
 def sync_tickers(tickers):
@@ -25,3 +49,10 @@ def sync_tickers(tickers):
                                                        two_weeks_ago,
                                                        today)
     return flags.pick_tickers(dailies_dict)
+
+
+def _get_sorted_metadata_for_tickers(tickers):
+    if not tickers:
+        return []
+    return sorted(bullwatcherdb.get_batch_stock_metadata(tickers), key=lambda m: m.market_cap, reverse=True)
+

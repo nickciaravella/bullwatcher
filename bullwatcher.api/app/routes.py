@@ -1,5 +1,6 @@
 from app.handlers.stocks import patterns_handler, stocks_handler, stocks_sync
 from app.handlers import db_handler
+from datetime import datetime
 from flask import jsonify
 
 def setup_routes(app):
@@ -14,9 +15,24 @@ def setup_routes(app):
         return jsonify([s.to_json() for s in stocks_sync.sync(count)])
 
 
-    @app.route('/sync-patterns')
+    @app.route('/patterns/sync')
     def sync_patterns():
        return jsonify([m.to_json() for m in patterns_handler.sync_patterns()])
+
+
+    @app.route('/patterns/flags')
+    def get_patterns():
+       return jsonify([m.to_json() for m in patterns_handler.get_flags()])
+
+
+    @app.route('/patterns/flags/<date>')
+    def get_patterns_for_date(date):
+        try:
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+        except ValueError:
+            return "Invalid date.", 400
+
+        return jsonify([m.to_json() for m in patterns_handler.get_flags_for_date(date)])
 
 
     @app.route('/stock-tickers')

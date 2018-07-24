@@ -164,12 +164,52 @@ def get_batch_stock_daily(tickers, min_date, max_date):
     return ret
 
 
+def get_max_pattern_sync_date():
+    '''
+    Gets the date of the latest day that was synced for patterns.
+    Out: datetime.datetime
+    '''
+    print(f'START -- DB get_max_pattern_sync_date')
+    start = time.time()
+
+    results = db.session.query(func.max(models.PatternDaily.date).label('max_date')).all()
+    date_int = results[0].max_date
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
+    return _date_int_to_date(date_int)
+
+
+def get_flag_pattern_tickers(date):
+    '''
+    Gets the tickers that are considered to be flags for the given date.
+    In: datetime.datetime
+    Out: List<str>
+    '''
+    print(f'START -- DB get_flag_pattern_tickers')
+    start = time.time()
+
+    flags = db.session \
+        .query(models.PatternDaily) \
+        .filter(and_(
+            models.PatternDaily.date == _to_date_int(date),
+            models.PatternDaily.flag_votes.isnot(None)))
+
+    flag_tickers = [f.ticker for f in flags]
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
+    return flag_tickers
+
+
 def set_flag_pattern_tickers(date, tickers):
     '''
     Sets the tickers to be the discovered flag pattern tickers for the date.
     Any already found tickers will be deleted and overwritten by this new set
     of tickers.
-    In: Date, List<string>
+    In: datetime.datetime, List<string>
     Out: None
     '''
     print(f'START -- DB set_flag_pattern_tickers: {len(tickers)} tickers')
@@ -179,7 +219,9 @@ def set_flag_pattern_tickers(date, tickers):
 
     current_flags = db.session \
         .query(models.PatternDaily) \
-        .filter(models.PatternDaily.flag_votes.isnot(None))
+        .filter(and_(
+            models.PatternDaily.date == _to_date_int(date),
+            models.PatternDaily.flag_votes.isnot(None)))
 
     for flag in current_flags:
         if flag.ticker not in tickers:
@@ -205,11 +247,15 @@ def _to_date_int(date):
 
 
 def _to_date_str(date_int):
+    datetime_ = _date_int_to_date(date_int)
+    return datetime_.strftime('%Y-%m-%d')
+
+
+def _date_int_to_date(date_int):
     year = date_int // 10000
     month = (date_int // 100) % 100
     day = date_int % 100
-    datetime_ = datetime(year, month, day)
-    return datetime_.strftime('%Y-%m-%d')
+    return datetime(year, month, day)
 
 
 def _print_debug_queries():
