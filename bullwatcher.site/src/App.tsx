@@ -12,6 +12,7 @@ import StockChart from './StockChart';
 import ChartSettingsPicker from './ChartSettingsPicker';
 import { ChartSettingsStore } from './models/chart-settings'
 import { StockMetadataStore } from './models/stock-metadata';
+import FlagsPage from './pages/FlagsPage';
 import SearchBox from './SearchBox';
 
 interface IAppState {
@@ -63,6 +64,18 @@ export default class App extends React.Component<any, IAppState> {
                                     <WatchlistPage
                                         tickers={props.match.params.tickers}
                                         chartSettings={chartSettingsStore.chartSettings} />
+                                );
+                           }} />
+                           <Route path="/patterns/flags/:date" render={(props) => { // tslint:disable-next-line jsx-no-lambda
+                                return (
+                                    <FlagsPage
+                                        chartSettings={chartSettingsStore.chartSettings}
+                                        date={props.match.params.date} />
+                                );
+                           }} />
+                           <Route path="/patterns/flags" render={(props) => { // tslint:disable-next-line jsx-no-lambda
+                                return (
+                                    <FlagsPage chartSettings={chartSettingsStore.chartSettings} />
                                 );
                            }} />
                         </Switch>
