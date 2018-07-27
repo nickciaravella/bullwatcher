@@ -8,7 +8,12 @@ interface IFlagsPageProps {
 }
 
 interface IFlagsPageState {
-    tickers: string[];
+    stocks: ITickerAndName[];
+}
+
+interface ITickerAndName {
+    ticker: string;
+    company_name: string;
 }
 
 export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPageState> {
@@ -16,16 +21,20 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
     constructor(props: IFlagsPageProps) {
         super(props);
         this.state = {
-            tickers: []
+            stocks: []
         }
 
         this._loadFlags();
     }
 
     public render() {
-        const stockCharts: JSX.Element[] = this.state.tickers.map((ticker: string) => (
+        const stockCharts: JSX.Element[] = this.state.stocks.map((stock: ITickerAndName) => (
             <div style={{paddingBottom: '50px'}}>
-               <StockChart ticker={ticker} settings={this.props.chartSettings} />
+                <h2>{stock.company_name}</h2>
+                <p>17</p>
+                <button>+</button>
+                <button>-</button>
+                <StockChart ticker={stock.ticker} settings={this.props.chartSettings} />
             </div>
         ));
         return stockCharts;
@@ -37,7 +46,10 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
             .then((response) => response.json())
             .then((json) => {
                 this.setState({
-                    tickers: json.map((value: any) => value.ticker).slice(0,20)
+                    stocks: json.map((value: any) => ({
+                        company_name: value.company_name,
+                        ticker: value.ticker,
+                    })).slice(0,20)
                 })
             });
     }
