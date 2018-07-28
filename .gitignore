@@ -105,3 +105,6 @@ venv.bak/
 
 # vim files
 *.swp
+
+# PyCharm files
+.idea/*

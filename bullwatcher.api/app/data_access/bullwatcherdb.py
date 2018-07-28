@@ -1,6 +1,9 @@
+from typing import List
+
 from application import db
 from app.database import conversion, models
 from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
+from app.domain.patterns import PatternTicker, DailyPatterns, PatternType
 from datetime import datetime
 from flask_sqlalchemy import get_debug_queries
 from sqlalchemy import and_, func
@@ -73,10 +76,10 @@ def save_stock_sync_statuses(statuses):
 
 
 def get_all_stock_daily_tickers():
-    '''
+    """
     Gets a list of all the tickers that have StockDaily entries.
     Out: List<string>
-    '''
+    """
     print('START -- DB get_all_stock_daily_tickers')
     start = time.time()
 
@@ -133,11 +136,11 @@ def save_batch_stock_daily(dailies_dict):
 
 
 def get_batch_stock_daily(tickers, min_date, max_date):
-    '''
+    """
     Gets a dictionary of ticker -> list of StockDaily. The stock daily objects will be sorted by date descending
     but may not include the min_date, max_date, or dates in between (i.e. weekends and holidays). If there are
     no StockDaily objects found for a specific ticker, that ticker will be omitted from the dictionary.
-    '''
+    """
     db_stock_dailies = db.session \
         .query(models.StockDaily) \
         .filter(and_(
@@ -165,10 +168,10 @@ def get_batch_stock_daily(tickers, min_date, max_date):
 
 
 def get_max_pattern_sync_date():
-    '''
+    """
     Gets the date of the latest day that was synced for patterns.
     Out: datetime.datetime
-    '''
+    """
     print(f'START -- DB get_max_pattern_sync_date')
     start = time.time()
 
@@ -181,12 +184,12 @@ def get_max_pattern_sync_date():
     return _date_int_to_date(date_int)
 
 
-def get_flag_pattern_tickers(date):
-    '''
+def get_flag_pattern_tickers(date: datetime) -> List[PatternTicker]:
+    """
     Gets the tickers that are considered to be flags for the given date.
     In: datetime.datetime
-    Out: List<str>
-    '''
+    Out: List[PatternTicker]
+    """
     print(f'START -- DB get_flag_pattern_tickers')
     start = time.time()
 
@@ -196,7 +199,9 @@ def get_flag_pattern_tickers(date):
             models.PatternDaily.date == _to_date_int(date),
             models.PatternDaily.flag_votes.isnot(None)))
 
-    flag_tickers = [f.ticker for f in flags]
+    flag_tickers = [
+       PatternTicker(f.ticker, PatternType.FLAG, f.flag_votes) for f in flags
+    ]
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))
@@ -205,13 +210,13 @@ def get_flag_pattern_tickers(date):
 
 
 def set_flag_pattern_tickers(date, tickers):
-    '''
+    """
     Sets the tickers to be the discovered flag pattern tickers for the date.
     Any already found tickers will be deleted and overwritten by this new set
     of tickers.
     In: datetime.datetime, List<string>
     Out: None
-    '''
+    """
     print(f'START -- DB set_flag_pattern_tickers: {len(tickers)} tickers')
     start = time.time()
 
@@ -240,6 +245,35 @@ def set_flag_pattern_tickers(date, tickers):
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))
+
+
+def add_vote_for_flag_pattern(date, ticker, vote_delta):
+    """
+    Adds "vote_delta" to the tickers votes for the flag pattern. If the ticker
+    does not exist for the flag pattern, then it will be created with a vote
+    count of vote_delta.
+    In: datetime.datetime, string, int
+    Out: None
+    """
+    print(f'START -- DB add_vote_for_flag_pattern')
+    start = time.time()
+
+    flag = models.PatternDaily.query.filter_by(date=_to_date_int(date), ticker=ticker).one_or_none()
+    if flag:
+        flag.flag_votes += vote_delta
+    else:
+        flag = models.PatternDaily()
+        flag.date = _to_date_int(date)
+        flag.ticker = ticker
+        flag.flag_votes = vote_delta
+        db.session.add(flag)
+
+    db.session.commit()
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
+    return PatternTicker(flag.ticker, PatternType.FLAG, flag.flag_votes)
 
 
 def _to_date_int(date):
