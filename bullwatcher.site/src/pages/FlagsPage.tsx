@@ -9,6 +9,7 @@ interface IFlagsPageProps {
 
 interface IFlagsPageState {
     stocks: ITickerAndName[];
+    date?: Date;
 }
 
 interface ITickerAndName {
@@ -21,6 +22,7 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
     constructor(props: IFlagsPageProps) {
         super(props);
         this.state = {
+            date: null,
             stocks: []
         }
 
@@ -28,16 +30,35 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
     }
 
     public render() {
-        const stockCharts: JSX.Element[] = this.state.stocks.map((stock: ITickerAndName) => (
+        return (
+            <div>
+                <h1>Flags</h1>
+                {this._renderDate(this.state.date)}
+                <hr />
+                {this._renderStocksList(this.state.stocks)}
+            </div>
+        );
+    }
+
+    private _renderDate(date?: Date) {
+        if (date) {
+            return (<h2>{date.toLocaleDateString()}</h2>);
+        } else {
+            return null;
+        }
+    }
+
+    private _renderStocksList(stocks: ITickerAndName[]) {
+        return stocks.map((stock: ITickerAndName) => (
             <div style={{paddingBottom: '50px'}}>
                 <h2>{stock.company_name}</h2>
+                <h3>({stock.ticker})</h3>
                 <p>17</p>
                 <button>+</button>
                 <button>-</button>
                 <StockChart ticker={stock.ticker} settings={this.props.chartSettings} />
             </div>
         ));
-        return stockCharts;
     }
 
     private _loadFlags() {
@@ -46,9 +67,10 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
             .then((response) => response.json())
             .then((json) => {
                 this.setState({
-                    stocks: json.map((value: any) => ({
-                        company_name: value.company_name,
-                        ticker: value.ticker,
+                    date: new Date(json.date),
+                    stocks: json.pattern_stocks.map((value: any) => ({
+                        company_name: value.stock_metadata.company_name,
+                        ticker: value.stock_metadata.ticker,
                     })).slice(0,20)
                 })
             });

@@ -125,9 +125,6 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 upColor: 'MediumSeaGreen',
                 yAxis: 0
             }],
-            title: {
-                text: this.props.ticker.toUpperCase()
-            },
             xAxis: {
                 range: this.getChartRange(this.props.settings.timeRange),
             },
