@@ -38,6 +38,12 @@ export default class App extends React.Component<any, IAppState> {
                         <SearchBox onSearchFunc={this.onTickerSearch} />
                     </header>
                     <div>
+                        <ul>
+                            <li><a href='/'>Home</a></li>
+                            <li><a href='/patterns/flags'>Flags</a></li>
+                        </ul>
+                    </div>
+                    <div>
                         <button>Change Chart Settings</button>
                         <div style={{visibility: 'visible'}}>
                             <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
