@@ -5,7 +5,7 @@ import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 import * as HSIndicators from 'highcharts/indicators/indicators';
 import { ChartType, IChartSettings, Indicator, TimeRange, ValueInterval } from './models/chart-settings';
-import { StockHistoryStore } from './models/stock-history';
+import { StockHistoryStore } from './models/stock-history-store';
 
 HSIndicators(Highcharts);
 

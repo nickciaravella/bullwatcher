@@ -7,12 +7,12 @@ import StockDetailPage from './pages/StockDetailPage';
 import WatchlistPage from './pages/WatchlistPage';
 
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
-import StockChart from './StockChart';
 
 import ChartSettingsPicker from './ChartSettingsPicker';
 import { ChartSettingsStore } from './models/chart-settings'
 import { StockMetadataStore } from './models/stock-metadata';
 import FlagsPage from './pages/FlagsPage';
+import FrontPage from './pages/FrontPage';
 import SearchBox from './SearchBox';
 
 interface IAppState {
@@ -48,7 +48,7 @@ export default class App extends React.Component<any, IAppState> {
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (
-                                    <StockChart ticker='MSFT' settings={chartSettingsStore.chartSettings} />
+                                   <FrontPage chartSettings={chartSettingsStore.chartSettings} />
                                 );
                             }} />
                             <Route path="/stocks/:id" render={(props) => { // tslint:disable-next-line jsx-no-lambda
