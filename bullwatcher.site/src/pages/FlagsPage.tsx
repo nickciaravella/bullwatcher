@@ -42,7 +42,9 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
 
     private _renderDate(date?: Date) {
         if (date) {
-            return (<h2>{date.toLocaleDateString()}</h2>);
+            // toLocaleDateString will assume the date is in UTC. It is not since its user provided.
+            const adjustedDate: Date = new Date(date.getTime() + date.getTimezoneOffset()*60000);
+            return (<h2>{adjustedDate.toLocaleDateString()}</h2>);
         } else {
             return null;
         }
