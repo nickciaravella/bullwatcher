@@ -1,9 +1,11 @@
 import { observer } from 'mobx-react';
 import * as React from 'react';
 
-import { IChartSettings } from '../models/chart-settings'
-import { IStockMetadata, StockMetadataStore } from '../models/stock-metadata';
-import StockChart from '../StockChart';
+import { IChartSettings } from 'src/models/chart-settings'
+import { INews } from 'src/models/news';
+import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
+import StockChart from 'src/StockChart';
+import { Iex } from '../services/iex';
 
 
 interface IStockDetailPageProps {
@@ -14,6 +16,7 @@ interface IStockDetailPageProps {
 
 interface IStockDetailPageState {
     ticker: string;
+    news: INews[]
 }
 
 @observer
@@ -22,14 +25,17 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
 
     constructor(props: IStockDetailPageProps) {
         super(props);
-        this.state = {ticker: this.props.ticker};
-        this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
+        this._setupPropsAndState();
     }
 
     public componentDidUpdate (prevProps: IStockDetailPageProps) {
         if (prevProps.ticker !== this.props.ticker) {
-            this.setState({ticker: this.props.ticker });
+            this.state = {
+            news: [],
+            ticker: this.props.ticker,
+        };
             this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
+            this._loadNews();
         }
       }
 
@@ -44,7 +50,54 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                     <h3>{stockMetadata.sector}</h3>
                 }
                 <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
+                {
+                    this._renderNewsSection()
+                }
             </div>
         );
+    }
+
+    private _renderNewsSection() {
+        if (this.state.news.length === 0) {
+            return null;
+        }
+        return (
+            <div>
+                <h1>News</h1>
+                { this._renderNewsArticles() }
+            </div>
+        )
+    }
+
+    private _renderNewsArticles() {
+        return this.state.news.map((article: INews) =>
+            (
+                <div>
+                    <a href={article.url} target='_blank'>{article.headline}</a>
+                    <p>{article.source} | {article.date.toLocaleString()}</p>
+                </div>
+            )
+        );
+    }
+
+    private _setupPropsAndState() {
+        this.state = {
+            news: [],
+            ticker: this.props.ticker,
+        };
+
+        this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
+        this._loadNews();
+    }
+
+    private _loadNews() {
+        new Iex().getNews(this.state.ticker).then((news: INews[]) => {
+            this.setState((prevState: IStockDetailPageState) => {
+                return {
+                    news,
+                    ticker: prevState.ticker,
+                }
+            })
+        })
     }
 }
