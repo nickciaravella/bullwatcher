@@ -38,11 +38,20 @@ export class ChartSettingsStore {
     @observable public chartSettings: IChartSettings;
 
     public fetchChartSettings(): void {
-        this.chartSettings = {
-            chartType: ChartType.Candlestick,
-            indicators: observable.array([Indicator.Volume]),
-            timeRange: TimeRange.ThreeMonths,
-            valueInterval: ValueInterval.Daily,
+        const foundSettings: string = localStorage.getItem('chartSettings');
+        if (foundSettings) {
+            this.chartSettings = JSON.parse(foundSettings);
+        } else {
+            this.chartSettings = {
+                chartType: ChartType.Candlestick,
+                indicators: observable.array([Indicator.Volume]),
+                timeRange: TimeRange.ThreeMonths,
+                valueInterval: ValueInterval.Daily,
+            }
         }
+    }
+
+    public saveChartSettings(): void {
+        localStorage.setItem('chartSettings', JSON.stringify(this.chartSettings))
     }
 }

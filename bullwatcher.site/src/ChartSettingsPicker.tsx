@@ -9,6 +9,14 @@ interface IChartSettingsPickerProps {
 
 @observer
 export default class ChartSettingsPicker extends React.Component<IChartSettingsPickerProps, any> {
+    public componentWillUnmount() {
+        this.props.chartSettingsStore.saveChartSettings();
+    }
+
+    public componentDidUpdate(prevProps: IChartSettingsPickerProps) {
+        prevProps.chartSettingsStore.saveChartSettings();
+    }
+
     public render() {
         return (
             <div>
