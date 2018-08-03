@@ -34,7 +34,7 @@ export default class FrontPage extends React.Component<IFrontPageProps> {
                     }
                 </div>
                 <div>
-                    <h2>Sector Performance</h2>
+                    <h1>Sector Performance</h1>
                     <p>TODO</p>
                 </div>
             </div>

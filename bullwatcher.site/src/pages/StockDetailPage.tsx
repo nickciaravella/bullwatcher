@@ -30,13 +30,8 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
 
     public componentDidUpdate (prevProps: IStockDetailPageProps) {
         if (prevProps.ticker !== this.props.ticker) {
-            this.state = {
-            news: [],
-            ticker: this.props.ticker,
+            this._setupPropsAndState();
         };
-            this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
-            this._loadNews();
-        }
       }
 
     public render() {
@@ -95,7 +90,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
             this.setState((prevState: IStockDetailPageState) => {
                 return {
                     news,
-                    ticker: prevState.ticker,
+                    ticker: this.props.ticker,
                 }
             })
         })
