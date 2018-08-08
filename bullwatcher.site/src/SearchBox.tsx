@@ -25,7 +25,6 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
                     placeholder="Enter ticker"
                     onChange={this.handleInputChange}
                 />
-                <p>{this.state.query}</p>
             </form>
         );
     }
