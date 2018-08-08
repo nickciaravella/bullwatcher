@@ -38,7 +38,6 @@ export default class LoginLogoutSection extends React.Component<ILoginLogoutSect
     }
 
     private googleResponse = (googleResponse: any) => {
-        console.log(googleResponse)
         this.props.authContextStore.saveAuthContext({
             email: googleResponse.profileObj.email,
             friendlyName: googleResponse.profileObj.name,
