@@ -9,10 +9,12 @@ import WatchlistPage from './pages/WatchlistPage';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 import ChartSettingsPicker from './ChartSettingsPicker';
+import { AuthContextStore } from './models/auth-store';
 import { ChartSettingsStore } from './models/chart-settings'
 import { StockMetadataStore } from './models/stock-metadata';
 import FlagsPage from './pages/FlagsPage';
 import FrontPage from './pages/FrontPage';
+import LoginLogoutSection from './pages/LoginLogoutSection';
 import SearchBox from './SearchBox';
 
 interface IAppState {
@@ -28,15 +30,19 @@ export default class App extends React.Component<any, IAppState> {
         const chartSettingsStore = new ChartSettingsStore();
         chartSettingsStore.fetchChartSettings();
         const stockMetadataStore = new StockMetadataStore();
-
+        const authContextStore = new AuthContextStore();
+        authContextStore.loadAuthContext();
         return (
             <BrowserRouter>
                 <div className="App">
                     <header className="App-header">
                         <img src={logo} className="App-logo" alt="logo" />
                         <h1 className="App-title">Bull Watcher</h1>
-                        <SearchBox onSearchFunc={this.onTickerSearch} />
                     </header>
+                    <div>
+                        <LoginLogoutSection authContextStore={authContextStore} />
+                        <SearchBox onSearchFunc={this.onTickerSearch} />
+                    </div>
                     <div>
                         <ul>
                             <li><a href='/'>Home</a></li>
