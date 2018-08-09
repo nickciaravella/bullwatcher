@@ -20,7 +20,7 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "deploy": "aws s3 sync build s3://bullwatchersite --profile bullwatcher --delete --acl public-read && echo 🚀 Deployed!",
+    "deploy": "aws s3 sync build s3://www.bullwatcher.com --profile bullwatcher --delete --acl public-read && echo 🚀 Deployed!",
     "build-and-deploy": "npm run build && npm run deploy"
   },
   "devDependencies": {
