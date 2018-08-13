@@ -1,7 +1,7 @@
 from application import db
 
 
-class Users(db.Model):
+class User(db.Model):
     """
     Table to hold users. The user_id column is the id provided by the identity provider
     prepended with the identity provider itself. For example:

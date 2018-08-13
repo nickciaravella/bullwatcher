@@ -1,11 +1,25 @@
 from app.handlers.stocks import patterns_handler, stocks_handler, stocks_sync
-from app.handlers import db_handler
+from app.handlers import db_handler, user_handler
 from datetime import datetime
-from flask import jsonify
+from flask import jsonify, request
 
 
 def setup_routes(app):
 
+    ### USER ###
+    @app.route('/login', methods=['POST'])
+    def login():
+        return jsonify(user_handler.login(request.json).to_json())
+
+    @app.route('/users')
+    def get_users():
+        return jsonify([s.to_json() for s in user_handler.get_users()])
+
+    @app.route('/users/<user_id>')
+    def get_user(user_id: str):
+        return jsonify(user_handler.get_user(user_id).to_json())
+
+    ### STOCK ###
     @app.route('/stock-history/<ticker>')
     def stock_history(ticker):
         return jsonify([s.to_json() for s in stocks_handler.get_stock_history(ticker.upper())])
