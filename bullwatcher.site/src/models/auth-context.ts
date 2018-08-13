@@ -4,3 +4,9 @@ export interface IAuthContext {
     email: string;
     friendlyName: string;
 }
+
+export interface IUserContext {
+    userId: string;
+    email: string;
+    friendlyName: string;
+}

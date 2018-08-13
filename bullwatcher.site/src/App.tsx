@@ -31,7 +31,7 @@ export default class App extends React.Component<any, IAppState> {
         chartSettingsStore.fetchChartSettings();
         const stockMetadataStore = new StockMetadataStore();
         const authContextStore = new AuthContextStore();
-        authContextStore.loadAuthContext();
+        authContextStore.loadUserContext();
         return (
             <BrowserRouter>
                 <div className="App">

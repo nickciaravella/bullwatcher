@@ -1,25 +1,29 @@
 import { observable } from 'mobx';
 
-import { IAuthContext } from './auth-context'
+import { BullWatcher } from 'src/services/bullwatcher';
+import { IAuthContext, IUserContext } from './auth-context'
 
 
 export class AuthContextStore {
-    @observable public authContext?: IAuthContext;
+    @observable public userContext?: IUserContext;
 
-    public loadAuthContext() {
-        const existingAuth: string = localStorage.getItem('userContext');
-        if (existingAuth) {
-            this.authContext = JSON.parse(existingAuth);
+    public loadUserContext() {
+        const existingContext: string = localStorage.getItem('userContext');
+        if (existingContext) {
+            this.userContext = JSON.parse(existingContext);
         }
     }
 
-    public saveAuthContext(context: IAuthContext) {
-        this.authContext = context;
-        localStorage.setItem('userContext', JSON.stringify(context));
-    }
+    public saveUserContext(context: IAuthContext) {
+        new BullWatcher().login(context)
+            .then(userContext => {
+                this.userContext = userContext;
+                localStorage.setItem('userContext', JSON.stringify(userContext));
+            })
+   }
 
-    public removeAuthContext() {
-        this.authContext = null;
+    public removeUserContext() {
+        this.userContext = null;
         localStorage.removeItem('userContext');
     }
 }

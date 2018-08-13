@@ -37,7 +37,7 @@ def create_user(user: User) -> User:
     return _convert_db_user_to_domain(db_user)
 
 
-def _convert_db_user_to_domain(db_user: models.User) -> User:
+def _convert_db_user_to_domain(db_user):
     return User(
         user_id=db_user.user_id,
         full_name=db_user.full_name,
@@ -45,7 +45,7 @@ def _convert_db_user_to_domain(db_user: models.User) -> User:
     )
 
 
-def _convert_domain_user_to_db(user: User) -> models.User:
+def _convert_domain_user_to_db(user):
     db_user = models.User()
     db_user.user_id = user.user_id
     db_user.email = user.email
