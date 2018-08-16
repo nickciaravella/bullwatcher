@@ -22,9 +22,6 @@ interface IAppState {
 }
 
 export default class App extends React.Component<any, IAppState> {
-    public componentDidMount() {
-        document.title = "Bull Watcher"
-    }
 
     public render() {
         const chartSettingsStore = new ChartSettingsStore();
