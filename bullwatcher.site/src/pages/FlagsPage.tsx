@@ -1,20 +1,19 @@
 import * as React from 'react';
-import { IChartSettings } from '../models/chart-settings'
-import StockChart from '../StockChart';
+import { AuthContextStore } from 'src/models/auth-store';
+import { IChartSettings } from 'src/models/chart-settings'
+import { IDailyPatternList, IPatternStock, IUserPatternVote } from 'src/models/stock-patterns';
+import { BullWatcher } from 'src/services/bullwatcher';
+import StockChart from 'src/StockChart';
 
 interface IFlagsPageProps {
+    authContextStore: AuthContextStore;
     chartSettings: IChartSettings;
     date?: string;
 }
 
 interface IFlagsPageState {
-    stocks: ITickerAndName[];
-    date?: Date;
-}
-
-interface ITickerAndName {
-    ticker: string;
-    company_name: string;
+    patternList?: IDailyPatternList,
+    userVotes?: IUserPatternVote[]
 }
 
 export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPageState> {
@@ -22,8 +21,7 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
     constructor(props: IFlagsPageProps) {
         super(props);
         this.state = {
-            date: null,
-            stocks: []
+            patternList: null
         }
 
         this._loadFlags();
@@ -33,9 +31,9 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
         return (
             <div>
                 <h1>Flags</h1>
-                {this._renderDate(this.state.date)}
+                { this.state.patternList && this._renderDate(this.state.patternList.date) }
                 <hr />
-                {this._renderStocksList(this.state.stocks)}
+                { this.state.patternList && this._renderStocksList(this.state.patternList.patternStocks) }
             </div>
         );
     }
@@ -50,31 +48,44 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
         }
     }
 
-    private _renderStocksList(stocks: ITickerAndName[]) {
-        return stocks.map((stock: ITickerAndName) => (
-            <div style={{paddingBottom: '50px'}}>
-                <h2>{stock.company_name}</h2>
-                <h3>({stock.ticker})</h3>
-                <p>17</p>
+    private _renderStocksList(stocks: IPatternStock[]) {
+        if (stocks.length === 0) {
+            return (
+                <p>We didn't find any flags :(</p>
+            );
+        }
+
+        const votesByTicker: any = {}
+        for (const vote of this.state.userVotes) {
+            votesByTicker[vote.ticker] = vote.value;
+        }
+
+        return stocks.map((stock: IPatternStock) => (
+            <div key={stock.stockMetadata.ticker} style={{paddingBottom: '50px'}}>
+                <h2>{stock.stockMetadata.companyName}</h2>
+                <h3>({stock.stockMetadata.ticker})</h3>
+                <p>{stock.votes}</p>
+                { stock.stockMetadata.ticker in votesByTicker && <p>You voted: {votesByTicker[stock.stockMetadata.ticker]} </p>}
                 <button>+</button>
                 <button>-</button>
-                <StockChart ticker={stock.ticker} settings={this.props.chartSettings} />
+                <StockChart ticker={stock.stockMetadata.ticker} settings={this.props.chartSettings} />
             </div>
         ));
     }
 
-    private _loadFlags() {
-        const datePath: string = this.props.date ? `/${this.props.date}` : ''
-        fetch(`http://bullwatcherapi-dev.us-east-1.elasticbeanstalk.com/patterns/flags${datePath}`)
-            .then((response) => response.json())
-            .then((json) => {
-                this.setState({
-                    date: new Date(json.date),
-                    stocks: json.pattern_stocks.map((value: any) => ({
-                        company_name: value.stock_metadata.company_name,
-                        ticker: value.stock_metadata.ticker,
-                    })).slice(0,20)
-                })
-            });
+    private async _loadFlags() {
+        const service = new BullWatcher();
+
+        const patternList = await service.getPatterns(this.props.date);
+
+        let userVotes: IUserPatternVote[] = null;
+        if (this.props.authContextStore.userContext !== null) {
+            userVotes = await service.getUserPatternVotes(this.props.authContextStore.userContext.userId, patternList.date);
+        }
+
+        this.setState({
+            patternList,
+            userVotes
+        })
     }
 }

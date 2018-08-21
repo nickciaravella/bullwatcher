@@ -79,12 +79,15 @@ export default class App extends React.Component<any, IAppState> {
                                 return (
                                     <FlagsPage
                                         chartSettings={chartSettingsStore.chartSettings}
-                                        date={props.match.params.date} />
+                                        date={props.match.params.date}
+                                        authContextStore={authContextStore} />
                                 );
                            }} />
                            <Route path="/patterns/flags" render={(props) => { // tslint:disable-next-line jsx-no-lambda
                                 return (
-                                    <FlagsPage chartSettings={chartSettingsStore.chartSettings} />
+                                    <FlagsPage
+                                        chartSettings={chartSettingsStore.chartSettings}
+                                        authContextStore={authContextStore} />
                                 );
                            }} />
                         </Switch>

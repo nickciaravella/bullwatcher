@@ -8,6 +8,15 @@ export interface IStockMetadata {
     sector: string;
 }
 
+export function createStockMetadataFromBullwatcher(json: any): IStockMetadata {
+    return {
+        companyName: json.company_name,
+        marketCap: json.market_cap,
+        sector: json.sector,
+        ticker: json.ticker,
+    }
+}
+
 export class StockMetadataStore {
     @observable public stockMetadatas: ObservableMap<string, IStockMetadata> =
         new ObservableMap<string, IStockMetadata>();
@@ -24,11 +33,6 @@ export class StockMetadataStore {
     }
 
     private _responseToStockMetadata(json: any): IStockMetadata {
-        return {
-            companyName: json.company_name,
-            marketCap: json.market_cap,
-            sector: json.sector,
-            ticker: json.ticker,
-        }
+        return createStockMetadataFromBullwatcher(json);
     }
 }

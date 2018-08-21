@@ -1,5 +1,6 @@
-import { IStockMetadata } from "src/models/stock-metadata";
-import { IAuthContext, IUserContext } from "../models/auth-context";
+import { IAuthContext, IUserContext } from "src/models/auth-context";
+import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
+import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 
 export class BullWatcher {
     private baseUrl: string = `http://bullwatcherapi-dev.us-east-1.elasticbeanstalk.com`;
@@ -40,5 +41,39 @@ export class BullWatcher {
                     ticker: json.ticker,
                 }
             });
+    }
+
+    public getPatterns(date?: string): Promise<IDailyPatternList> {
+        const datePath: string = date ? `/${date}` : '';
+        const url = this.baseUrl + `/patterns/flags${datePath}`;
+        return fetch(url)
+            .then((response) => response.json())
+            .then((json) => { return {
+                    date: new Date(json.date),
+                    patternStocks: json.pattern_stocks.map((stock: any) => { return {
+                        patternType: PatternType.FLAG,
+                        stockMetadata: createStockMetadataFromBullwatcher(stock.stock_metadata),
+                        votes: stock.votes
+                    }})
+                    .slice(0,20)
+                }});
+    }
+
+    public getUserPatternVotes(userId: string, date: Date): Promise<IUserPatternVote[]> {
+        const url: string = this.baseUrl + `/patterns/flags/votes/${userId}/${this.getDateString(date)}`;
+        return fetch(url)
+            .then((response) => response.json())
+            .then((array) =>
+                array.map((json: any) => { return {
+                    date: new Date(json.date),
+                    ticker: json.ticker,
+                    userId: json.user_id,
+                    value: json.value
+                }})
+            );
+    }
+
+    private getDateString(date: Date): string {
+        return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
     }
 }
