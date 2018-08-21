@@ -55,7 +55,6 @@ export class BullWatcher {
                         stockMetadata: createStockMetadataFromBullwatcher(stock.stock_metadata),
                         votes: stock.votes
                     }})
-                    .slice(0,20)
                 }});
     }
 
@@ -71,6 +70,22 @@ export class BullWatcher {
                     value: json.value
                 }})
             );
+    }
+
+    public async voteOnPattern(userId: string, date: Date, ticker: string, value: number): Promise<void> {
+        const url: string = this.baseUrl + `/patterns/flags/votes`;
+        await fetch(url, {
+            body: JSON.stringify({
+                "date": this.getDateString(date),
+                "ticker": ticker,
+                "user_id": userId,
+                "value": value
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+        });
     }
 
     private getDateString(date: Date): string {
