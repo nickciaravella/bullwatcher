@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 class PatternType:
     FLAG = "flag"
 
@@ -30,4 +32,29 @@ class DailyPatterns:
         return {
             'date': str(self.date),
             'pattern_stocks': [p.to_json() for p in self.pattern_stocks]
+        }
+
+
+class PatternVote:
+    def __init__(self, date: date, ticker: str, user_id: str, value: int):
+        self.date: date = date
+        self.ticker: str = ticker
+        self.user_id: str = user_id
+        self.value: int = value
+
+    @classmethod
+    def from_json(self, json: dict):
+        return PatternVote(
+            date=datetime.strptime(json['date'], "%Y-%m-%d").date(),
+            ticker=json['ticker'],
+            user_id=json['user_id'],
+            value=int(json['value'])
+        )
+
+    def to_json(self):
+        return {
+            'date': str(self.date),
+            'ticker': self.ticker,
+            'user_id': self.user_id,
+            'value': self.value
         }

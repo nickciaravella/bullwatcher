@@ -1,6 +1,7 @@
+from app.domain.patterns import PatternVote
 from app.handlers.stocks import patterns_handler, stocks_handler, stocks_sync
 from app.handlers import db_handler, user_handler
-from datetime import datetime
+from datetime import datetime, date
 from flask import jsonify, request
 
 
@@ -46,21 +47,15 @@ def setup_routes(app):
 
         return jsonify(patterns_handler.get_flags_for_date(date).to_json())
 
-    @app.route('/patterns/flags/<date>/votes/<ticker>/up')
-    def upvote_flag(date, ticker):
-        try:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
-        except ValueError:
-            return "Invalid date.", 400
-        return jsonify(patterns_handler.flag_vote(date, ticker.upper(), 1).to_json())
+    @app.route('/patterns/flags/votes', methods=['POST'])
+    def pattern_vote():
+        vote = PatternVote.from_json(request.json)
+        return jsonify(patterns_handler.flag_vote(vote).to_json())
 
-    @app.route('/patterns/flags/<date>/votes/<ticker>/down')
-    def downvote_flag(date, ticker):
-        try:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
-        except ValueError:
-            return "Invalid date.", 400
-        return jsonify(patterns_handler.flag_vote(date, ticker.upper(), -1).to_json())
+    @app.route('/patterns/flags/votes/<user_id>/<date>')
+    def get_pattern_votes_for_user(user_id: str, date: str):
+        date: date = datetime.strptime(date, "%Y-%m-%d").date()
+        return jsonify([v.to_json() for v in patterns_handler.get_pattern_votes_for_user(user_id=user_id, date=date)])
 
     @app.route('/stock-tickers')
     def db_stock_tickers():

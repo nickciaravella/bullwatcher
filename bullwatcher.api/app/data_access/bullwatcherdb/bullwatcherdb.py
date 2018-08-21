@@ -3,8 +3,8 @@ from typing import List
 from application import db
 from app.database import conversion, models
 from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
-from app.domain.patterns import PatternTicker, DailyPatterns, PatternType
-from datetime import datetime
+from app.domain.patterns import PatternTicker, DailyPatterns, PatternType, PatternVote
+from datetime import date, datetime
 from flask_sqlalchemy import get_debug_queries
 from sqlalchemy import and_, func
 import time
@@ -247,25 +247,53 @@ def set_flag_pattern_tickers(date, tickers):
     print('END   -- Time: ' + str(end - start))
 
 
-def add_vote_for_flag_pattern(date, ticker, vote_delta):
+def add_vote_for_flag_pattern(vote: PatternVote):
     """
-    Adds "vote_delta" to the tickers votes for the flag pattern. If the ticker
-    does not exist for the flag pattern, then it will be created with a vote
-    count of vote_delta.
-    In: datetime.datetime, string, int
+    Creates or updates the pattern vote. This updates the pattern to have a vote by the specific user and also
+    increments the count of votes for the ticker in the pattern.
     Out: None
     """
     print(f'START -- DB add_vote_for_flag_pattern')
     start = time.time()
 
-    flag = models.PatternDaily.query.filter_by(date=_to_date_int(date), ticker=ticker).one_or_none()
+    user_vote: models.PatternVotesDaily = db.session \
+        .query(models.PatternVotesDaily) \
+        .filter(and_(
+            models.PatternVotesDaily.date == _to_date_int(vote.date),
+            models.PatternVotesDaily.ticker == vote.ticker,
+            models.PatternVotesDaily.user_id == vote.user_id
+        )) \
+        .one_or_none()
+
+    # Create / update / delete the user vote
+    vote_delta = 0
+    if vote.value == 0 and user_vote:
+        vote_delta = vote.value - user_vote.flag_vote
+        db.session.delete(user_vote)
+    elif vote.value == 0:
+        # Don't create any new one
+        pass
+    elif user_vote:
+        vote_delta = vote.value - user_vote.flag_vote
+        user_vote.flag_vote = vote.value
+    else:
+        vote_delta = vote.value
+        user_vote = models.PatternVotesDaily()
+        user_vote.date = _to_date_int(vote.date)
+        user_vote.ticker = vote.ticker
+        user_vote.user_id = vote.user_id
+        user_vote.flag_vote = vote.value
+        db.session.add(user_vote)
+
+    # Create update delete the pattern daily
+    flag = models.PatternDaily.query.filter_by(date=_to_date_int(vote.date), ticker=vote.ticker).one_or_none()
     if flag:
         flag.flag_votes += vote_delta
     else:
         flag = models.PatternDaily()
-        flag.date = _to_date_int(date)
-        flag.ticker = ticker
-        flag.flag_votes = vote_delta
+        flag.date = _to_date_int(vote.date)
+        flag.ticker = vote.ticker
+        flag.flag_votes = vote.value
         db.session.add(flag)
 
     db.session.commit()
@@ -274,6 +302,24 @@ def add_vote_for_flag_pattern(date, ticker, vote_delta):
     print('END   -- Time: ' + str(end - start))
 
     return PatternTicker(flag.ticker, PatternType.FLAG, flag.flag_votes)
+
+
+def get_flag_pattern_user_votes(user_id: str, date: date) -> List[PatternVote]:
+     user_votes: models.PatternVotesDaily = db.session \
+        .query(models.PatternVotesDaily) \
+        .filter(and_(
+            models.PatternVotesDaily.date == _to_date_int(date),
+            models.PatternVotesDaily.user_id == user_id
+        )) \
+        .all()
+
+     return [
+         PatternVote(date=_date_int_to_date(v.date),
+                     user_id=v.user_id,
+                     ticker=v.ticker,
+                     value=v.flag_vote)
+         for v in user_votes
+     ]
 
 
 def _to_date_int(date):

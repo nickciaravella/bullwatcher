@@ -1,10 +1,10 @@
 from typing import List
 
 from app.data_access import bullwatcherdb
-from app.domain.patterns import PatternTicker, PatternStock, DailyPatterns
+from app.domain.patterns import DailyPatterns, PatternTicker, PatternStock, PatternVote
 from app.handlers.stocks.sync.patterns import flags
 from app.utils import date_utils
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 
 def sync_patterns() -> DailyPatterns:
@@ -42,15 +42,19 @@ def get_flags_for_date(date) -> DailyPatterns:
     return _get_sorted_metadata_for_tickers(date, pattern_tickers)
 
 
-def flag_vote(date: datetime, ticker: str, vote_delta: int) -> DailyPatterns:
+def flag_vote(vote: PatternVote) -> DailyPatterns:
     """
     Updates the ticker on the date given with a vote.
-    In: date: datetime.datetime
-    In: ticker: string
-    In: vote_delta: int - will be added to the current vote count
     """
-    pattern_ticker = bullwatcherdb.add_vote_for_flag_pattern(date, ticker, vote_delta)
-    return _get_sorted_metadata_for_tickers(date, [pattern_ticker]).pattern_stocks[0]
+    pattern_ticker = bullwatcherdb.add_vote_for_flag_pattern(vote)
+    return _get_sorted_metadata_for_tickers(vote.date, [pattern_ticker]).pattern_stocks[0]
+
+
+def get_pattern_votes_for_user(user_id: str, date: date) -> List[PatternVote]:
+    """
+    Gets a list of votes that the user performed on a particular date for all tickers.
+    """
+    return bullwatcherdb.get_flag_pattern_user_votes(user_id=user_id, date=date)
 
 
 def _sync_tickers(tickers: List[str]):
