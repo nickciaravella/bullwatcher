@@ -112,7 +112,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 visible: indicators.indexOf(Indicator.LongMovingAverage) !== -1
             }, {
                 color: chartType === ChartType.Candlestick ? 'Crimson' : "black",
-                data: this.getStockDailyPriceData(),
+                data: this.getStockDailyPriceData(chartType),
                 dataGrouping: {
                     forced: true,
                     units: [
@@ -139,7 +139,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         }
     }
 
-    private getStockDailyPriceData(): number[][] {
+    private getStockDailyPriceData(chartType: ChartType): number[][] {
         const dataArray: number[][] = []
 
         if (!this.store.stockDailyHistory) {
@@ -147,13 +147,15 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         }
 
         for (const stock of this.store.stockDailyHistory.data) {
-            dataArray.push([
-                stock.date.valueOf(),
-                stock.open,
-                stock.high,
-                stock.low,
-                stock.close
-            ])
+            let data: any[] = []
+            switch (chartType) {
+                case ChartType.Candlestick:
+                    data = [ stock.date.valueOf(), stock.open, stock.high, stock.low, stock.close ]
+                    break;
+                case ChartType.Line:
+                    data = [ stock.date.valueOf(), stock.close ]
+            }
+            dataArray.push(data)
         }
 
          return dataArray;
