@@ -37,5 +37,5 @@ def _sync_metadata(tickers):
 
 
 def _sync_daily(tickers):
-    dailies_dict = iex.get_stock_dailies(tickers)
+    dailies_dict = iex.get_stock_dailies(tickers, '1m')
     bullwatcherdb.save_batch_stock_daily(dailies_dict)

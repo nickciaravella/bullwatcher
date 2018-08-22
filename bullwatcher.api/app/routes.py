@@ -23,7 +23,10 @@ def setup_routes(app):
     ### STOCK ###
     @app.route('/stock-history/<ticker>')
     def stock_history(ticker):
-        return jsonify([s.to_json() for s in stocks_handler.get_stock_history(ticker.upper())])
+        history = stocks_handler.get_stock_history(ticker.upper())
+        if not history:
+            return f'Ticker "{ticker}" not found.', 404
+        return jsonify([s.to_json() for s in history])
 
     @app.route('/sync-stocks/<int:count>')
     def sync_stocks(count):

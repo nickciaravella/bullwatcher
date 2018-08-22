@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from app.domain.stocks import StockDaily, StockMetadata
 from app.data_access import http
 from datetime import datetime
@@ -23,12 +25,17 @@ def get_stock_metadata(tickers):
     return metadatas
 
 
-def get_stock_dailies(tickers):
+def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDaily]]:
+    """
+    Gets a dictionary of ticker to list of StockDaily. If there is no data for the given ticker, then it will
+    be omitted from the dictionary.
+    :param range_: Supported values: '1m', '2y'
+    """
     if len(tickers) > 100:
         raise Exception('More than 100 tickers is not supported.')
 
     symbols = ','.join(tickers)
-    all_dailies = http.get_json(f'https://api.iextrading.com/1.0/stock/market/batch?symbols={symbols}&types=chart,quote&range=1m')
+    all_dailies = http.get_json(f'https://api.iextrading.com/1.0/stock/market/batch?symbols={symbols}&types=chart,quote&range={range_}')
 
     dailies = {}
     for symbol, data in all_dailies.items():
