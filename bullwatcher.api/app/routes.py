@@ -1,11 +1,43 @@
+from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
 from app.handlers.stocks import patterns_handler, stocks_handler, stocks_sync
 from app.handlers import db_handler, user_handler
-from datetime import datetime, date
+from datetime import datetime
 from flask import jsonify, request
+from werkzeug.exceptions import HTTPException
 
 
 def setup_routes(app):
+
+    ### EXCEPTION HANDLING ###
+    @app.errorhandler(HttpError)
+    def handle_known_error(httpError: HttpError):
+        json = {
+            'error': httpError.message,
+            'debug_message': httpError.response_data,
+            'url': httpError.url
+        }
+        print(json)
+        return jsonify(json), httpError.status_code
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(http_ex: HTTPException):
+        return handle_known_error(HttpError(
+            status_code=http_ex.code,
+            message='Flask Error',
+            response_data=http_ex.description,
+            url=request.url
+        ))
+
+    @app.errorhandler(Exception)
+    def handle_unknown_error(ex: Exception):
+        return handle_known_error(HttpError(
+            status_code=500,
+            message='Internal Error',
+            response_data=str(ex),
+            url=request.url
+        ))
+
 
     ### USER ###
     @app.route('/login', methods=['POST'])
@@ -20,13 +52,23 @@ def setup_routes(app):
     def get_user(user_id: str):
         return jsonify(user_handler.get_user(user_id).to_json())
 
+
     ### STOCK ###
-    @app.route('/stock-history/<ticker>')
+    @app.route('/<ticker>/price')
+    def stock_price(ticker):
+        stock_current = stocks_handler.get_stock_current(ticker.upper())
+        return jsonify(stock_current.to_json())
+
+    @app.route('/<ticker>/price-history/')
     def stock_history(ticker):
         history = stocks_handler.get_stock_history(ticker.upper())
         if not history:
             return f'Ticker "{ticker}" not found.', 404
         return jsonify([s.to_json() for s in history])
+
+    @app.route('/<ticker>/metadata')
+    def db_stock_metadata(ticker):
+        return jsonify(stocks_handler.get_stock_metadata(ticker))
 
     @app.route('/sync-stocks/<int:count>')
     def sync_stocks(count):
@@ -64,7 +106,5 @@ def setup_routes(app):
     def db_stock_tickers():
         return jsonify(db_handler.stock_tickers())
 
-    @app.route('/stock-metadata/<ticker>')
-    def db_stock_metadata(ticker):
-        return jsonify(stocks_handler.get_stock_metadata(ticker))
+
 

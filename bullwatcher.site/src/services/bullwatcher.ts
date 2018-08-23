@@ -3,7 +3,7 @@ import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/s
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 
 export class BullWatcher {
-    private baseUrl: string = `http://bullwatcherapi-dev.us-east-1.elasticbeanstalk.com`;
+    private baseUrl: string = `http://api.bullwatcher.com`;
 
     public login(authContext: IAuthContext): Promise<IUserContext> {
         const url: string = this.baseUrl + `/login`;
@@ -30,7 +30,7 @@ export class BullWatcher {
     }
 
     public getStockMetadata(ticker: string): Promise<IStockMetadata> {
-        const url: string = this.baseUrl + `/stock-metadata/${ticker}`;
+        const url: string = this.baseUrl + `${ticker}/metadata`;
         return fetch(url)
             .then((response) => response.json())
             .then((json) => {

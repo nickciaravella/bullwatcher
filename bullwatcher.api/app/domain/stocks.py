@@ -49,6 +49,34 @@ class StockDaily:
         }
 
 
+class StockCurrent:
+    def __init__(self,
+                 last_updated_time: datetime,
+                 current_price: float,
+                 open_: float,
+                 high: float,
+                 low: float,
+                 volume: int,
+                 previous_close: float):
+        self.last_updated_time = last_updated_time
+        self.current_price = current_price
+        self.open_ = open_
+        self.high = high
+        self.low = low
+        self.volume = volume
+        self.previous_close = previous_close
+
+    def to_json(self):
+        return {
+            'last_updated_time': str(self.last_updated_time),
+            'current_price': self.current_price,
+            'open': self.open_,
+            'high': self.high,
+            'low': self.low,
+            'volume': self.volume,
+            'previous_close': self.previous_close
+        }
+
 
 class MovingAverage:
     def __init__(self, date, interval, value):

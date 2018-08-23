@@ -19,7 +19,7 @@ export class StockHistoryStore {
                 })
         }
         else {
-            const url = `http://api.bullwatcher.com/stock-history/${ticker}`
+            const url = `http://api.bullwatcher.com/${ticker}/price-history`;
             return fetch(url)
                 .then((response) => response.json())
                 .then((json) => {

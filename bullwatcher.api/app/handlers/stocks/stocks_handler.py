@@ -1,9 +1,8 @@
 from typing import Dict, List, Optional
 
-from app.data_access import bullwatcherdb, iex
+from app.data_access import iex
 from app.database import models
-from app.domain.stocks import StockMetadata, StockDaily
-from datetime import datetime, timedelta
+from app.domain.stocks import StockMetadata, StockDaily, StockCurrent
 from sqlalchemy import func
 
 
@@ -17,3 +16,7 @@ def get_stock_history(ticker: str) -> Optional[List[StockDaily]]:
     if ticker not in dailies_by_ticker:
         return None
     return dailies_by_ticker[ticker]
+
+
+def get_stock_current(ticker: str) -> StockCurrent:
+    return iex.get_stock_current(ticker)

@@ -1,8 +1,9 @@
 from typing import Dict, List
 
-from app.domain.stocks import StockDaily, StockMetadata
+from app.domain.stocks import StockCurrent, StockDaily, StockMetadata
 from app.data_access import http
 from datetime import datetime
+
 
 def get_ticker_list():
     stock_array = http.get_json('https://api.iextrading.com/1.0/ref-data/symbols')
@@ -61,8 +62,8 @@ def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDa
         # to the chart data.
         try:
             quote = data['quote']
-            quote_datetime = datetime.utcfromtimestamp(quote['closeTime']/1000.0)
-            open_datetime = datetime.utcfromtimestamp(quote['openTime']/1000.0)
+            quote_datetime = datetime.utcfromtimestamp(quote['closeTime']/1000)
+            open_datetime = datetime.utcfromtimestamp(quote['openTime']/1000)
             if open_datetime > quote_datetime:
                 print('Open date > close date, skipping this quote')
             elif quote_datetime and max_date and quote_datetime.date() > max_date:
@@ -79,4 +80,17 @@ def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDa
             print(e)
 
     return dailies
+
+
+def get_stock_current(ticker: str) -> StockCurrent:
+    quote: Dict[str, any] = http.get_json(f'https://api.iextrading.com/1.0/stock/{ticker}/quote')
+    return StockCurrent(
+        last_updated_time=datetime.utcfromtimestamp(quote['latestUpdate']/1000),
+        current_price=quote['latestPrice'],
+        open_=quote['open'],
+        high=quote['high'],
+        low=quote['low'],
+        volume=quote['latestVolume'],
+        previous_close=quote['previousClose'],
+    )
 
