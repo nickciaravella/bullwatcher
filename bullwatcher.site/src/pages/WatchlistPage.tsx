@@ -1,6 +1,8 @@
+import { observer } from 'mobx-react';
 import * as React from 'react';
-import { IChartSettings } from '../models/chart-settings'
-import StockChart from '../StockChart';
+
+import { IChartSettings } from 'src/models/chart-settings'
+import StockChart from 'src/StockChart';
 
 interface IWatchlistPageProps {
     tickers: string;
@@ -11,6 +13,7 @@ interface IWatchlistPageState {
     tickers: string[];
 }
 
+@observer
 export default class WatchlistPage extends React.Component<IWatchlistPageProps, IWatchlistPageState> {
 
     constructor(props: IWatchlistPageProps) {
