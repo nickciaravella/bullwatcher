@@ -1,4 +1,5 @@
 import { IAuthContext, IUserContext } from "src/models/auth-context";
+import { IStockCurrentPrice } from "src/models/stock-current";
 import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 
@@ -86,6 +87,21 @@ export class BullWatcher {
             },
             method: 'POST',
         });
+    }
+
+    public async getStockCurrentPrice(ticker: string): Promise<IStockCurrentPrice> {
+        const url: string = this.baseUrl + `/${ticker}/price`;
+        const response: any = await fetch(url);
+        const json: any = await response.json()
+        return {
+            currentPrice: json.current_price,
+            currentPriceDateTime: new Date(json.last_updated_time),
+            high: json.high,
+            lastClose: json.previous_close,
+            low: json.low,
+            open: json.open,
+            volume: json.volume
+        }
     }
 
     private getDateString(date: Date): string {

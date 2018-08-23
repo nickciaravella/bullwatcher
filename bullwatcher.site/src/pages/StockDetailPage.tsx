@@ -4,8 +4,9 @@ import * as React from 'react';
 import { IChartSettings } from 'src/models/chart-settings'
 import { INews } from 'src/models/news';
 import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
+import { Iex } from 'src/services/iex';
 import StockChart from 'src/StockChart';
-import { Iex } from '../services/iex';
+import StockCurrentPrice from 'src/StockCurrentPrice';
 
 
 interface IStockDetailPageProps {
@@ -44,6 +45,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                 {   stockMetadata &&
                     <h3>{stockMetadata.sector}</h3>
                 }
+                <StockCurrentPrice ticker={this.state.ticker} />
                 <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
                 {
                     this._renderNewsSection()
