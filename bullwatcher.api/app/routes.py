@@ -59,7 +59,7 @@ def setup_routes(app):
         stock_current = stocks_handler.get_stock_current(ticker.upper())
         return jsonify(stock_current.to_json())
 
-    @app.route('/<ticker>/price-history/')
+    @app.route('/<ticker>/price-history')
     def stock_history(ticker):
         history = stocks_handler.get_stock_history(ticker.upper())
         if not history:
