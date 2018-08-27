@@ -9,7 +9,13 @@ class TimeWindow:
     THREE_MONTHS = '3m'
     ONE_MONTH = '1m'
     TWO_WEEKS = '2w'
-    ONE_DAY = '1d'
+
+    @classmethod
+    def is_valid(cls, time_window: str):
+        if time_window in TimeWindow.to_time_delta_dict():
+            return True
+        else:
+            return False
 
     @classmethod
     def to_time_delta_dict(cls) -> Dict[str, datetime.timedelta]:
@@ -20,7 +26,6 @@ class TimeWindow:
             TimeWindow.THREE_MONTHS: datetime.timedelta(weeks=13),
             TimeWindow.ONE_MONTH:    datetime.timedelta(weeks=4),
             TimeWindow.TWO_WEEKS:    datetime.timedelta(weeks=2),
-            TimeWindow.ONE_DAY:      datetime.timedelta(days=1),
         }
 
     @classmethod
@@ -32,5 +37,4 @@ class TimeWindow:
             (TimeWindow.THREE_MONTHS, datetime.timedelta(weeks=13)),
             (TimeWindow.ONE_MONTH,    datetime.timedelta(weeks=4)),
             (TimeWindow.TWO_WEEKS,    datetime.timedelta(weeks=2)),
-            (TimeWindow.ONE_DAY,      datetime.timedelta(days=1)),
         ]

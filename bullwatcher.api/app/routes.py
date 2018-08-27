@@ -1,3 +1,5 @@
+import traceback
+
 from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
 from app.handlers.stocks import patterns_handler, rankings_handler, stocks_handler, stocks_sync
@@ -15,9 +17,8 @@ def setup_routes(app):
         json = {
             'error': httpError.message,
             'debug_message': httpError.response_data,
-            'url': httpError.url
+            'url': httpError.url or request.url
         }
-        print(json)
         return jsonify(json), httpError.status_code
 
     @app.errorhandler(HTTPException)
@@ -34,7 +35,7 @@ def setup_routes(app):
         return handle_known_error(HttpError(
             status_code=500,
             message='Internal Error',
-            response_data=str(ex),
+            response_data=traceback.format_exc(),
             url=request.url
         ))
 
@@ -113,3 +114,7 @@ def setup_routes(app):
         rankings_handler.sync_rankings()
         return '{}'
 
+    @app.route('/rankings/<ranking_type>/<time_window>')
+    def get_rankings(ranking_type: str, time_window: str):
+        rankings = rankings_handler.get_rankings(ranking_type=ranking_type, time_window=time_window)
+        return jsonify([r.to_json() for r in rankings])

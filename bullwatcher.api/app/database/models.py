@@ -55,3 +55,15 @@ class PatternVotesDaily(db.Model):
     ticker          = db.Column(db.String(10), primary_key=True)
     user_id         = db.Column(db.String(128), primary_key=True)
     flag_vote       = db.Column(db.Integer)
+
+
+class StockRanking(db.Model):
+    """
+    Table which tracks overall rankings of stocks on different time frames.
+    """
+    ticker          = db.Column(db.String(10), primary_key=True)
+    time_window     = db.Column(db.String(5), primary_key=True)
+    ranking_type    = db.Column(db.String(48), primary_key=True)
+    rank            = db.Column(db.Integer)
+    value           = db.Column(db.Float)
+    last_updated_at = db.Column(db.DateTime)

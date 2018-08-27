@@ -5,8 +5,26 @@ from operator import itemgetter
 
 from app.data_access import bullwatcherdb
 from app.domain.common import TimeWindow
+from app.domain.exceptions import HttpError
 from app.domain.rankings import Ranking, RankingType
 from app.domain.stocks import StockDaily
+
+
+def get_rankings(ranking_type: str, time_window: str) -> List[Ranking]:
+    if not RankingType.is_valid(ranking_type):
+        raise HttpError(
+            status_code=400,
+            message='Bad Request',
+            response_data=f'ranking_type is not valid: {ranking_type}'
+        )
+    if not TimeWindow.is_valid(time_window):
+        raise HttpError(
+            status_code=400,
+            message='Bad Request',
+            response_data=f'time_window is not valid: {time_window}'
+        )
+
+    return bullwatcherdb.get_rankings(time_window=time_window, ranking_type=ranking_type)
 
 
 def sync_rankings():
@@ -16,9 +34,10 @@ def sync_rankings():
 
     search_dates: Set[datetime.date] = set()
     today: datetime.date = datetime.datetime.today().date()
-    for tuple in TimeWindow.to_asc_delta_tuple_array():
+    for tuple in TimeWindow.to_asc_delta_tuple_array() + [('', datetime.timedelta(days=0))]:
         delta: datetime.timedelta = tuple[1]
         base_search_date = today - delta
+        search_dates.add(base_search_date - datetime.timedelta(days=3))
         search_dates.add(base_search_date - datetime.timedelta(days=2))
         search_dates.add(base_search_date - datetime.timedelta(days=1))
         search_dates.add(base_search_date)
@@ -30,14 +49,8 @@ def sync_rankings():
 
     rankings_dict: Dict[RankingType, Dict[TimeWindow, List[Tuple[float, float, str]]]] = {
         RankingType.PRICE_PERCENT_CHANGE: {
-            TimeWindow.TWO_YEARS: [],
-            TimeWindow.ONE_YEAR: [],
-            TimeWindow.SIX_MONTHS: [],
-            TimeWindow.THREE_MONTHS: [],
-            TimeWindow.ONE_MONTH: [],
-            TimeWindow.TWO_WEEKS: [],
-            TimeWindow.ONE_DAY: []
-        },
+            tuple[0]: [] for tuple in TimeWindow.to_asc_delta_tuple_array()
+        }
     }
 
     # EXTENSION POINT: To rank other things, add another handler here.
@@ -71,21 +84,24 @@ def sync_rankings():
 
     # Part III: Assign ranks
     print("[RANKINGS] ASSIGNING RANKS")
-    rankings: List[Ranking] = []
     for ranking_type in rankings_dict:
         for time_window in rankings_dict[ranking_type]:
+
+            rankings: List[Ranking] = []
+
             for i, ranking_tuple in enumerate(rankings_dict[ranking_type][time_window]):
                 rankings.append(Ranking(
                     ticker=ranking_tuple[2],
                     ranking_type=ranking_type,
                     time_window=time_window,
-                    rank=i,
+                    rank=i+1,
                     value=ranking_tuple[1],
                 ))
 
-    # Part IV: Save to the database
-    print("[RANKINGS] SAVING TO DATABASE")
-    bullwatcherdb.upsert_rankings(rankings=rankings)
+            print(f'[RANKINGS] SAVING TO DATABASE: {ranking_type} {time_window}')
+            bullwatcherdb.merge_rankings(rankings=rankings,
+                                         ranking_type=ranking_type,
+                                         time_window=time_window)
 
     print("[RANKINGS] DONE")
 
@@ -103,7 +119,6 @@ def handle_price_diff_percent(dailies: List[StockDaily]) -> Dict[TimeWindow, flo
     result_dict = {}
     time_window_index = 0
     end_daily = dailies[0]
-
     start_date: datetime.date = datetime.datetime.today().date() - time_window_to_delta[time_window_index][1]
     previous_daily = None
     for daily in reversed(dailies):

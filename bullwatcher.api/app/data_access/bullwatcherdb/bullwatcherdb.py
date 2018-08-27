@@ -3,8 +3,7 @@ from typing import Dict, List
 from application import db
 from app.database import conversion, models
 from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
-from app.domain.patterns import PatternTicker, DailyPatterns, PatternType, PatternVote
-from app.domain.rankings import RankingType, Ranking
+from app.domain.patterns import PatternTicker, PatternType, PatternVote
 from datetime import date, datetime
 from flask_sqlalchemy import get_debug_queries
 from sqlalchemy import and_, func
@@ -360,14 +359,6 @@ def get_flag_pattern_user_votes(user_id: str, date: date) -> List[PatternVote]:
                      value=v.flag_vote)
          for v in user_votes
      ]
-
-
-def upsert_rankings(rankings):
-    file = open('rankings.csv', 'w')
-    file.write('Ticker,Type,Rank,Value,TimeWindow\n')
-    for ranking in rankings:
-        file.write(f'{ranking.ticker},{ranking.ranking_type},{ranking.rank},{ranking.value},{ranking.time_window}\n')
-    file.close()
 
 
 def _to_date_int(date):
