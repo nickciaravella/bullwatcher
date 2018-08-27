@@ -1,9 +1,10 @@
-from typing import List
+from typing import Dict, List
 
 from application import db
 from app.database import conversion, models
 from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
 from app.domain.patterns import PatternTicker, DailyPatterns, PatternType, PatternVote
+from app.domain.rankings import RankingType, Ranking
 from datetime import date, datetime
 from flask_sqlalchemy import get_debug_queries
 from sqlalchemy import and_, func
@@ -135,7 +136,7 @@ def save_batch_stock_daily(dailies_dict):
     print('END   -- Time: ' + str(end - start))
 
 
-def get_batch_stock_daily(tickers, min_date, max_date):
+def get_batch_stock_daily(tickers: List[str], min_date: date, max_date: date) -> Dict[str, StockDaily]:
     """
     Gets a dictionary of ticker -> list of StockDaily. The stock daily objects will be sorted by date descending
     but may not include the min_date, max_date, or dates in between (i.e. weekends and holidays). If there are
@@ -164,6 +165,45 @@ def get_batch_stock_daily(tickers, min_date, max_date):
             ret[db_daily.ticker].append(daily)
         else:
             ret[db_daily.ticker] = [daily]
+    return ret
+
+
+def get_batch_stock_daily_for_dates(tickers: List[str], dates: List[date]) -> Dict[str, StockDaily]:
+    """
+    Gets a dictionary of ticker -> list of StockDaily. The stock daily objects will be sorted by date descending
+    but may not include the min_date, max_date, or dates in between (i.e. weekends and holidays). If there are
+    no StockDaily objects found for a specific ticker, that ticker will be omitted from the dictionary.
+    """
+    print(f'START -- DB get_batch_stock_daily_for_dates: Tickers: {len(tickers)}, Dates: {len(dates)}')
+    start = time.time()
+
+    db_stock_dailies = db.session \
+        .query(models.StockDaily) \
+        .filter(and_(
+            models.StockDaily.ticker.in_(tickers),
+            models.StockDaily.date.in_([_to_date_int(date) for date in dates]))) \
+        .order_by(models.StockDaily.date.desc()) \
+        .all()
+
+    ret = {}
+    for db_daily in db_stock_dailies:
+        daily = StockDaily(
+            date_str=_to_date_str(db_daily.date),
+            open_=db_daily.open_price,
+            high=db_daily.high_price,
+            low=db_daily.low_price,
+            close=db_daily.close_price,
+            volume=db_daily.volume)
+
+        if db_daily.ticker in ret:
+            ret[db_daily.ticker].append(daily)
+        else:
+            ret[db_daily.ticker] = [daily]
+
+    end = time.time()
+    print(f'Loaded {len(db_stock_dailies)} rows.')
+    print('END   -- Time: ' + str(end - start))
+
     return ret
 
 
@@ -320,6 +360,14 @@ def get_flag_pattern_user_votes(user_id: str, date: date) -> List[PatternVote]:
                      value=v.flag_vote)
          for v in user_votes
      ]
+
+
+def upsert_rankings(rankings):
+    file = open('rankings.csv', 'w')
+    file.write('Ticker,Type,Rank,Value,TimeWindow\n')
+    for ranking in rankings:
+        file.write(f'{ranking.ticker},{ranking.ranking_type},{ranking.rank},{ranking.value},{ranking.time_window}\n')
+    file.close()
 
 
 def _to_date_int(date):

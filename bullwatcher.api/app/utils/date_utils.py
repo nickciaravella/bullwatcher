@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 
-def next_market_day():
+def next_market_day() -> datetime.date:
     '''
     Returns the Date of the next day the market will be open. This is not
     sophisticated and does not take into account holidays, only weekends.
@@ -30,7 +30,7 @@ def next_market_day():
     return (utc_now + timedelta(days=days_to_add)).date()
 
 
-def previous_market_day():
+def previous_market_day() -> datetime.date:
     '''
     Returns the Date of the previous day the market was  open. This is not
     sophisticated and does not take into account holidays, only weekends.

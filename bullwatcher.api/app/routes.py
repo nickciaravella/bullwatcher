@@ -1,6 +1,6 @@
 from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
-from app.handlers.stocks import patterns_handler, stocks_handler, stocks_sync
+from app.handlers.stocks import patterns_handler, rankings_handler, stocks_handler, stocks_sync
 from app.handlers import db_handler, user_handler
 from datetime import datetime
 from flask import jsonify, request
@@ -107,4 +107,9 @@ def setup_routes(app):
         return jsonify(db_handler.stock_tickers())
 
 
+    ### RANKINGS ###
+    @app.route('/rankings/sync')
+    def sync_rankings():
+        rankings_handler.sync_rankings()
+        return '{}'
 
