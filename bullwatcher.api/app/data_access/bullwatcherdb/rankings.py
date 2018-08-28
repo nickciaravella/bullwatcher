@@ -20,47 +20,28 @@ def merge_rankings(rankings: List[Ranking], time_window: TimeWindow, ranking_typ
     print(f'START -- DB merge_rankings -- Rankings: {len(rankings)}')
     start = time.time()
 
-    # TODO: HACK! Figure out a way to do more performant saving of data.
-    rankings = rankings[0:50]
     current_rankings_by_ticker: Dict[str, Ranking] = {
         r.ticker: r for r in rankings
     }
 
-    existing_rankings: List[models.StockRanking] = db.session \
-        .query(models.StockRanking) \
-        .filter(and_(
+    # Clear existing data for this time_window and ranking_type
+    db.session.query(models.StockRanking).filter(
+        and_(
             models.StockRanking.time_window == time_window,
-            models.StockRanking.ranking_type == ranking_type)) \
-        .all()
+            models.StockRanking.ranking_type == ranking_type)
+    ).delete(synchronize_session='fetch')
+    db.session.commit()
 
-    inserted_or_updated = []
-    for db_ranking in existing_rankings:
-        if db_ranking.ticker not in current_rankings_by_ticker:
-            # Delete those that don't exist anymore
-            db.session.delete(db_ranking)
-            db.session.commit()
-        else:
-            # Update those that do exist
-            current_ranking: Ranking = current_rankings_by_ticker[db_ranking.ticker]
-            db_ranking.rank = current_ranking.rank
-            db_ranking.value = current_ranking.value
-            db_ranking.last_updated_at = datetime.datetime.utcnow()
-            inserted_or_updated.append(db_ranking)
-            del current_rankings_by_ticker[db_ranking.ticker]
-
-    # Add all the new ones
+    # Insert new data
+    insert_values = []
     for ticker, ranking in current_rankings_by_ticker.items():
-        inserted_or_updated.append(
-            models.StockRanking(ticker=ranking.ticker,
-                                ranking_type=ranking.ranking_type,
-                                time_window=ranking.time_window,
-                                rank=ranking.rank,
-                                value=ranking.value,
-                                last_updated_at=datetime.datetime.utcnow())
+        insert_values.append(
+            f'(\'{ticker}\', \'{ranking.time_window}\', \'{ranking.ranking_type}\', {ranking.rank}, {ranking.value}, \'{str(datetime.datetime.utcnow())}\')'
         )
 
-    db.session.bulk_save_objects(inserted_or_updated)
-    db.session.commit()
+    if insert_values:
+        sql = 'INSERT INTO stock_ranking VALUES ' + ','.join(insert_values)
+        db.engine.execute(sql)
 
     end = time.time()
     print(f'END   -- Time: ' + str(end - start))
@@ -76,8 +57,8 @@ def get_rankings(time_window: str, ranking_type: str) -> List[Ranking]:
     db_rankings: List[models.StockRanking] = db.session \
         .query(models.StockRanking) \
         .filter(and_(
-            models.StockRanking.time_window == time_window,
-            models.StockRanking.ranking_type == ranking_type)) \
+        models.StockRanking.time_window == time_window,
+        models.StockRanking.ranking_type == ranking_type)) \
         .order_by(models.StockRanking.rank.asc()) \
         .all()
 
@@ -92,7 +73,7 @@ def get_rankings(time_window: str, ranking_type: str) -> List[Ranking]:
         for r in db_rankings
     ]
 
-    print (f'Total rankings: {len(rankings)}')
+    print(f'Total rankings: {len(rankings)}')
 
     end = time.time()
     print(f'END   -- Time: {end - start}')
