@@ -40,7 +40,7 @@ def merge_rankings(rankings: List[Ranking], time_window: TimeWindow, ranking_typ
         )
 
     if insert_values:
-        sql = 'INSERT INTO stock_ranking VALUES ' + ','.join(insert_values)
+        sql = 'INSERT INTO stock_ranking (ticker, time_window, ranking_type, rank, value, last_updated_at) VALUES ' + ','.join(insert_values)
         db.engine.execute(sql)
 
     end = time.time()

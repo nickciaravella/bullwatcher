@@ -51,7 +51,13 @@ def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDa
                                          daily['low'],
                                          daily['close'],
                                          daily['volume'])
+
                 max_date = stock_daily.date if not max_date else max(max_date, stock_daily.date)
+
+                if None in [stock_daily.date, stock_daily.open, stock_daily.high, stock_daily.low,
+                            stock_daily.close, stock_daily.volume]:
+                    continue
+
                 dailies[symbol].append(stock_daily)
             except KeyError:
                 # For some reason, sometimes IEX is missing some data.
@@ -74,6 +80,11 @@ def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDa
                                          quote['low'],
                                          quote['close'],
                                          quote['avgTotalVolume'])
+
+                if None in [quote_daily.date, quote_daily.open, quote_daily.high, quote_daily.low,
+                            quote_daily.close, quote_daily.volume]:
+                    raise ValueError("One of the values are None")
+
                 dailies[symbol].append(quote_daily)
         except Exception as e:
             print("Could not parse quote for " + symbol)
