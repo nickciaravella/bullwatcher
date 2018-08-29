@@ -1,4 +1,4 @@
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import datetime
 from operator import itemgetter
@@ -10,7 +10,11 @@ from app.domain.rankings import Ranking, RankingType
 from app.domain.stocks import StockDaily
 
 
-def get_rankings(ranking_type: str, time_window: str) -> List[Ranking]:
+def get_rankings(
+        ranking_type: str,
+        time_window: str,
+        min_market_cap: Optional[int],
+        sector: Optional[str]) -> List[Ranking]:
     if not RankingType.is_valid(ranking_type):
         raise HttpError(
             status_code=400,
@@ -24,7 +28,27 @@ def get_rankings(ranking_type: str, time_window: str) -> List[Ranking]:
             response_data=f'time_window is not valid: {time_window}'
         )
 
-    return bullwatcherdb.get_rankings(time_window=time_window, ranking_type=ranking_type)
+    rankings: List[Ranking] = bullwatcherdb.get_rankings(time_window=time_window, ranking_type=ranking_type)
+
+    if min_market_cap or sector:
+        metadatas = bullwatcherdb.get_batch_stock_metadata([r.ticker for r in rankings])
+        metadatas_by_ticker = { m.ticker: m for m in metadatas }
+
+        new_rankings = []
+        for ranking in rankings:
+            if ranking.ticker not in metadatas_by_ticker:
+                continue
+            if min_market_cap and metadatas_by_ticker[ranking.ticker].market_cap < min_market_cap:
+                continue
+            if sector and metadatas_by_ticker[ranking.ticker].sector != sector:
+                continue
+
+            ranking.rank = len(new_rankings) + 1
+            new_rankings.append(ranking)
+
+        rankings = new_rankings
+
+    return rankings
 
 
 def sync_rankings():

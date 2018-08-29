@@ -116,5 +116,8 @@ def setup_routes(app):
 
     @app.route('/rankings/<ranking_type>/<time_window>')
     def get_rankings(ranking_type: str, time_window: str):
-        rankings = rankings_handler.get_rankings(ranking_type=ranking_type, time_window=time_window)
+        rankings = rankings_handler.get_rankings(ranking_type=ranking_type,
+                                                 time_window=time_window,
+                                                 min_market_cap=request.args.get('min_market_cap', default=None, type=int),
+                                                 sector=request.args.get('sector', default=None, type=str))
         return jsonify([r.to_json() for r in rankings])
