@@ -41,7 +41,7 @@ export default class FlagsPage extends React.Component<IFlagsPageProps, IFlagsPa
                 { this.state.patternList && this._renderDate(this.state.patternList.date) }
                 <hr />
                 { this.state.patternList && this._renderStocksList(this.state.patternList.patternStocks.slice(this.state.startIndex, this.state.startIndex + this.state.pageSize)) }
-                { this.state.patternList && <p>Showing flags {this.state.startIndex + 1}-{Math.min(this.state.startIndex + this.state.pageSize + 1, totalStocks)} of {totalStocks}</p> }
+                { this.state.patternList && <p>Showing flags {this.state.startIndex + 1}-{Math.min(this.state.startIndex + this.state.pageSize, totalStocks)} of {totalStocks}</p> }
                 { showPrevious && <button onClick={this.previousPage}>Previous</button> }
                 { showNext && <button onClick={this.nextPage}>Next</button> }
             </div>

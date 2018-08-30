@@ -3,8 +3,9 @@ import './App.css';
 
 import logo from './logo.svg';
 
-import StockDetailPage from './pages/StockDetailPage';
-import WatchlistPage from './pages/WatchlistPage';
+import RankingsPage from 'src/pages/RankingsPage';
+import StockDetailPage from 'src/pages/StockDetailPage';
+import WatchlistPage from 'src/pages/WatchlistPage';
 
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 
@@ -44,6 +45,7 @@ export default class App extends React.Component<any, IAppState> {
                         <ul>
                             <li><a href='/'>Home</a></li>
                             <li><a href='/patterns/flags'>Flags</a></li>
+                            <li><a href='/rankings'>Rankings</a></li>
                         </ul>
                     </div>
                     <div>
@@ -90,7 +92,12 @@ export default class App extends React.Component<any, IAppState> {
                                         authContextStore={authContextStore} />
                                 );
                            }} />
-                        </Switch>
+                           <Route path="/rankings" render={(props) => { // tslint:disable-next-line jsx-no-lambda
+                                return (
+                                    <RankingsPage chartSettings={chartSettingsStore.chartSettings} />
+                                );
+                           }} />
+                         </Switch>
                     </div>
                 </div>
             </BrowserRouter>

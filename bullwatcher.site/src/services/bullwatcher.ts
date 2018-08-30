@@ -1,7 +1,9 @@
 import { IAuthContext, IUserContext } from "src/models/auth-context";
+import { TimeWindow } from "src/models/common";
 import { IStockCurrentPrice } from "src/models/stock-current";
 import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
+import { IStockRanking } from "src/models/stock-rankings";
 
 export class BullWatcher {
     private baseUrl: string = `http://api.bullwatcher.com`;
@@ -102,6 +104,28 @@ export class BullWatcher {
             open: json.open,
             volume: json.volume
         }
+    }
+
+    public async getStockRankings(
+        timeWindow: TimeWindow,
+        minimumMarketCap?: number): Promise<IStockRanking[]> {
+        let url: string = this.baseUrl + `/rankings/price_percent_change/${timeWindow}`;
+        if (minimumMarketCap && minimumMarketCap > 0) {
+            url += `?min_market_cap=${minimumMarketCap}`;
+        }
+
+        const jsonArray: any[] = await this.getJson(url);
+        return jsonArray.map((json: any) => { return {
+            rank: json.rank,
+            ticker: json.ticker,
+            timeWindow: TimeWindow[json.time_window as string],
+            value: json.value,
+        }});
+    }
+
+    private async getJson(url: string): Promise<any | any[]> {
+        const response: any = await fetch(url);
+        return await response.json()
     }
 
     private getDateString(date: Date): string {
