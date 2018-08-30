@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 import { IChartSettings } from 'src/models/chart-settings'
 import { TimeWindow } from 'src/models/common';
@@ -91,7 +92,7 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
             stockCharts.push((
                 <div key={ranking.ticker}>
                     <ul>
-                        <li>{ranking.ticker}</li>
+                        <li><Link to={`stocks/${ranking.ticker}`} target="_blank">{ranking.ticker}</Link></li>
                         <li>Rank: {ranking.rank}</li>
                         <li>Percent change: {Math.round(ranking.value * 100) / 100}%</li>
                     </ul>
