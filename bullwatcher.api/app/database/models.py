@@ -67,3 +67,14 @@ class StockRanking(db.Model):
     rank            = db.Column(db.Integer)
     value           = db.Column(db.Float)
     last_updated_at = db.Column(db.DateTime)
+
+
+class SectorPerformance(db.Model):
+    """
+    Table which stores each sector and their performance over different time frames.
+    """
+    id              = db.Column(db.String(64), primary_key=True)
+    time_window     = db.Column(db.String(5), primary_key=True)
+    name            = db.Column(db.String(128))
+    percent_change  = db.Column(db.Float)
+    last_updated_at = db.Column(db.DateTime)

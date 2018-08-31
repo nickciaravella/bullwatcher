@@ -1,13 +1,25 @@
-from app.domain.stocks import StockDaily, MovingAverage, OnBalanceVolume
+from typing import Dict, List
+
 import json
 import os
 import requests
 import time
 
+from app.data_access import http
+from app.domain.common import TimeWindow
+from app.domain.sectors import SectorId, SectorPerformance
+from app.domain.stocks import StockDaily, MovingAverage, OnBalanceVolume
 
-def get_url(function, symbol):
+
+def get_url(function, symbol=None):
     api_key = os.environ['ALPHAVANTAGE_API_KEY']
-    return f'https://www.alphavantage.co/query?function={function}&symbol={symbol}&apikey={api_key}'
+
+    url: str = f'https://www.alphavantage.co/query?function={function}&apikey={api_key}'
+    if symbol:
+        url += f'&symbol={symbol}'
+
+    return url
+
 
 def _make_request(url):
     print('START -- GET ' + url)
@@ -19,6 +31,51 @@ def _make_request(url):
     end = time.time()
     print('END   -- Time: ' + str(end - start))
     return data
+
+# https://www.alphavantage.co/documentation/#sector
+def get_sector_performances() -> List[SectorPerformance]:
+    key_to_sector_id: Dict[str, SectorId] = {
+        "Information Technology": SectorId.TECHNOLOGY,
+        "Consumer Discretionary": SectorId.CONSUMER_DISCRETIONARY,
+        "Energy": SectorId.ENERGY,
+        "Health Care": SectorId.HEALTH_CARE,
+        "Financials": SectorId.FINANCIALS,
+        "Industrials": SectorId.INDUSTRIALS,
+        "Materials": SectorId.MATERIALS,
+        "Real Estate": SectorId.REAL_ESTATE,
+        "Consumer Staples": SectorId.CONSUMER_STAPLES,
+        "Telecommunication Services": SectorId.TELECOMMUNICATION_SERVICES,
+        "Utilities": SectorId.UTILITIES
+    }
+
+    key_to_time_window: Dict[str, TimeWindow] = {
+        "Rank C: 5 Day Performance": TimeWindow.ONE_WEEK,
+        "Rank D: 1 Month Performance": TimeWindow.ONE_MONTH,
+        "Rank E: 3 Month Performance": TimeWindow.THREE_MONTHS,
+        "Rank G: 1 Year Performance": TimeWindow.ONE_YEAR,
+        "Rank H: 3 Year Performance": TimeWindow.THREE_YEARS,
+        "Rank I: 5 Year Performance": TimeWindow.FIVE_YEARS
+    }
+
+    sector_json: any = http.get_json(get_url('SECTOR'))
+
+    sector_performances: List[SectorPerformance] = []
+    for time_window_key in sector_json:
+        if time_window_key not in key_to_time_window:
+            continue
+
+        for sector_key in sector_json[time_window_key]:
+            if sector_key not in key_to_sector_id:
+                continue
+
+            sector_performances.append(
+                SectorPerformance(id=key_to_sector_id[sector_key],
+                                  time_window=key_to_time_window[time_window_key],
+                                  name=sector_key,
+                                  percent_change=float(sector_json[time_window_key][sector_key].rstrip('%')))
+            )
+
+    return sector_performances
 
 # https://www.alphavantage.co/documentation/#daily
 def get_stock_daily(ticker):

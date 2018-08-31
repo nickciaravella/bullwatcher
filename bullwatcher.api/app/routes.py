@@ -2,7 +2,7 @@ import traceback
 
 from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
-from app.handlers.stocks import patterns_handler, rankings_handler, stocks_handler, stocks_sync
+from app.handlers.stocks import patterns_handler, rankings_handler, sectors_handler, stocks_handler, stocks_sync
 from app.handlers import db_handler, user_handler
 from datetime import datetime
 from flask import jsonify, request
@@ -106,6 +106,12 @@ def setup_routes(app):
     @app.route('/stock-tickers')
     def db_stock_tickers():
         return jsonify(db_handler.stock_tickers())
+
+
+    ### SECTORS ###
+    @app.route('/sectors/performances')
+    def get_sector_performances():
+        return jsonify([s.to_json() for s in sectors_handler.get_sector_performances()])
 
 
     ### RANKINGS ###
