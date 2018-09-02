@@ -4,6 +4,7 @@ import { IStockCurrentPrice } from "src/models/stock-current";
 import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 import { IStockRanking } from "src/models/stock-rankings";
+import { ISectorPerformance } from "../models/sectors";
 
 export class BullWatcher {
     private baseUrl: string = `http://api.bullwatcher.com`;
@@ -121,6 +122,17 @@ export class BullWatcher {
             timeWindow: TimeWindow[json.time_window as string],
             value: json.value,
         }});
+    }
+
+    public async getSectorPerformances(): Promise<ISectorPerformance[]> {
+        const url: string = this.baseUrl + '/sectors/performances';
+        const jsonArray: any[] = await this.getJson(url);
+        return jsonArray.map((json: any) => { return {
+            id: json.id,
+            percentChange: json.percent_change,
+            sectorName: json.name,
+            timeWindow: json.time_window,
+        }})
     }
 
     private async getJson(url: string): Promise<any | any[]> {

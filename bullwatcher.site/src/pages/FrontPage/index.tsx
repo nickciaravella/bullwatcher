@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { IChartSettings } from '../models/chart-settings'
-import StockChart from '../StockChart';
+import { IChartSettings } from '../../models/chart-settings'
+import StockChart from '../../StockChart';
+import SectorPerformances from './SectorPerformances';
 
 interface IFrontPageProps {
     chartSettings: IChartSettings;
@@ -33,10 +34,7 @@ export default class FrontPage extends React.Component<IFrontPageProps> {
                         </div>
                     }
                 </div>
-                <div>
-                    <h1>Sector Performance</h1>
-                    <p>TODO</p>
-                </div>
+                <SectorPerformances />
             </div>
         );
     }
