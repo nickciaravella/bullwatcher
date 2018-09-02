@@ -97,7 +97,7 @@ def get_stock_rankings(ticker: str) -> List[Ranking]:
     return rankings
 
 
-def _db_ranking_to_domain(ranking: models.StockRanking) -> Ranking:
+def _db_ranking_to_domain(ranking) -> Ranking:
     return Ranking(
         ticker=ranking.ticker,
         ranking_type=ranking.ranking_type,
