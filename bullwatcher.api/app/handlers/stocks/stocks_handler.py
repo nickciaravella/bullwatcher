@@ -1,7 +1,8 @@
 from typing import Dict, List, Optional
 
-from app.data_access import iex
+from app.data_access import bullwatcherdb, iex
 from app.database import models
+from app.domain.rankings import Ranking
 from app.domain.stocks import StockMetadata, StockDaily, StockCurrent
 from sqlalchemy import func
 
@@ -20,3 +21,7 @@ def get_stock_history(ticker: str) -> Optional[List[StockDaily]]:
 
 def get_stock_current(ticker: str) -> StockCurrent:
     return iex.get_stock_current(ticker)
+
+
+def get_stock_rankings(ticker: str) -> List[Ranking]:
+    return bullwatcherdb.get_stock_rankings(ticker)

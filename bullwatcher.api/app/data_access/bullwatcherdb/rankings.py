@@ -63,13 +63,7 @@ def get_rankings(time_window: str, ranking_type: str) -> List[Ranking]:
         .all()
 
     rankings: List[Ranking] = [
-        Ranking(
-            ticker=r.ticker,
-            ranking_type=r.ranking_type,
-            time_window=r.time_window,
-            rank=r.rank,
-            value=r.value
-        )
+        _db_ranking_to_domain(r)
         for r in db_rankings
     ]
 
@@ -77,4 +71,37 @@ def get_rankings(time_window: str, ranking_type: str) -> List[Ranking]:
 
     end = time.time()
     print(f'END   -- Time: {end - start}')
+    print(len(rankings))
     return rankings
+
+
+def get_stock_rankings(ticker: str) -> List[Ranking]:
+    """
+    Gets all of the rankings for one particular stock.
+    """
+    print(f'START -- DB get_stock_rankings -- ticker: {ticker}')
+    start = time.time()
+
+    db_rankings: List[models.StockRanking] = db.session \
+        .query(models.StockRanking) \
+        .filter(models.StockRanking.ticker == ticker) \
+        .all()
+
+    rankings: List[Ranking] = [
+        _db_ranking_to_domain(r)
+        for r in db_rankings
+    ]
+
+    end = time.time()
+    print(f'END   -- Time: {end - start}')
+    return rankings
+
+
+def _db_ranking_to_domain(ranking: models.StockRanking) -> Ranking:
+    return Ranking(
+        ticker=ranking.ticker,
+        ranking_type=ranking.ranking_type,
+        time_window=ranking.time_window,
+        rank=ranking.rank,
+        value=ranking.value
+    )

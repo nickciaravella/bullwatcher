@@ -71,6 +71,10 @@ def setup_routes(app):
     def db_stock_metadata(ticker):
         return jsonify(stocks_handler.get_stock_metadata(ticker))
 
+    @app.route('/<ticker>/rankings')
+    def get_stock_rankings(ticker: str):
+        return jsonify([r.to_json() for r in stocks_handler.get_stock_rankings(ticker.upper())])
+
     @app.route('/sync-stocks/<int:count>')
     def sync_stocks(count):
         return jsonify([s.to_json() for s in stocks_sync.sync(count)])
