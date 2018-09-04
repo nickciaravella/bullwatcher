@@ -1,43 +1,27 @@
 import * as React from 'react';
 import { IStockCurrentPrice } from 'src/models/stock-current';
-import { BullWatcher } from 'src/services/bullwatcher'
-
 
 export interface IStockCurrentPriceProps {
-    ticker: string;
+    currentPrice: IStockCurrentPrice;
 }
 
-export interface IStockCurrentPriceState {
-    currentPrice?: IStockCurrentPrice;
-}
+// export interface IStockCurrentPriceState {
+// }
 
-export default class StockCurrentPrice extends React.Component<IStockCurrentPriceProps, IStockCurrentPriceState> {
-
-    private bullwatcherService: BullWatcher;
+export default class StockCurrentPrice extends React.Component<IStockCurrentPriceProps> {
 
     constructor(props: any) {
         super(props);
-
-        this.state = {
-            currentPrice: null
-        }
-
-        this.bullwatcherService = new BullWatcher();
-        this.loadStockCurrentPrice();
     }
 
-    public componentDidUpdate (prevProps: IStockCurrentPriceProps) {
-        if (this.props.ticker !== prevProps.ticker) {
-            this.loadStockCurrentPrice();
-        }
-    }
+    // public componentDidUpdate (prevProps: IStockCurrentPriceProps) {
+    //     if (this.props.ticker !== prevProps.ticker) {
+    //         this.loadStockCurrentPrice();
+    //     }
+    // }
 
     public render() {
-        const { currentPrice } = this.state;
-
-        if (!currentPrice) {
-            return null;
-        }
+        const { currentPrice } = this.props;
 
         const formatter = Intl.NumberFormat('en-us', {
             currency: 'USD',
@@ -54,13 +38,5 @@ export default class StockCurrentPrice extends React.Component<IStockCurrentPric
                 <p>Todays Change: {todaysPercentChange.toFixed(2)}%  ( {formatter.format(todaysChange)} )</p>
             </div>
         );
-    }
-
-    private async loadStockCurrentPrice(): Promise<void> {
-        const { ticker } = this.props;
-        const currentPrice: IStockCurrentPrice = await this.bullwatcherService.getStockCurrentPrice(ticker);
-        this.setState({
-            currentPrice
-        });
     }
 }
