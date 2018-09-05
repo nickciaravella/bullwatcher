@@ -13,6 +13,7 @@ class SectorId:
     CONSUMER_STAPLES = "ConsumerStaples"
     TELECOMMUNICATION_SERVICES = "TelecommunicationServices"
     REAL_ESTATE = "RealEstate"
+    UNKNOWN = "Unknown"
 
 
 class SectorPerformance:
