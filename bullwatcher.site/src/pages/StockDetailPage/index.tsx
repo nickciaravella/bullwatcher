@@ -4,6 +4,7 @@ import * as React from 'react';
 import { IChartSettings } from 'src/models/chart-settings'
 import { TimeWindow } from 'src/models/common';
 import { INews } from 'src/models/news';
+import { ISectorPerformance } from 'src/models/sectors';
 import { IStockCurrentPrice } from 'src/models/stock-current';
 import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
 import { IStockRanking } from 'src/models/stock-rankings';
@@ -21,7 +22,7 @@ interface IStockDetailPageProps {
 }
 
 interface IStockDetailPageState {
-    ticker: string;
+    sectorPerformances: ISectorPerformance[];
     price?: IStockCurrentPrice;
     rankings: IStockRanking[];
     news: INews[]
@@ -56,7 +57,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                     this.state.price && stockMetadata &&
                     <div>
                         <StockCurrentPrice currentPrice={this.state.price} />
-                        <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
+                        <StockChart ticker={this.props.ticker} settings={this.props.chartSettings} />
                         <ul>
                             <li>Market Cap: {numberWithIllions(stockMetadata.marketCap)}</li>
                             <li>Volume: {numberWithIllions(price.volume)}</li>
@@ -83,12 +84,12 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                                     <td>{this.getRankingForTimeWindow(TimeWindow.THREE_YEARS)}</td>
                                 </tr>
                                 <tr>
-                                    <td>{stockMetadata.sector}</td>
-                                    <td>--</td>
-                                    <td>--</td>
-                                    <td>--</td>
-                                    <td>--</td>
-                                    <td>--</td>
+                                    <td>{this.getSectorNameForId(stockMetadata.sector)}</td>
+                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.ONE_WEEK)}</td>
+                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.ONE_MONTH)}</td>
+                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.THREE_MONTHS)}</td>
+                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.ONE_YEAR)}</td>
+                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.THREE_YEARS)}</td>
                                 </tr>
                             </table>
                         }
@@ -128,17 +129,19 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
         this.state = {
             news: [],
             rankings: [],
-            ticker: this.props.ticker,
+            sectorPerformances: [],
         };
 
         this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
-        const price: IStockCurrentPrice = await new BullWatcher().getStockCurrentPrice(this.state.ticker);
-        const news: INews[] = await new Iex().getNews(this.state.ticker);
-        const rankings: IStockRanking[] = await new BullWatcher().getSingleStockRankings(this.state.ticker);
+        const price: IStockCurrentPrice = await new BullWatcher().getStockCurrentPrice(this.props.ticker);
+        const news: INews[] = await new Iex().getNews(this.props.ticker);
+        const rankings: IStockRanking[] = await new BullWatcher().getSingleStockRankings(this.props.ticker);
+        const sectorPerformances: ISectorPerformance[] = await new BullWatcher().getSectorPerformances();
         this.setState((prevState: IStockDetailPageState) => { return {
             news,
             price,
             rankings,
+            sectorPerformances,
             ticker: this.props.ticker
         }})
     }
@@ -149,5 +152,21 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
             return '--';
         }
         return percentageString(ranking.value);
+    }
+
+    private getSectorNameForId(sector: string): string {
+        const performance = this.state.sectorPerformances.find(p => p.id === sector);
+        if (!performance) {
+            return "Unknown";
+        }
+        return performance.sectorName;
+    }
+
+    private getSectorPerformanceForTimeWindow(sector: string, timeWindow: TimeWindow): string {
+        const performance = this.state.sectorPerformances.find(p => p.id === sector && p.timeWindow === timeWindow);
+        if (!performance) {
+            return '--';
+        }
+        return percentageString(performance.percentChange);
     }
 }
