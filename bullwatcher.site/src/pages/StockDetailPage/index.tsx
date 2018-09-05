@@ -3,13 +3,14 @@ import * as React from 'react';
 
 import { IChartSettings } from 'src/models/chart-settings'
 import { INews } from 'src/models/news';
+import { IStockCurrentPrice } from 'src/models/stock-current';
 import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
+import { IStockRanking } from 'src/models/stock-rankings';
+import { BullWatcher } from 'src/services/bullwatcher';
 import { Iex } from 'src/services/iex';
 import StockChart from 'src/StockChart';
 import StockCurrentPrice from 'src/StockCurrentPrice';
-import { IStockCurrentPrice } from '../../models/stock-current';
-import { BullWatcher } from '../../services/bullwatcher';
-
+import { TimeWindow } from '../../models/common';
 
 interface IStockDetailPageProps {
     ticker: string;
@@ -20,12 +21,12 @@ interface IStockDetailPageProps {
 interface IStockDetailPageState {
     ticker: string;
     price?: IStockCurrentPrice;
+    rankings: IStockRanking[];
     news: INews[]
 }
 
 @observer
 export default class StockDetailPage extends React.Component<IStockDetailPageProps, IStockDetailPageState> {
-
 
     constructor(props: IStockDetailPageProps) {
         super(props);
@@ -61,32 +62,34 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                             <li>High: {price.high}</li>
                             <li>Low: {price.low}</li>
                         </ul>
-                        <table>
-                            <tr>
-                                <th/>
-                                <th>1 week</th>
-                                <th>1 month</th>
-                                <th>3 months</th>
-                                <th>1 year</th>
-                                <th>3 years</th>
-                            </tr>
-                            <tr>
-                                <td>{this.state.ticker}</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                            </tr>
-                            <tr>
-                                <td>Sector</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                            </tr>
-                        </table>
+                        { this.state.rankings.length > 0 &&
+                            <table>
+                                <tr>
+                                    <th/>
+                                    <th>1 week</th>
+                                    <th>1 month</th>
+                                    <th>3 months</th>
+                                    <th>1 year</th>
+                                    <th>3 years</th>
+                                </tr>
+                                <tr>
+                                    <td>{stockMetadata.companyName}</td>
+                                    <td>{this.getRankingForTimeWindow(TimeWindow.ONE_WEEK)}</td>
+                                    <td>{this.getRankingForTimeWindow(TimeWindow.ONE_MONTH)}</td>
+                                    <td>{this.getRankingForTimeWindow(TimeWindow.THREE_MONTHS)}</td>
+                                    <td>{this.getRankingForTimeWindow(TimeWindow.ONE_YEAR)}</td>
+                                    <td>{this.getRankingForTimeWindow(TimeWindow.THREE_YEARS)}</td>
+                                </tr>
+                                <tr>
+                                    <td>{stockMetadata.sector}</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                </tr>
+                            </table>
+                        }
                     {
                         this._renderNewsSection()
                     }
@@ -122,16 +125,27 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
     private async _setupPropsAndState() {
         this.state = {
             news: [],
+            rankings: [],
             ticker: this.props.ticker,
         };
 
         this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
         const price: IStockCurrentPrice = await new BullWatcher().getStockCurrentPrice(this.state.ticker);
         const news: INews[] = await new Iex().getNews(this.state.ticker);
+        const rankings: IStockRanking[] = await new BullWatcher().getSingleStockRankings(this.state.ticker);
         this.setState((prevState: IStockDetailPageState) => { return {
             news,
             price,
+            rankings,
             ticker: this.props.ticker
         }})
+    }
+
+    private getRankingForTimeWindow(timeWindow: TimeWindow): string {
+        const ranking = this.state.rankings.find(r => r.timeWindow === timeWindow);
+        if (!ranking) {
+            return '--';
+        }
+        return `${Math.round(ranking.value * 100) / 100}%`;
     }
 }

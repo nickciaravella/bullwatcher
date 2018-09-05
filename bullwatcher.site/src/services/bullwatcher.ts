@@ -119,7 +119,18 @@ export class BullWatcher {
         return jsonArray.map((json: any) => { return {
             rank: json.rank,
             ticker: json.ticker,
-            timeWindow: TimeWindow[json.time_window as string],
+            timeWindow: json.time_window,
+            value: json.value,
+        }});
+    }
+
+    public async getSingleStockRankings(ticker: string): Promise<IStockRanking[]> {
+        const url: string = this.baseUrl + `/${ticker}/rankings`;
+        const jsonArray: any[] = await this.getJson(url);
+        return jsonArray.map((json: any) => { return {
+            rank: json.rank,
+            ticker: json.ticker,
+            timeWindow: json.time_window,
             value: json.value,
         }});
     }
