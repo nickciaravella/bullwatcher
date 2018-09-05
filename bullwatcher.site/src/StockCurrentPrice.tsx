@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IStockCurrentPrice } from 'src/models/stock-current';
+import { currencyString, percentageString} from 'src/utils'
 
 export interface IStockCurrentPriceProps {
     currentPrice: IStockCurrentPrice;
@@ -22,20 +23,13 @@ export default class StockCurrentPrice extends React.Component<IStockCurrentPric
 
     public render() {
         const { currentPrice } = this.props;
-
-        const formatter = Intl.NumberFormat('en-us', {
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            style: 'currency',
-        });
-
-        const todaysChange = Math.round((currentPrice.currentPrice - currentPrice.lastClose) * 100) / 100
-        const todaysPercentChange = Math.round(todaysChange/currentPrice.currentPrice * 10000) / 100
+        const todaysChange = currentPrice.currentPrice - currentPrice.lastClose;
+        const todaysPercentChange = todaysChange / currentPrice.currentPrice * 100;
         return (
             <div>
-                <p>Current Price: {formatter.format(currentPrice.currentPrice)} </p>
+                <p>Current Price: {currencyString(currentPrice.currentPrice)} </p>
                 <p>Current Price Updated: {currentPrice.currentPriceDateTime.toLocaleString()}</p>
-                <p>Todays Change: {todaysPercentChange.toFixed(2)}%  ( {formatter.format(todaysChange)} )</p>
+                <p>Todays Change: {percentageString(todaysPercentChange)}  ( {currencyString(todaysChange)} )</p>
             </div>
         );
     }

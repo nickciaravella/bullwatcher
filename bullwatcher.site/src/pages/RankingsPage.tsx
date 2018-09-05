@@ -7,6 +7,7 @@ import { TimeWindow } from 'src/models/common';
 import { IStockRanking } from 'src/models/stock-rankings';
 import { BullWatcher } from 'src/services/bullwatcher';
 import StockChart from 'src/StockChart';
+import { percentageString } from 'src/utils'
 
 interface IRankingsPageProps {
     chartSettings: IChartSettings;
@@ -94,7 +95,7 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
                     <ul>
                         <li><Link to={`stocks/${ranking.ticker}`} target="_blank">{ranking.ticker}</Link></li>
                         <li>Rank: {ranking.rank}</li>
-                        <li>Percent change: {Math.round(ranking.value * 100) / 100}%</li>
+                        <li>Percent change: {percentageString(ranking.value)}</li>
                     </ul>
                     <StockChart ticker={ranking.ticker} settings={this.props.chartSettings} />
                 </div>

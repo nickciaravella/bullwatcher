@@ -2,6 +2,7 @@ import { observer } from 'mobx-react';
 import * as React from 'react';
 
 import { IChartSettings } from 'src/models/chart-settings'
+import { TimeWindow } from 'src/models/common';
 import { INews } from 'src/models/news';
 import { IStockCurrentPrice } from 'src/models/stock-current';
 import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
@@ -10,7 +11,8 @@ import { BullWatcher } from 'src/services/bullwatcher';
 import { Iex } from 'src/services/iex';
 import StockChart from 'src/StockChart';
 import StockCurrentPrice from 'src/StockCurrentPrice';
-import { TimeWindow } from '../../models/common';
+import { currencyString, numberWithIllions, percentageString } from 'src/utils'
+
 
 interface IStockDetailPageProps {
     ticker: string;
@@ -56,11 +58,11 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                         <StockCurrentPrice currentPrice={this.state.price} />
                         <StockChart ticker={this.state.ticker} settings={this.props.chartSettings} />
                         <ul>
-                            <li>Market Cap: {stockMetadata.marketCap}</li>
-                            <li>Volume: {price.volume}</li>
-                            <li>Open: {price.open}</li>
-                            <li>High: {price.high}</li>
-                            <li>Low: {price.low}</li>
+                            <li>Market Cap: {numberWithIllions(stockMetadata.marketCap)}</li>
+                            <li>Volume: {numberWithIllions(price.volume)}</li>
+                            <li>Open: {currencyString(price.open)}</li>
+                            <li>High: {currencyString(price.high)}</li>
+                            <li>Low: {currencyString(price.low)}</li>
                         </ul>
                         { this.state.rankings.length > 0 &&
                             <table>
@@ -146,6 +148,6 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
         if (!ranking) {
             return '--';
         }
-        return `${Math.round(ranking.value * 100) / 100}%`;
+        return percentageString(ranking.value);
     }
 }
