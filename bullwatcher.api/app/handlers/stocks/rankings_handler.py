@@ -7,6 +7,7 @@ from app.data_access import bullwatcherdb
 from app.domain.common import TimeWindow
 from app.domain.exceptions import HttpError
 from app.domain.rankings import Ranking, RankingType
+from app.domain.sectors import SectorId
 from app.domain.stocks import StockDaily
 
 
@@ -14,7 +15,7 @@ def get_rankings(
         ranking_type: str,
         time_window: str,
         min_market_cap: Optional[int],
-        sector: Optional[str]) -> List[Ranking]:
+        sector: Optional[SectorId]) -> List[Ranking]:
     if not RankingType.is_valid(ranking_type):
         raise HttpError(
             status_code=400,
@@ -38,9 +39,11 @@ def get_rankings(
         for ranking in rankings:
             if ranking.ticker not in metadatas_by_ticker:
                 continue
-            if min_market_cap and metadatas_by_ticker[ranking.ticker].market_cap < min_market_cap:
+
+            current_metadata = metadatas_by_ticker[ranking.ticker]
+            if min_market_cap and current_metadata.market_cap < min_market_cap:
                 continue
-            if sector and metadatas_by_ticker[ranking.ticker].sector != sector:
+            if sector and bullwatcherdb.convert_db_sector_to_domain(current_metadata.sector) != sector:
                 continue
 
             ranking.rank = len(new_rankings) + 1

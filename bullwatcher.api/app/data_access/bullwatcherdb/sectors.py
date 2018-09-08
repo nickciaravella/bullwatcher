@@ -1,11 +1,11 @@
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import datetime
 import time
 
 from application import db
 from app.database import models
-from app.domain.sectors import SectorPerformance
+from app.domain.sectors import SectorId, SectorPerformance
 
 
 def get_sector_performances() -> Tuple[datetime.datetime, List[SectorPerformance]]:
@@ -61,3 +61,39 @@ def update_sector_performances(sector_performances: List[SectorPerformance]):
     end = time.time()
     print(f'Saved {len(db_models)} sector performances.')
     print('END   -- Time: ' + str(end - start))
+
+
+def convert_db_sector_to_domain(sector: str) -> SectorId:
+    """
+    Converts a sector from the database string to a domain SectorId. If there is no mapped SectorId, then it will
+    be mapped to SectorId.UNKNOWN
+    """
+    mapping: Dict[str, SectorId] = {
+        '': SectorId.UNKNOWN,
+        'Basic Industries': SectorId.INDUSTRIALS,
+        'Basic Materials': SectorId.MATERIALS,
+        'Capital Goods': SectorId.INDUSTRIALS,
+        'Communication Services': SectorId.TELECOMMUNICATION_SERVICES,
+        'Consumer Cyclical': SectorId.CONSUMER_DISCRETIONARY,
+        'Consumer Defensive': SectorId.CONSUMER_STAPLES,
+        'Consumer Durables': SectorId.CONSUMER_DISCRETIONARY,
+        'Consumer Non-Durables': SectorId.CONSUMER_STAPLES,
+        'Consumer Services': SectorId.CONSUMER_DISCRETIONARY,
+        'Energy': SectorId.ENERGY,
+        'Finance': SectorId.FINANCIALS,
+        'Financial Services': SectorId.FINANCIALS,
+        'Industrials': SectorId.INDUSTRIALS,
+        'Health Care': SectorId.HEALTH_CARE,
+        'Healthcare': SectorId.HEALTH_CARE,
+        'Miscellaneous': SectorId.UNKNOWN,
+        'Public Utilities': SectorId.UTILITIES,
+        'Real Estate': SectorId.REAL_ESTATE,
+        'Technology': SectorId.TECHNOLOGY,
+        'Transportation': SectorId.INDUSTRIALS,
+        'Utilities': SectorId.UTILITIES,
+    }
+
+    if sector in mapping:
+        return mapping[sector]
+    else:
+        return SectorId.UNKNOWN
