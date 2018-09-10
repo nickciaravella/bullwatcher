@@ -1,10 +1,10 @@
 import { IAuthContext, IUserContext } from "src/models/auth-context";
 import { TimeWindow } from "src/models/common";
+import { ISector, ISectorPerformance } from "src/models/sectors";
 import { IStockCurrentPrice } from "src/models/stock-current";
 import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 import { IStockRanking } from "src/models/stock-rankings";
-import { ISectorPerformance } from "../models/sectors";
 
 export class BullWatcher {
     private baseUrl: string = `http://api.bullwatcher.com`;
@@ -109,10 +109,21 @@ export class BullWatcher {
 
     public async getStockRankings(
         timeWindow: TimeWindow,
-        minimumMarketCap?: number): Promise<IStockRanking[]> {
+        minimumMarketCap?: number,
+        sectorsFilter?: string): Promise<IStockRanking[]> {
         let url: string = this.baseUrl + `/rankings/price_percent_change/${timeWindow}`;
+        let query: string = '';
         if (minimumMarketCap && minimumMarketCap > 0) {
-            url += `?min_market_cap=${minimumMarketCap}`;
+            query += `min_market_cap=${minimumMarketCap}`;
+        }
+        if (sectorsFilter) {
+            if (query.length > 0) {
+                query += '&';
+            }
+            query += `sector=${sectorsFilter}`;
+        }
+        if (query.length > 0) {
+            url += `?${query}`;
         }
 
         const jsonArray: any[] = await this.getJson(url);
@@ -133,6 +144,25 @@ export class BullWatcher {
             timeWindow: json.time_window,
             value: json.value,
         }});
+    }
+
+    public async getSectors(): Promise<ISector[]> {
+        const sectorPerformances = await this.getSectorPerformances();
+        const sectorIds = new Set();
+        const sectors: ISector[] = [];
+
+        for (const sectorPerformance of sectorPerformances) {
+            if (sectorIds.has(sectorPerformance.id)) {
+                continue;
+            }
+            sectorIds.add(sectorPerformance.id);
+            sectors.push({
+                id: sectorPerformance.id,
+                sectorName: sectorPerformance.sectorName
+            });
+        }
+
+        return sectors;
     }
 
     public async getSectorPerformances(): Promise<ISectorPerformance[]> {

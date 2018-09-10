@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { IChartSettings } from 'src/models/chart-settings'
 import { TimeWindow } from 'src/models/common';
+import { ISector } from 'src/models/sectors';
 import { IStockRanking } from 'src/models/stock-rankings';
 import { BullWatcher } from 'src/services/bullwatcher';
 import StockChart from 'src/StockChart';
@@ -18,7 +19,8 @@ interface IRankingsPageState {
     pageSize: number;
     minimumMarketCapFilter: number;
     rankings: IStockRanking[];
-    sectorsFilter: string[];
+    sectors: ISector[],
+    sectorsFilter?: string;
     timeWindow: TimeWindow;
 }
 
@@ -34,11 +36,13 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
             minimumMarketCapFilter: 0,
             pageSize: 10,
             rankings: [],
-            sectorsFilter: [],
+            sectors: [],
+            sectorsFilter: null,
             startIndex: 0,
             timeWindow: "2y" as TimeWindow,
         }
-        this.loadRankings()
+        this.loadSectors();
+        this.loadRankings();
     }
 
     public render() {
@@ -78,9 +82,31 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
                         <option value={100000000000}>100 billion</option>
                         <option value={500000000000}>500 billion</option>
                     </select>
+                    <label>Sector</label>
+                    { this.renderSectorsFilter() }
                 </form>
             </div>
         );
+    }
+
+    private renderSectorsFilter() {
+        const { sectors, sectorsFilter } = this.state;
+        const sectorsToRender = [(
+            <option value={'ALL'}>All Sectors</option>
+        )]
+        for(const sector of sectors) {
+            sectorsToRender.push(
+                <option value={sector.id}>{sector.sectorName}</option>
+            )
+        }
+
+        const filterValue: string = sectorsFilter ? sectorsFilter : 'ALL';
+
+        return (
+            <select value={filterValue} onChange={this.handleSectorFilterChanged}>
+                {sectorsToRender}
+            </select>
+        )
     }
 
     private renderStockCharts() {
@@ -111,7 +137,24 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
                 minimumMarketCapFilter: newMinimum,
                 pageSize: prevState.pageSize,
                 rankings: prevState.rankings,
+                sectors: prevState.sectors,
                 sectorsFilter: prevState.sectorsFilter,
+                startIndex: prevState.startIndex,
+                timeWindow: prevState.timeWindow
+            }
+        }, this.loadRankings);
+    }
+
+    private handleSectorFilterChanged = (event: React.FormEvent<HTMLSelectElement>) => {
+        const newSector: string = event.currentTarget.value as string;
+        const filterValue: string = newSector === 'ALL' ? null : newSector;
+        this.setState((prevState) => {
+            return {
+                minimumMarketCapFilter: prevState.minimumMarketCapFilter,
+                pageSize: prevState.pageSize,
+                rankings: prevState.rankings,
+                sectors: prevState.sectors,
+                sectorsFilter: filterValue,
                 startIndex: prevState.startIndex,
                 timeWindow: prevState.timeWindow
             }
@@ -125,6 +168,7 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
                 minimumMarketCapFilter: prevState.minimumMarketCapFilter,
                 pageSize: prevState.pageSize,
                 rankings: prevState.rankings,
+                sectors: prevState.sectors,
                 sectorsFilter: prevState.sectorsFilter,
                 startIndex: prevState.startIndex,
                 timeWindow: newTimeWindow
@@ -135,13 +179,31 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
     private loadRankings = async () => {
         const rankings: IStockRanking[] = await this.bullwatcherService.getStockRankings(
             this.state.timeWindow,
-            this.state.minimumMarketCapFilter);
+            this.state.minimumMarketCapFilter,
+            this.state.sectorsFilter);
 
         this.setState((prevState) => {
             return {
                 minimumMarketCapFilter: prevState.minimumMarketCapFilter,
                 pageSize: prevState.pageSize,
                 rankings,
+                sectors: prevState.sectors,
+                sectorsFilter: prevState.sectorsFilter,
+                startIndex: 0,
+                timeWindow: prevState.timeWindow
+            }
+        });
+    }
+
+    private loadSectors = async() => {
+        const sectors: ISector[] = await this.bullwatcherService.getSectors();
+        sectors.sort((a, b) => a.sectorName > b.sectorName ? 1 : -1);
+        this.setState((prevState) => {
+            return {
+                minimumMarketCapFilter: prevState.minimumMarketCapFilter,
+                pageSize: prevState.pageSize,
+                rankings: prevState.rankings,
+                sectors,
                 sectorsFilter: prevState.sectorsFilter,
                 startIndex: prevState.startIndex,
                 timeWindow: prevState.timeWindow
