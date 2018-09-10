@@ -13,6 +13,18 @@ class User(db.Model):
     created_date    = db.Column(db.DateTime)
 
 
+class SyncStatus(db.Model):
+    """
+    Table to track the completion of different sync jobs. For example:
+    1. Sync stock metadata and dailies
+    2. Sync stock patterns
+    3. Sync stock rankings
+    """
+    sync_job        = db.Column(db.String(64), primary_key=True)
+    synced_until    = db.Column(db.DateTime)
+    last_updated_at = db.Column(db.DateTime)
+
+
 class StockSyncStatus(db.Model):
     ticker          = db.Column(db.String(10), primary_key=True)
     synced_until    = db.Column(db.DateTime)

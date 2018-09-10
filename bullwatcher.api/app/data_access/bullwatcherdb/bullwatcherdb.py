@@ -10,6 +10,39 @@ from sqlalchemy import and_, func
 import time
 
 
+def get_sync_statuses() -> Dict[str, datetime]:
+    """
+    Returns a dictionary of sync job name to the synced until datetime.
+    """
+    print('START -- DB get_sync_statuses')
+    start = time.time()
+
+    statuses: List[models.SyncStatus] = models.SyncStatus.query.all()
+    ret: Dict[str, datetime] = {
+        s.sync_job: s.synced_until
+        for s in statuses
+    }
+
+    end = time.time()
+
+    print('END   -- Time: ' + str(end - start))
+    return ret
+
+
+def set_sync_job_synced_until(sync_job: str, synced_until: datetime) -> None:
+    """
+    Sets the synced until datetime for a specific sync job.
+    """
+    print(f'START -- DB set_sync_job_synced_until: job: {sync_job}, synced_until: {synced_until}')
+    start = time.time()
+
+    db.session.merge(models.SyncStatus(sync_job=sync_job, synced_until=synced_until, last_updated_at=datetime.utcnow()))
+    db.session.commit()
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
+
 def save_batch_stock_metadata(stock_metadatas):
     print('START -- DB save_batch_stock_metadata: ' + str(len(stock_metadatas)) + ' metadatas')
     start = time.time()

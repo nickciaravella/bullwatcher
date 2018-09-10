@@ -2,6 +2,7 @@ import traceback
 
 from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
+from app.handlers.stocks.sync import sync_handler
 from app.handlers.stocks import patterns_handler, rankings_handler, sectors_handler, stocks_handler, stocks_sync
 from app.handlers import db_handler, user_handler
 from datetime import datetime
@@ -52,6 +53,13 @@ def setup_routes(app):
     @app.route('/users/<user_id>')
     def get_user(user_id: str):
         return jsonify(user_handler.get_user(user_id).to_json())
+
+
+    ### SYNC ###
+    @app.route('/sync')
+    def sync():
+        result = sync_handler.sync()
+        return jsonify(result)
 
 
     ### STOCK ###

@@ -54,7 +54,7 @@ def get_rankings(
     return rankings
 
 
-def sync_rankings():
+def sync_rankings(sync_date: datetime.date) -> bool:
 
     # Part 0: Load all the data
     all_tickers = bullwatcherdb.get_all_stock_daily_tickers()
@@ -131,6 +131,7 @@ def sync_rankings():
                                          time_window=time_window)
 
     print("[RANKINGS] DONE")
+    return True
 
 
 def handle_price_diff_percent(dailies: List[StockDaily]) -> Dict[TimeWindow, float]:

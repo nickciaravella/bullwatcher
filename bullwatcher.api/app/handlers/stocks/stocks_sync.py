@@ -1,15 +1,13 @@
 from datetime import datetime
 from app.data_access import bullwatcherdb, iex
-from app.domain.stocks import StockMetadata, StockSyncStatus
-import app.data_access.alphavantage as alpha
-import time
+from app.domain.stocks import StockSyncStatus
 
-def sync(count):
+def sync(count, sync_date) -> bool:
     all_tickers = iex.get_ticker_list()
     tickers_to_sync = set(_get_tickers_that_need_to_sync(all_tickers)[:count])
 
     if not tickers_to_sync:
-        return []
+        return True
 
     functions = [
         _sync_metadata,
@@ -21,14 +19,16 @@ def sync(count):
     new_statuses = [StockSyncStatus(ticker, datetime.utcnow()) for ticker in tickers_to_sync]
     bullwatcherdb.save_stock_sync_statuses(new_statuses)
 
-    return new_statuses
+    return False
 
 
 def _get_tickers_that_need_to_sync(input_tickers):
     statuses = bullwatcherdb.get_stock_sync_statuses()
     ticker_by_sync_date = { s.ticker: s.synced_until for s in statuses }
-    return [t for t in input_tickers
-              if t not in ticker_by_sync_date or ticker_by_sync_date[t].date() < datetime.utcnow().date()]
+    return [
+        t for t in input_tickers
+        if t not in ticker_by_sync_date or ticker_by_sync_date[t].date() < datetime.utcnow().date()
+    ]
 
 
 def _sync_metadata(tickers):

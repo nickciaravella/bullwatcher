@@ -2,6 +2,12 @@ from typing import Dict, List, Tuple
 
 import datetime
 
+class SyncJob:
+    PATTERNS_SYNC   = 'PATTERNS_SYNC'
+    RANKINGS_SYNC   = 'RANKINGS_SYNC'
+    STOCK_SYNC      = 'STOCK_SYNC'
+
+
 class TimeWindow:
     FIVE_YEARS      = '5y'
     THREE_YEARS     = '3y'

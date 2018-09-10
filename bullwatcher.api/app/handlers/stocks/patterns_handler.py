@@ -7,7 +7,7 @@ from app.utils import date_utils
 from datetime import date, datetime, timedelta
 
 
-def sync_patterns() -> DailyPatterns:
+def sync_patterns(sync_date: date) -> bool:
     """
     Searches all of the stocks to find patterns and stores them into
     the database. Returns a list of StockMeatadata objects for the patterns
@@ -24,6 +24,7 @@ def sync_patterns() -> DailyPatterns:
 
     date = date_utils.next_market_day()
     bullwatcherdb.set_flag_pattern_tickers(date, tickers_found)
+    return True
 
 
 def get_flags() -> DailyPatterns:
