@@ -1,18 +1,23 @@
 from typing import Dict, List, Optional
 
 from app.data_access import bullwatcherdb, iex
-from app.database import models
 from app.domain.rankings import Ranking
 from app.domain.stocks import StockMetadata, StockDaily, StockCurrent
-from sqlalchemy import func
 
 
 def get_stock_metadata(ticker):
-    m = models.StockMetadata.query.filter(func.lower(models.StockMetadata.ticker) == func.lower(ticker)).one()
-    return StockMetadata(m.ticker,
-                         m.company_name,
-                         m.market_cap,
-                         bullwatcherdb.convert_db_sector_to_domain(m.sector)).to_json()
+    metadata = bullwatcherdb.get_stock_metadata(ticker)
+
+    if not metadata:
+        metadatas: List[StockMetadata] = iex.get_stock_metadata([ticker])
+        if metadatas:
+            metadata = metadatas[0]
+            bullwatcherdb.save_batch_stock_metadata([metadata])
+
+    if metadata:
+        metadata.sector = bullwatcherdb.convert_db_sector_to_domain(metadata.sector)
+
+    return metadata
 
 
 def get_stock_history(ticker: str) -> Optional[List[StockDaily]]:

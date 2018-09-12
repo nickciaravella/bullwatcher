@@ -76,21 +76,16 @@ def setup_routes(app):
         return jsonify([s.to_json() for s in history])
 
     @app.route('/<ticker>/metadata')
-    def db_stock_metadata(ticker):
-        return jsonify(stocks_handler.get_stock_metadata(ticker))
+    def get_stock_metadata(ticker):
+        metadata = stocks_handler.get_stock_metadata(ticker)
+        if metadata:
+            return jsonify(metadata.to_json())
+        else:
+            return {}, 404
 
     @app.route('/<ticker>/rankings')
     def get_stock_rankings(ticker: str):
         return jsonify([r.to_json() for r in stocks_handler.get_stock_rankings(ticker.upper())])
-
-    @app.route('/sync-stocks/<int:count>')
-    def sync_stocks(count):
-        return jsonify([s.to_json() for s in stocks_sync.sync(count)])
-
-    @app.route('/patterns/sync')
-    def sync_patterns():
-        patterns_handler.sync_patterns()
-        return jsonify({})
 
     @app.route('/patterns/flags')
     def get_patterns():
@@ -127,11 +122,6 @@ def setup_routes(app):
 
 
     ### RANKINGS ###
-    @app.route('/rankings/sync')
-    def sync_rankings():
-        rankings_handler.sync_rankings()
-        return '{}'
-
     @app.route('/rankings/<ranking_type>/<time_window>')
     def get_rankings(ranking_type: str, time_window: str):
         rankings = rankings_handler.get_rankings(ranking_type=ranking_type,

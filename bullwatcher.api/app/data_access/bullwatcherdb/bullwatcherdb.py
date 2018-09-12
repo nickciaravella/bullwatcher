@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from application import db
 from app.database import conversion, models
@@ -74,6 +74,24 @@ def get_batch_stock_metadata(tickers):
     end = time.time()
     print('END   -- Time: ' + str(end - start))
     return metadatas
+
+
+def get_stock_metadata(ticker: str):
+    print(f'START -- DB get_stock_metadata: {ticker}')
+    start = time.time()
+
+    db_metadata: Optional[models.StockMetadata] = models.StockMetadata \
+        .query \
+        .filter(func.lower(models.StockMetadata.ticker) == func.lower(ticker)) \
+        .one_or_none()
+
+    end = time.time()
+    print('END   -- Time: ' + str(end - start))
+
+    if db_metadata:
+        return StockMetadata(db_metadata.ticker, db_metadata.company_name, db_metadata.market_cap, db_metadata.sector)
+    else:
+        return None
 
 
 def get_stock_sync_statuses():
