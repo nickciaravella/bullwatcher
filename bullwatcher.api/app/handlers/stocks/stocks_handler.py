@@ -5,7 +5,22 @@ from app.domain.rankings import Ranking
 from app.domain.stocks import StockMetadata, StockDaily, StockCurrent
 
 
-def get_stock_metadata(ticker):
+def search_stock_metadata(prefix: Optional[str], max_results: Optional[str]) -> List[StockMetadata]:
+    if max_results:
+        max_results = int(max_results)
+
+    if not prefix:
+        all_metadatas = bullwatcherdb.get_all_stock_metadata()
+        if max_results:
+            return all_metadatas[:max_results]
+        else:
+            return all_metadatas
+    else:
+        return bullwatcherdb.search_stock_metadata_by_prefix(prefix=prefix,
+                                                             max_results=max_results if max_results else 5)
+
+
+def get_stock_metadata(ticker) -> Optional[StockMetadata]:
     metadata = bullwatcherdb.get_stock_metadata(ticker)
 
     if not metadata:

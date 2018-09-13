@@ -43,57 +43,6 @@ def set_sync_job_synced_until(sync_job: str, synced_until: datetime) -> None:
     print('END   -- Time: ' + str(end - start))
 
 
-def save_batch_stock_metadata(stock_metadatas):
-    print('START -- DB save_batch_stock_metadata: ' + str(len(stock_metadatas)) + ' metadatas')
-    start = time.time()
-
-    db.session.query(models.StockMetadata).filter(
-        models.StockMetadata.ticker.in_([s.ticker for s in stock_metadatas])
-    ).delete(synchronize_session='fetch')
-
-    db.session.add_all(conversion.convert_stock_metadata(metadata) for metadata in stock_metadatas)
-    db.session.commit()
-
-    end = time.time()
-    print('END   -- Time: ' + str(end - start))
-
-
-def get_batch_stock_metadata(tickers):
-    print('START -- DB get_batch_stock_metadata: ' + str(len(tickers)) + ' tickers')
-    start = time.time()
-
-    db_metadatas = db.session.query(models.StockMetadata).filter(
-        models.StockMetadata.ticker.in_(tickers)
-    )
-
-    metadatas = [
-        StockMetadata(m.ticker, m.company_name, m.market_cap, m.sector)
-        for m in db_metadatas
-    ]
-
-    end = time.time()
-    print('END   -- Time: ' + str(end - start))
-    return metadatas
-
-
-def get_stock_metadata(ticker: str):
-    print(f'START -- DB get_stock_metadata: {ticker}')
-    start = time.time()
-
-    db_metadata: Optional[models.StockMetadata] = models.StockMetadata \
-        .query \
-        .filter(func.lower(models.StockMetadata.ticker) == func.lower(ticker)) \
-        .one_or_none()
-
-    end = time.time()
-    print('END   -- Time: ' + str(end - start))
-
-    if db_metadata:
-        return StockMetadata(db_metadata.ticker, db_metadata.company_name, db_metadata.market_cap, db_metadata.sector)
-    else:
-        return None
-
-
 def get_stock_sync_statuses():
     print('START -- DB get_stock_sync_statuses')
     start = time.time()

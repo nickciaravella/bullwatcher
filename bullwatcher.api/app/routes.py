@@ -75,6 +75,12 @@ def setup_routes(app):
             return f'Ticker "{ticker}" not found.', 404
         return jsonify([s.to_json() for s in history])
 
+    @app.route('/stock-metadata')
+    def search_stock_metadata():
+        matching = stocks_handler.search_stock_metadata(prefix=request.args.get('prefix'),
+                                                        max_results=request.args.get('max-results'))
+        return jsonify([m.to_json() for m in matching])
+
     @app.route('/<ticker>/metadata')
     def get_stock_metadata(ticker):
         metadata = stocks_handler.get_stock_metadata(ticker)
