@@ -35,6 +35,7 @@ class StockMetadata(db.Model):
     company_name    = db.Column(db.String(512), nullable=False)
     market_cap      = db.Column(db.BigInteger)
     sector          = db.Column(db.String(512))
+    last_updated_at = db.Column(db.DateTime)
 
 
 class StockDaily(db.Model):

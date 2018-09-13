@@ -1,4 +1,4 @@
-from app.domain.stocks import StockMetadata
+import datetime
 from app.database import models
 
 def convert_stock_metadata(domain):
@@ -7,4 +7,5 @@ def convert_stock_metadata(domain):
     converted.company_name = domain.company_name
     converted.market_cap = domain.market_cap
     converted.sector = domain.sector
+    converted.last_updated_at = datetime.datetime.utcnow()
     return converted
