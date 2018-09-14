@@ -30,7 +30,7 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
         for (const stockMetadata of suggestions) {
             suggestionsList.push((
                 <li key={stockMetadata.ticker}>
-                    {stockMetadata.companyName} <Link to={`stocks/${stockMetadata.ticker}`}>{stockMetadata.ticker}</Link>
+                    {stockMetadata.companyName} <Link to={`/stocks/${stockMetadata.ticker}`}>{stockMetadata.ticker}</Link>
                 </li>
             ))
         }

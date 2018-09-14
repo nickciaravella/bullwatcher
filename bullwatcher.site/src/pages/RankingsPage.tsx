@@ -119,7 +119,7 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
             stockCharts.push((
                 <div key={ranking.ticker}>
                     <ul>
-                        <li><Link to={`stocks/${ranking.ticker}`} target="_blank">{ranking.ticker}</Link></li>
+                        <li><Link to={`/stocks/${ranking.ticker}`} target="_blank">{ranking.ticker}</Link></li>
                         <li>Rank: {ranking.rank}</li>
                         <li>Percent change: {percentageString(ranking.value)}</li>
                     </ul>
