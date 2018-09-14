@@ -47,6 +47,19 @@ export class BullWatcher {
             });
     }
 
+    public async searchStockMetadata(prefix: string): Promise<IStockMetadata[]> {
+        const url: string = this.baseUrl + `/stock-metadata?prefix=${prefix}`;
+        const jsonArray: any[] = await this.getJson(url);
+        return jsonArray.map(json => {
+            return {
+                companyName: json.company_name,
+                marketCap: json.market_cap,
+                sector: json.sector,
+                ticker: json.ticker,
+            }
+        });
+    }
+
     public getPatterns(date?: string): Promise<IDailyPatternList> {
         const datePath: string = date ? `/${date}` : '';
         const url = this.baseUrl + `/patterns/flags${datePath}`;
