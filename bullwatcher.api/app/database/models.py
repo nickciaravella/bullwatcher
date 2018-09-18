@@ -1,5 +1,8 @@
-from application import db
+import datetime
 
+from application import db
+from sqlalchemy.dialects.postgresql import UUID
+from uuid import uuid4
 
 class User(db.Model):
     """
@@ -10,7 +13,7 @@ class User(db.Model):
     user_id         = db.Column(db.String(128), primary_key=True)
     email           = db.Column(db.String(512))
     full_name       = db.Column(db.String(512))
-    created_date    = db.Column(db.DateTime)
+    created_date    = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 class SyncStatus(db.Model):
@@ -22,7 +25,7 @@ class SyncStatus(db.Model):
     """
     sync_job        = db.Column(db.String(64), primary_key=True)
     synced_until    = db.Column(db.DateTime)
-    last_updated_at = db.Column(db.DateTime)
+    last_updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 class StockSyncStatus(db.Model):
@@ -35,7 +38,7 @@ class StockMetadata(db.Model):
     company_name    = db.Column(db.String(512), nullable=False)
     market_cap      = db.Column(db.BigInteger)
     sector          = db.Column(db.String(512))
-    last_updated_at = db.Column(db.DateTime)
+    last_updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 class StockDaily(db.Model):
@@ -79,7 +82,7 @@ class StockRanking(db.Model):
     ranking_type    = db.Column(db.String(48), primary_key=True)
     rank            = db.Column(db.Integer)
     value           = db.Column(db.Float)
-    last_updated_at = db.Column(db.DateTime)
+    last_updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
 class SectorPerformance(db.Model):
@@ -90,4 +93,41 @@ class SectorPerformance(db.Model):
     time_window     = db.Column(db.String(5), primary_key=True)
     name            = db.Column(db.String(128))
     percent_change  = db.Column(db.Float)
-    last_updated_at = db.Column(db.DateTime)
+    last_updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+
+class UserWatchlist(db.Model):
+    """
+    Metadata associated with a watchlist
+    """
+    watchlist_id            = db.Column(db.BigInteger,  primary_key=True)
+    user_id                 = db.Column(db.String(128), nullable=False)
+    display_name            = db.Column(db.String(256), nullable=False)
+    items_last_updated_at   = db.Column(db.DateTime,    nullable=False)
+    last_updated_at         = db.Column(db.DateTime,    default=datetime.datetime.utcnow)
+
+
+class UserWatchlistItem(db.Model):
+    """
+    Table that represents the stocks in a user's watchlist.
+    """
+    watchlist_id    = db.Column(UUID,           primary_key=True, default=uuid4)
+    ticker          = db.Column(db.String(10),  primary_key=True)
+    user_id         = db.Column(db.String(128), nullable=False)
+    position        = db.Column(db.Integer,     nullable=False)
+
+
+class UserOrder(db.Model):
+    """
+    Table that represents the buy orders made by a user.
+    """
+    order_id        = db.Column(UUID,           primary_key=True, default=uuid4)
+    user_id         = db.Column(db.String(128), nullable=False)
+    ticker          = db.Column(db.String(10),  nullable=False)
+    order_type      = db.Column(db.String(64),  nullable=False)
+    executed_at     = db.Column(db.DateTime,    nullable=False)
+    price           = db.Column(db.Float,       nullable=False)
+    shares          = db.Column(db.Float,       nullable=False)
+    fees            = db.Column(db.Float,       nullable=False)
+    account         = db.Column(db.String(256))
+    last_updated_at = db.Column(db.DateTime,    default=datetime.datetime.utcnow)
