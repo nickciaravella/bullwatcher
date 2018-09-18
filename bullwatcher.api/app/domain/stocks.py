@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from datetime import datetime
 
 
@@ -15,6 +16,15 @@ class StockMetadata:
             'market_cap': self.market_cap,
             'sector': self.sector
         }
+
+    @classmethod
+    def from_json(self, json: Dict[str, Any]) -> 'StockMetadata':
+        return StockMetadata(
+            ticker=json['ticker'],
+            company_name=json['company_name'],
+            market_cap=json['market_cap'],
+            sector=json['sector']
+        )
 
 
 class StockSyncStatus:

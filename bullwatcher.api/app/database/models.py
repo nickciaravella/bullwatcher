@@ -1,8 +1,6 @@
 import datetime
-
 from application import db
-from sqlalchemy.dialects.postgresql import UUID
-from uuid import uuid4
+
 
 class User(db.Model):
     """
@@ -111,7 +109,7 @@ class UserWatchlistItem(db.Model):
     """
     Table that represents the stocks in a user's watchlist.
     """
-    watchlist_id    = db.Column(UUID,           primary_key=True, default=uuid4)
+    watchlist_id    = db.Column(db.BigInteger,  primary_key=True)
     ticker          = db.Column(db.String(10),  primary_key=True)
     user_id         = db.Column(db.String(128), nullable=False)
     position        = db.Column(db.Integer,     nullable=False)
@@ -121,7 +119,7 @@ class UserOrder(db.Model):
     """
     Table that represents the buy orders made by a user.
     """
-    order_id        = db.Column(UUID,           primary_key=True, default=uuid4)
+    order_id        = db.Column(db.BigInteger,  primary_key=True)
     user_id         = db.Column(db.String(128), nullable=False)
     ticker          = db.Column(db.String(10),  nullable=False)
     order_type      = db.Column(db.String(64),  nullable=False)

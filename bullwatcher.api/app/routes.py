@@ -1,10 +1,13 @@
+from typing import List
+
 import traceback
 
 from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
+from app.domain.watchlist import UserWatchlistItem
 from app.handlers.stocks.sync import sync_handler
-from app.handlers.stocks import patterns_handler, rankings_handler, sectors_handler, stocks_handler, stocks_sync
-from app.handlers import db_handler, user_handler
+from app.handlers.stocks import patterns_handler, rankings_handler, sectors_handler, stocks_handler
+from app.handlers import db_handler, user_handler, watchlist_handler
 from datetime import datetime
 from flask import jsonify, request
 from werkzeug.exceptions import HTTPException
@@ -53,6 +56,44 @@ def setup_routes(app):
     @app.route('/users/<user_id>')
     def get_user(user_id: str):
         return jsonify(user_handler.get_user(user_id).to_json())
+
+    @app.route('/users/<user_id>/watchlists', methods=['GET'])
+    def get_user_watchlists(user_id: str):
+        return jsonify([w.to_json() for w in watchlist_handler.get_watchlists(user_id=user_id)])
+
+    @app.route('/users/<user_id>/watchlists', methods=['POST'])
+    def create_user_watchlist(user_id: str):
+        return jsonify(
+            watchlist_handler.create_user_watchlist(
+                user_id=user_id,
+                watchlist_name=request.json['display_name']
+            ).to_json()
+        )
+
+    @app.route('/users/<user_id>/watchlists/<int:watchlist_id>', methods=['DELETE'])
+    def delete_user_watchlist(user_id: str, watchlist_id: int):
+        watchlist_handler.delete_user_watchlist(user_id=user_id, watchlist_id=watchlist_id)
+        return ('',200)
+
+    @app.route('/users/<user_id>/watchlists/<int:watchlist_id>/items', methods=['GET'])
+    def get_user_watchlist_items(user_id: str, watchlist_id: int):
+        return jsonify([
+            item.to_json()
+            for item in watchlist_handler.get_user_watchlist_items(user_id=user_id, watchlist_id=watchlist_id)
+        ])
+
+    @app.route('/users/<user_id>/watchlists/<int:watchlist_id>/items', methods=['PUT'])
+    def update_user_watchlist_items(user_id: str, watchlist_id: int):
+        items: List[UserWatchlistItem] = [
+            UserWatchlistItem.from_json(item)
+            for item in request.json
+        ]
+        return jsonify([
+            item.to_json()
+            for item in watchlist_handler.update_user_watchlist_items(user_id=user_id,
+                                                                      watchlist_id=watchlist_id,
+                                                                      items=items)
+        ])
 
 
     ### SYNC ###
