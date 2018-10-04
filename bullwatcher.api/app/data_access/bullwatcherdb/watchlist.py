@@ -64,8 +64,8 @@ def get_watchlist_items(user_id: str, watchlist_id: int) -> List[UserWatchlistIt
     """
     model_items: List[models.UserWatchlistItem] = db.session.query(models.UserWatchlistItem).filter(
         and_(
-            models.UserWatchlist.watchlist_id == watchlist_id,
-            models.UserWatchlist.user_id == user_id
+            models.UserWatchlistItem.watchlist_id == watchlist_id,
+            models.UserWatchlistItem.user_id == user_id
         )
     ).order_by(models.UserWatchlistItem.position).all()
 

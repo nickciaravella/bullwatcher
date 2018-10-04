@@ -5,6 +5,7 @@ import { IStockCurrentPrice } from "src/models/stock-current";
 import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 import { IStockRanking } from "src/models/stock-rankings";
+import { IUserWatchlist, IUserWatchlistItem } from "src/models/user-watchlist";
 
 export class BullWatcher {
     private baseUrl: string = `http://api.bullwatcher.com`;
@@ -186,6 +187,24 @@ export class BullWatcher {
             percentChange: json.percent_change,
             sectorName: json.name,
             timeWindow: json.time_window,
+        }})
+    }
+
+    public async getUserWatchlists(userId: string): Promise<IUserWatchlist[]> {
+        const url: string = this.baseUrl + `/users/${userId}/watchlists`
+        const jsonArray: any[] = await this.getJson(url)
+        return jsonArray.map((json: any) => { return {
+            displayName: json.display_name,
+            watchlistId: json.watchlist_id,
+        }})
+    }
+
+    public async getUserWatchlistItems(userId: string, watchlistId: number): Promise<IUserWatchlistItem[]> {
+        const url: string = this.baseUrl + `/users/${userId}/watchlists/${watchlistId}/items`
+        const jsonArray: any[] = await this.getJson(url)
+        return jsonArray.map((json: any) => { return {
+            position: json.position,
+            stockMetadata: createStockMetadataFromBullwatcher(json.stock_metadata),
         }})
     }
 

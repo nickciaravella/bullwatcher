@@ -46,6 +46,7 @@ export default class App extends React.Component<any, IAppState> {
                             <li><a href='/'>Home</a></li>
                             <li><a href='/patterns/flags'>Flags</a></li>
                             <li><a href='/rankings'>Rankings</a></li>
+                            <li><a href='/watchlists'>Watchlists</a></li>
                         </ul>
                     </div>
                     <div>
@@ -70,10 +71,10 @@ export default class App extends React.Component<any, IAppState> {
                                         stockMetadataStore={stockMetadataStore} />
                                 );
                            }} />
-                           <Route path="/watchlist/:tickers" render={(props) => { // tslint:disable-next-line jsx-no-lambda
+                           <Route path="/watchlists" render={(props) => { // tslint:disable-next-line jsx-no-lambda
                                 return (
                                     <WatchlistPage
-                                        tickers={props.match.params.tickers}
+                                        authContextStore={authContextStore}
                                         chartSettings={chartSettingsStore.chartSettings} />
                                 );
                            }} />
