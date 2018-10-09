@@ -54,12 +54,17 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             </div>
         )
 
-        const stockCharts: JSX.Element[] = watchlistItems.map((item: IUserWatchlistItem) => (
-            <div style={{paddingBottom: '50px'}}>
-                <h3>{item.stockMetadata.companyName} ( {item.stockMetadata.ticker} )</h3>
-                <StockChart ticker={item.stockMetadata.ticker} settings={this.props.chartSettings} />
-            </div>
-        ));
+        const stockCharts: JSX.Element[] = []
+        for (const item of watchlistItems) {
+            const removeFromWatchlistFunc = () => this.removeFromWatchlist(item.stockMetadata.ticker);
+            stockCharts.push((
+                <div key={item.stockMetadata.ticker} style={{paddingBottom: '50px'}}>
+                    <h3>{item.stockMetadata.companyName} ( {item.stockMetadata.ticker} )</h3>
+                    <button onClick={removeFromWatchlistFunc}>Remove</button>
+                    <StockChart ticker={item.stockMetadata.ticker} settings={this.props.chartSettings} />
+                </div>
+            ))
+        }
 
         return (
             <div>
@@ -69,7 +74,7 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
                 <br />
                 <br />
                 { addTickerForm }
-                {stockCharts}
+                { stockCharts }
             </div>
         );
     }
@@ -78,7 +83,7 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
         const watchlistsToRender = []
         for(const watchlist of watchlists) {
             watchlistsToRender.push(
-                <option value={watchlist.watchlistId}>{watchlist.displayName}</option>
+                <option key={watchlist.watchlistId} value={watchlist.watchlistId}>{watchlist.displayName}</option>
             )
         }
 
@@ -127,6 +132,44 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             authContextStore.userContext.userId,
             currentWatchlist.watchlistId,
             watchlistItems)
+
+        this.setState((prevState) => { return {
+            currentWatchlist: prevState.currentWatchlist,
+            watchlistItems: newItems,
+            watchlists: prevState.watchlists
+        }});
+    }
+
+    private removeFromWatchlist = async (ticker: string) => {
+        const { authContextStore } = this.props;
+        const { currentWatchlist, watchlistItems } = this.state;
+        if (!authContextStore.userContext || !currentWatchlist) {
+            return;
+        }
+
+        let removePosition: number = 0;
+        for (const item of watchlistItems) {
+            if (item.stockMetadata.ticker.toLowerCase() === ticker.toLowerCase()) {
+                removePosition = item.position;
+            }
+        }
+
+        const updatedItems: IUserWatchlistItem[] = []
+        for (const item of watchlistItems) {
+            if (item.position < removePosition) {
+                updatedItems.push(item);
+            } else if (item.position > removePosition) {
+                item.position = item.position - 1
+                updatedItems.push(item);
+            } else {
+                continue;
+            }
+        }
+
+        const newItems = await this.bullwatcher.setUserWatchlistItems(
+            authContextStore.userContext.userId,
+            currentWatchlist.watchlistId,
+            updatedItems)
 
         this.setState((prevState) => { return {
             currentWatchlist: prevState.currentWatchlist,
