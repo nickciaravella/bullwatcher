@@ -10,32 +10,24 @@ import { IUserWatchlist, IUserWatchlistItem } from "src/models/user-watchlist";
 export class BullWatcher {
     private baseUrl: string = `http://api.bullwatcher.com`;
 
-    public login(authContext: IAuthContext): Promise<IUserContext> {
+    public async login(authContext: IAuthContext): Promise<IUserContext> {
         const url: string = this.baseUrl + `/login`;
-        return fetch(url, {
-                body: JSON.stringify({
-                    "email": authContext.email,
-                    "full_name": authContext.friendlyName,
-                    "identity_id": authContext.identityId,
-                    "identity_provider": authContext.identityProvider,
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST',
-            })
-            .then((response) => response.json())
-            .then((json) => {
-                return {
-                    email: json.email,
-                    friendlyName: json.full_name,
-                    userId: json.user_id,
-                }
-            });
+        const json: any = await this.postJson(url, {
+            "email": authContext.email,
+            "full_name": authContext.friendlyName,
+            "identity_id": authContext.identityId,
+            "identity_provider": authContext.identityProvider,
+        });
+
+        return {
+            email: json.email,
+            friendlyName: json.full_name,
+            userId: json.user_id,
+        };
     }
 
     public getStockMetadata(ticker: string): Promise<IStockMetadata> {
-        const url: string = this.baseUrl + `${ticker}/metadata`;
+        const url: string = this.baseUrl + `/${ticker.toUpperCase()}/metadata`;
         return fetch(url)
             .then((response) => response.json())
             .then((json) => {
@@ -92,17 +84,11 @@ export class BullWatcher {
 
     public async voteOnPattern(userId: string, date: Date, ticker: string, value: number): Promise<void> {
         const url: string = this.baseUrl + `/patterns/flags/votes`;
-        await fetch(url, {
-            body: JSON.stringify({
-                "date": this.getDateString(date),
-                "ticker": ticker,
-                "user_id": userId,
-                "value": value
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'POST',
+        await this.postJson(url, {
+            "date": this.getDateString(date),
+            "ticker": ticker,
+            "user_id": userId,
+            "value": value
         });
     }
 
@@ -208,9 +194,69 @@ export class BullWatcher {
         }})
     }
 
+    public async setUserWatchlistItems(
+        userId: string,
+        watchlistId: number,
+        items: IUserWatchlistItem[]
+    ): Promise<IUserWatchlistItem[]> {
+        const url: string = this.baseUrl + `/users/${userId}/watchlists/${watchlistId}/items`
+
+        const requestItems: any[] = []
+        for (const item of items) {
+            requestItems.push({
+                position: item.position,
+                stock_metadata: {
+                    company_name: item.stockMetadata.companyName,
+                    market_cap: item.stockMetadata.marketCap,
+                    sector: item.stockMetadata.sector,
+                    ticker: item.stockMetadata.ticker
+                }
+            })
+        }
+
+        const jsonArray: any[] = await this.putJson(url, requestItems)
+        return jsonArray.map((json: any) => { return {
+            position: json.position,
+            stockMetadata: createStockMetadataFromBullwatcher(json.stock_metadata),
+        }})
+    }
+
+    public async deleteUserWatchlist(userId: string, watchlistId: number): Promise<void> {
+        const url: string = this.baseUrl + `/users/${userId}/watchlists/${watchlistId}`;
+        await this.delete(url);
+    }
+
     private async getJson(url: string): Promise<any | any[]> {
         const response: any = await fetch(url);
         return await response.json()
+    }
+
+    private async delete(url: string): Promise<void> {
+        await fetch(url, {
+                method: 'DELETE',
+            })
+    }
+
+    private async postJson(url: string, body: any): Promise<any | any[]> {
+        const response = await fetch(url, {
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+            })
+        return response.json()
+    }
+
+    private async putJson(url: string, body: any): Promise<any | any[]> {
+        const response = await fetch(url, {
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'PUT',
+            })
+        return response.json()
     }
 
     private getDateString(date: Date): string {

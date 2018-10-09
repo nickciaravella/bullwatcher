@@ -3,7 +3,9 @@ import * as React from 'react';
 
 import { AuthContextStore } from 'src/models/auth-store';
 import { IChartSettings } from 'src/models/chart-settings'
+import { IStockMetadata } from 'src/models/stock-metadata';
 import { IUserWatchlist, IUserWatchlistItem } from 'src/models/user-watchlist';
+import SearchBox from 'src/SearchBox';
 import { BullWatcher } from 'src/services/bullwatcher';
 import StockChart from 'src/StockChart';
 
@@ -39,6 +41,19 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             return null;
         }
 
+        const addTickerForm: JSX.Element = (
+            <div>
+                Add Ticker:
+               <SearchBox onSearchFunc={this.addTickerToWatchlist} />
+            </div>
+        )
+
+        const deleteWatchlistButton: JSX.Element = (
+            <div>
+                <button onClick={this.deleteWatchlist}>Delete Watchlist</button>
+            </div>
+        )
+
         const stockCharts: JSX.Element[] = watchlistItems.map((item: IUserWatchlistItem) => (
             <div style={{paddingBottom: '50px'}}>
                 <h3>{item.stockMetadata.companyName} ( {item.stockMetadata.ticker} )</h3>
@@ -50,6 +65,10 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             <div>
                 {this.renderWatchlistsPicker(currentWatchlist, watchlists)}
                 <h2>{currentWatchlist.displayName}</h2>
+                { deleteWatchlistButton }
+                <br />
+                <br />
+                { addTickerForm }
                 {stockCharts}
             </div>
         );
@@ -89,6 +108,47 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             watchlistItems: newItems,
             watchlists: prevState.watchlists
         }})
+    }
+
+    private addTickerToWatchlist = async (ticker: string) => {
+        const { authContextStore } = this.props;
+        const { currentWatchlist, watchlistItems } = this.state;
+        if (!authContextStore.userContext || !currentWatchlist) {
+            return;
+        }
+
+        const stockMetadata: IStockMetadata = await this.bullwatcher.getStockMetadata(ticker)
+        watchlistItems.push({
+            position: watchlistItems.length,
+            stockMetadata
+        })
+
+        const newItems = await this.bullwatcher.setUserWatchlistItems(
+            authContextStore.userContext.userId,
+            currentWatchlist.watchlistId,
+            watchlistItems)
+
+        this.setState((prevState) => { return {
+            currentWatchlist: prevState.currentWatchlist,
+            watchlistItems: newItems,
+            watchlists: prevState.watchlists
+        }});
+    }
+
+    private deleteWatchlist = async () => {
+        const { authContextStore } = this.props;
+        const { currentWatchlist } = this.state;
+        if (!authContextStore.userContext || !currentWatchlist) {
+            return;
+        }
+
+        await this.bullwatcher.deleteUserWatchlist(authContextStore.userContext.userId, currentWatchlist.watchlistId);
+
+        this.setState({
+            currentWatchlist: null,
+            watchlistItems: [],
+            watchlists: [],
+        }, this.loadWatchlists)
     }
 
     private async loadWatchlists() {
