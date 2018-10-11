@@ -4,21 +4,38 @@ import * as React from 'react';
 import TextBox from 'src/components/TextBox'
 import { AuthContextStore } from 'src/models/auth-store';
 import { IChartSettings } from 'src/models/chart-settings'
+import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import { IStockMetadata } from 'src/models/stock-metadata';
 import { IUserWatchlist, IUserWatchlistItem } from 'src/models/user-watchlist';
 import SearchBox from 'src/SearchBox';
 import { BullWatcher } from 'src/services/bullwatcher';
 import StockChart from 'src/StockChart';
+import { IStockCurrentPrice } from '../../models/stock-current';
+import StockCurrentPrice from '../../StockCurrentPrice';
 
 interface IWatchlistPageProps {
     authContextStore: AuthContextStore;
     chartSettings: IChartSettings;
+    stockCurrentPriceStore: StockCurrentPriceStore;
 }
 
 interface IWatchlistPageState {
     currentWatchlist?: IUserWatchlist;
-    watchlistItems: IUserWatchlistItem[];
+    sortOrder: SortOrder;
+    watchlistItems: IWatchlistItemInfo[];
     watchlists: IUserWatchlist[];
+}
+
+enum SortOrder {
+    ALPHABETICAL = 'alphabetical',
+    CUSTOM = 'custom',
+    MARKET_CAP = 'marketCap',
+    PERCENT_CHANGE = 'percentChange',
+}
+
+interface IWatchlistItemInfo {
+    item: IUserWatchlistItem;
+    price: IStockCurrentPrice;
 }
 
 @observer
@@ -29,6 +46,7 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
         super(props);
         this.state = {
             currentWatchlist: null,
+            sortOrder: SortOrder.CUSTOM,
             watchlistItems: [],
             watchlists: [],
         }
@@ -36,7 +54,7 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
     }
 
     public render() {
-        const { currentWatchlist, watchlistItems, watchlists } = this.state;
+        const { currentWatchlist, sortOrder, watchlists } = this.state;
 
         if (!watchlists || !currentWatchlist) {
             return null;
@@ -55,13 +73,27 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             </div>
         )
 
+        const sortOrderPicker: JSX.Element = (
+            <form>
+                <label>Sort Order</label>
+                <select value={sortOrder} onChange={this.handleSortOrderChanged}>
+                    <option value={SortOrder.ALPHABETICAL}>Alphabetical</option>
+                    <option value={SortOrder.CUSTOM}>Custom</option>
+                    <option value={SortOrder.MARKET_CAP}>Market Cap</option>
+                    <option value={SortOrder.PERCENT_CHANGE}>Percent Change</option>
+                </select>
+            </form>
+        )
+
         const stockCharts: JSX.Element[] = []
-        for (const item of watchlistItems) {
+        for (const info of this.getSortedItems()) {
+            const item: IUserWatchlistItem = info.item;
             const removeFromWatchlistFunc = () => this.removeFromWatchlist(item.stockMetadata.ticker);
             stockCharts.push((
                 <div key={item.stockMetadata.ticker} style={{paddingBottom: '50px'}}>
                     <h3>{item.stockMetadata.companyName} ( {item.stockMetadata.ticker} )</h3>
                     <button onClick={removeFromWatchlistFunc}>Remove</button>
+                    <StockCurrentPrice currentPrice={info.price} />
                     <StockChart ticker={item.stockMetadata.ticker} settings={this.props.chartSettings} />
                 </div>
             ))
@@ -81,6 +113,7 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
                 { deleteWatchlistButton }
                 <br />
                 <br />
+                { sortOrderPicker }
                 { addTickerForm }
                 { stockCharts }
             </div>
@@ -116,9 +149,12 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
                 this.props.authContextStore.userContext.userId,
                 newWatchlist.watchlistId);
 
+        const newItemInfos: IWatchlistItemInfo[] = await this.getWatchlistItemInfos(newItems);
+
         this.setState((prevState) => { return {
             currentWatchlist: newWatchlist,
-            watchlistItems: newItems,
+            sortOrder: prevState.sortOrder,
+            watchlistItems: newItemInfos,
             watchlists: prevState.watchlists
         }})
     }
@@ -131,19 +167,25 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
         }
 
         const stockMetadata: IStockMetadata = await this.bullwatcher.getStockMetadata(ticker)
-        watchlistItems.push({
+        const newItem: IUserWatchlistItem = {
             position: watchlistItems.length,
             stockMetadata
-        })
+        }
 
-        const newItems = await this.bullwatcher.setUserWatchlistItems(
+        let newItems: IUserWatchlistItem[] = watchlistItems.map(item => item.item);
+        newItems.push(newItem);
+
+        newItems = await this.bullwatcher.setUserWatchlistItems(
             authContextStore.userContext.userId,
             currentWatchlist.watchlistId,
-            watchlistItems)
+            newItems)
+
+        const newItemInfos: IWatchlistItemInfo[] = await this.getWatchlistItemInfos(newItems);
 
         this.setState((prevState) => { return {
             currentWatchlist: prevState.currentWatchlist,
-            watchlistItems: newItems,
+            sortOrder: prevState.sortOrder,
+            watchlistItems: newItemInfos,
             watchlists: prevState.watchlists
         }});
     }
@@ -156,14 +198,16 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
         }
 
         let removePosition: number = 0;
-        for (const item of watchlistItems) {
+        for (const info of watchlistItems) {
+            const item: IUserWatchlistItem = info.item;
             if (item.stockMetadata.ticker.toLowerCase() === ticker.toLowerCase()) {
                 removePosition = item.position;
             }
         }
 
         const updatedItems: IUserWatchlistItem[] = []
-        for (const item of watchlistItems) {
+        for (const info of watchlistItems) {
+            const item: IUserWatchlistItem = info.item;
             if (item.position < removePosition) {
                 updatedItems.push(item);
             } else if (item.position > removePosition) {
@@ -174,14 +218,17 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             }
         }
 
-        const newItems = await this.bullwatcher.setUserWatchlistItems(
+        const newItems: IUserWatchlistItem[] = await this.bullwatcher.setUserWatchlistItems(
             authContextStore.userContext.userId,
             currentWatchlist.watchlistId,
-            updatedItems)
+            updatedItems);
+
+        const newItemInfos: IWatchlistItemInfo[] = await this.getWatchlistItemInfos(newItems);
 
         this.setState((prevState) => { return {
             currentWatchlist: prevState.currentWatchlist,
-            watchlistItems: newItems,
+            sortOrder: prevState.sortOrder,
+            watchlistItems: newItemInfos,
             watchlists: prevState.watchlists
         }});
     }
@@ -195,11 +242,12 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
 
         await this.bullwatcher.deleteUserWatchlist(authContextStore.userContext.userId, currentWatchlist.watchlistId);
 
-        this.setState({
+        this.setState((prevState) => { return {
             currentWatchlist: null,
+            sortOrder: prevState.sortOrder,
             watchlistItems: [],
             watchlists: [],
-        }, this.loadWatchlists)
+        } }, this.loadWatchlists)
     }
 
     private createNewWatchlist = async (watchlistName: string) => {
@@ -225,17 +273,69 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
         const watchlists: IUserWatchlist[] = await this.bullwatcher.getUserWatchlists(authContextStore.userContext.userId);
         const firstWatchlist: IUserWatchlist = watchlists.length === 0 ? null : watchlists[0];
 
-        let newItems: IUserWatchlistItem[] = watchlistItems;
+        let newItemInfos: IWatchlistItemInfo[] = watchlistItems;
         if (!currentWatchlist) {
-            newItems = await this.bullwatcher.getUserWatchlistItems(
+            const newItems = await this.bullwatcher.getUserWatchlistItems(
                 authContextStore.userContext.userId,
                 firstWatchlist.watchlistId);
+            newItemInfos = await this.getWatchlistItemInfos(newItems);
         }
 
         this.setState((prevState) => { return {
             currentWatchlist: prevState.currentWatchlist ? prevState.currentWatchlist : firstWatchlist,
-            watchlistItems: newItems,
+            sortOrder: prevState.sortOrder,
+            watchlistItems: newItemInfos,
             watchlists
         }})
+    }
+
+    private getSortedItems(): IWatchlistItemInfo[] {
+        const { sortOrder, watchlistItems } = this.state;
+
+        let comparer = (one: IWatchlistItemInfo, two: IWatchlistItemInfo) => one.item.position - two.item.position;
+        switch (sortOrder) {
+            case SortOrder.ALPHABETICAL:
+                comparer = (one: IWatchlistItemInfo, two: IWatchlistItemInfo) =>
+                    one.item.stockMetadata.companyName.toUpperCase() > two.item.stockMetadata.companyName.toUpperCase() ? 1 : -1;
+                break;
+            case SortOrder.MARKET_CAP:
+                comparer = (one: IWatchlistItemInfo, two: IWatchlistItemInfo) =>
+                    two.item.stockMetadata.marketCap - one.item.stockMetadata.marketCap;
+                break;
+            case SortOrder.PERCENT_CHANGE:
+            comparer = (one: IWatchlistItemInfo, two: IWatchlistItemInfo) => {
+                const onePercentChange = (one.price.currentPrice-one.price.lastClose) / one.price.lastClose
+                const twoPercentChange = (two.price.currentPrice-two.price.lastClose) / two.price.lastClose
+                return twoPercentChange - onePercentChange;
+            }
+            case SortOrder.CUSTOM:
+            default:
+                break;
+        }
+
+        return watchlistItems.sort(comparer);
+    }
+
+    private handleSortOrderChanged = (event: React.FormEvent<HTMLSelectElement>) => {
+        const newSortOrder: SortOrder = event.currentTarget.value as SortOrder;
+        this.setState((prevState) => { return {
+            currentWatchlist: prevState.currentWatchlist,
+            sortOrder: newSortOrder,
+            watchlistItems: prevState.watchlistItems,
+            watchlists: prevState.watchlists
+        }})
+    }
+
+    private getWatchlistItemInfos = async (items: IUserWatchlistItem[]) => {
+        const newItemInfos: IWatchlistItemInfo[] = [];
+        for (const item of items) {
+            const price: IStockCurrentPrice = await this.props.stockCurrentPriceStore.getStockCurrentPrice(item.stockMetadata.ticker);
+            newItemInfos.push({
+                item,
+                price
+            })
+        }
+
+        return newItemInfos;
     }
 }

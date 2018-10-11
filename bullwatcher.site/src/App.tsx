@@ -3,6 +3,7 @@ import './App.css';
 
 import logo from './logo.svg';
 
+import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import RankingsPage from 'src/pages/RankingsPage';
 import StockDetailPage from 'src/pages/StockDetailPage';
 import WatchlistPage from 'src/pages/WatchlistPage';
@@ -27,6 +28,7 @@ export default class App extends React.Component<any, IAppState> {
     public render() {
         const chartSettingsStore = new ChartSettingsStore();
         chartSettingsStore.fetchChartSettings();
+        const stockCurrentPriceStore = new StockCurrentPriceStore();
         const stockMetadataStore = new StockMetadataStore();
         const authContextStore = new AuthContextStore();
         authContextStore.loadUserContext();
@@ -75,7 +77,8 @@ export default class App extends React.Component<any, IAppState> {
                                 return (
                                     <WatchlistPage
                                         authContextStore={authContextStore}
-                                        chartSettings={chartSettingsStore.chartSettings} />
+                                        chartSettings={chartSettingsStore.chartSettings}
+                                        stockCurrentPriceStore={stockCurrentPriceStore} />
                                 );
                            }} />
                            <Route path="/patterns/flags/:date" render={(props) => { // tslint:disable-next-line jsx-no-lambda
