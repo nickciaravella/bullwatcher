@@ -44,8 +44,8 @@ def delete_watchlist(user_id: str, watchlist_id: int) -> None:
     """
     db.session.query(models.UserWatchlistItem).filter(
         and_(
-            models.UserWatchlist.watchlist_id == watchlist_id,
-            models.UserWatchlist.user_id == user_id
+            models.UserWatchlistItem.watchlist_id == watchlist_id,
+            models.UserWatchlistItem.user_id == user_id
         )
     ).delete(synchronize_session='fetch')
 
@@ -95,8 +95,8 @@ def edit_watchlist_items(user_id: str,
     # Delete any existing items
     db.session.query(models.UserWatchlistItem).filter(
         and_(
-            models.UserWatchlist.watchlist_id == watchlist_id,
-            models.UserWatchlist.user_id == user_id
+            models.UserWatchlistItem.watchlist_id == watchlist_id,
+            models.UserWatchlistItem.user_id == user_id
         )
     ).delete(synchronize_session='fetch')
 
