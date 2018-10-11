@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react';
 import * as React from 'react';
 
+import TextBox from 'src/components/TextBox'
 import { AuthContextStore } from 'src/models/auth-store';
 import { IChartSettings } from 'src/models/chart-settings'
 import { IStockMetadata } from 'src/models/stock-metadata';
@@ -69,6 +70,13 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
         return (
             <div>
                 {this.renderWatchlistsPicker(currentWatchlist, watchlists)}
+                <br />
+                <br />
+                <div>
+                    New Watchlist: <TextBox onSubmitFunc={this.createNewWatchlist}
+                                            showSubmitButton={true}
+                                            placeholderText="watchlist name" />
+                </div>
                 <h2>{currentWatchlist.displayName}</h2>
                 { deleteWatchlistButton }
                 <br />
@@ -192,6 +200,19 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             watchlistItems: [],
             watchlists: [],
         }, this.loadWatchlists)
+    }
+
+    private createNewWatchlist = async (watchlistName: string) => {
+        const { authContextStore } = this.props;
+        if (!authContextStore.userContext) {
+            return;
+        }
+        if (watchlistName.length === 0) {
+            return;
+        }
+
+        await this.bullwatcher.createUserWatchlist(authContextStore.userContext.userId, watchlistName)
+        await this.loadWatchlists()
     }
 
     private async loadWatchlists() {

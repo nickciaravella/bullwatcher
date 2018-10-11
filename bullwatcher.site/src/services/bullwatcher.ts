@@ -185,6 +185,20 @@ export class BullWatcher {
         }})
     }
 
+    public async createUserWatchlist(userId: string, watchlistName: string): Promise<IUserWatchlist> {
+        const url: string = this.baseUrl + `/users/${userId}/watchlists`;
+        const json: any = await this.postJson(url, { display_name: watchlistName });
+        return {
+            displayName: json.display_name,
+            watchlistId: json.watchlist_id,
+        }
+    }
+
+    public async deleteUserWatchlist(userId: string, watchlistId: number): Promise<void> {
+        const url: string = this.baseUrl + `/users/${userId}/watchlists/${watchlistId}`;
+        await this.delete(url);
+    }
+
     public async getUserWatchlistItems(userId: string, watchlistId: number): Promise<IUserWatchlistItem[]> {
         const url: string = this.baseUrl + `/users/${userId}/watchlists/${watchlistId}/items`
         const jsonArray: any[] = await this.getJson(url)
@@ -219,11 +233,6 @@ export class BullWatcher {
             position: json.position,
             stockMetadata: createStockMetadataFromBullwatcher(json.stock_metadata),
         }})
-    }
-
-    public async deleteUserWatchlist(userId: string, watchlistId: number): Promise<void> {
-        const url: string = this.baseUrl + `/users/${userId}/watchlists/${watchlistId}`;
-        await this.delete(url);
     }
 
     private async getJson(url: string): Promise<any | any[]> {
