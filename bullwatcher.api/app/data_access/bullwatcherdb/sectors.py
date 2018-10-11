@@ -4,6 +4,7 @@ import datetime
 import time
 
 from application import db
+from app.data_access.bullwatcherdb.common import commit_with_rollback
 from app.database import models
 from app.domain.sectors import SectorId, SectorPerformance
 
@@ -37,7 +38,7 @@ def update_sector_performances(sector_performances: List[SectorPerformance]):
 
     now: datetime.datetime = datetime.datetime.utcnow()
     db.session.query(models.SectorPerformance).delete(synchronize_session='fetch')
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     db_models = [
         models.SectorPerformance(id=sector.id,

@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from application import db
+from app.data_access.bullwatcherdb.common import commit_with_rollback
 from app.domain.users import User
 from app.database import models
 from datetime import datetime
@@ -25,7 +26,7 @@ def upsert_user(user: User) -> User:
 
     db_user.full_name = user.full_name
     db_user.email = user.email
-    db.session.commit()
+    commit_with_rollback(db.session)
     return _convert_db_user_to_domain(db_user)
 
 
@@ -33,7 +34,7 @@ def create_user(user: User) -> User:
     db_user = _convert_domain_user_to_db(user)
     db_user.created_date = datetime.utcnow()
     db.session.add(db_user)
-    db.session.commit()
+    commit_with_rollback(db.session)
     return _convert_db_user_to_domain(db_user)
 
 

@@ -1,7 +1,8 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from application import db
-from app.database import conversion, models
+from app.data_access.bullwatcherdb.common import commit_with_rollback
+from app.database import models
 from app.domain.stocks import StockSyncStatus, StockMetadata, StockDaily
 from app.domain.patterns import PatternTicker, PatternType, PatternVote
 from datetime import date, datetime
@@ -37,7 +38,7 @@ def set_sync_job_synced_until(sync_job: str, synced_until: datetime) -> None:
     start = time.time()
 
     db.session.merge(models.SyncStatus(sync_job=sync_job, synced_until=synced_until, last_updated_at=datetime.utcnow()))
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))
@@ -59,7 +60,7 @@ def save_stock_sync_statuses(statuses):
     print('START -- DB save_stock_sync_statuses: ' + str(len(statuses)) + ' statuses')
     start = time.time()
 
-    db_statuses = db.session.query(models.StockSyncStatus).filter(
+    db.session.query(models.StockSyncStatus).filter(
         models.StockSyncStatus.ticker.in_([s.ticker for s in statuses])
     ).delete(synchronize_session='fetch')
 
@@ -68,8 +69,9 @@ def save_stock_sync_statuses(statuses):
         db_status.ticker = status.ticker
         db_status.synced_until = status.synced_until
         return db_status
+
     db.session.add_all(create_status(s) for s in statuses)
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))
@@ -128,7 +130,7 @@ def save_batch_stock_daily(dailies_dict):
             if count % 500 == 0:
                 db.session.flush()
 
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     end = time.time()
     print(f'Saved {str(count)} rows.')
@@ -280,7 +282,7 @@ def set_flag_pattern_tickers(date, tickers):
         new_flag.flag_votes = 0
         db.session.add(new_flag)
 
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))
@@ -335,7 +337,7 @@ def add_vote_for_flag_pattern(vote: PatternVote):
         flag.flag_votes = vote.value
         db.session.add(flag)
 
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))

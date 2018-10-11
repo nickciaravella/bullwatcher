@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from application import db
+from app.data_access.bullwatcherdb.common import commit_with_rollback
 from app.database import conversion, models
 from app.domain.stocks import StockMetadata
 from sqlalchemy import func, or_
@@ -16,7 +17,7 @@ def save_batch_stock_metadata(stock_metadatas):
     ).delete(synchronize_session='fetch')
 
     db.session.add_all(conversion.convert_stock_metadata(metadata) for metadata in stock_metadatas)
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     end = time.time()
     print('END   -- Time: ' + str(end - start))

@@ -5,6 +5,7 @@ import time
 from sqlalchemy import and_
 
 from application import db
+from app.data_access.bullwatcherdb.common import commit_with_rollback
 from app.domain.common import TimeWindow
 from app.domain.rankings import Ranking, RankingType
 from app.database import models
@@ -30,7 +31,7 @@ def merge_rankings(rankings: List[Ranking], time_window: TimeWindow, ranking_typ
             models.StockRanking.time_window == time_window,
             models.StockRanking.ranking_type == ranking_type)
     ).delete(synchronize_session='fetch')
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     # Insert new data
     insert_values = []

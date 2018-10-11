@@ -3,6 +3,7 @@ from typing import List
 import datetime
 
 from application import db
+from app.data_access.bullwatcherdb.common import commit_with_rollback
 from app.database import models
 from app.domain.stocks import StockMetadata
 from app.domain.watchlist import UserWatchlist, UserWatchlistItem
@@ -32,7 +33,7 @@ def create_watchlist(user_id: str, watchlist_name: str) -> UserWatchlist:
         items_last_updated_at=datetime.datetime.utcnow()
     )
     db.session.add(new_watchlist)
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     return watchlist_database_to_domain(db_model=new_watchlist)
 
@@ -55,7 +56,7 @@ def delete_watchlist(user_id: str, watchlist_id: int) -> None:
         )
     ).delete(synchronize_session='fetch')
 
-    db.session.commit()
+    commit_with_rollback(db.session)
 
 
 def get_watchlist_items(user_id: str, watchlist_id: int) -> List[UserWatchlistItem]:
@@ -112,7 +113,7 @@ def edit_watchlist_items(user_id: str,
     db.session.add_all(new_items)
 
     watchlist.items_last_updated_at = datetime.datetime.utcnow()
-    db.session.commit()
+    commit_with_rollback(db.session)
 
     return items
 
