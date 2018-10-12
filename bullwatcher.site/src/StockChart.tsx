@@ -10,8 +10,8 @@ import { StockHistoryStore } from './models/stock-history-store';
 HSIndicators(Highcharts);
 
 interface IStockChartProps {
-      settings: IChartSettings;
-       ticker: string;
+    settings: IChartSettings;
+    ticker: string;
 }
 
 @observer

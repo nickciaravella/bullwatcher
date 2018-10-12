@@ -1,52 +1,36 @@
 import { observable } from 'mobx';
 
-import { AlphaVantage } from '../services/alphavantage';
-import { IStockDaily, IStockDailyHistory } from './stock-history';
-
+import { IStockDailyHistory } from 'src/models/stock-history';
+import { AlphaVantage } from 'src/services/alphavantage';
+import { BullWatcher } from 'src/services/bullwatcher';
 
 export class StockHistoryStore {
     @observable public stockDailyHistory: IStockDailyHistory;
 
-    public fetchDailyDataAsync(ticker: string): Promise<void> {
+    private alphavantage = new AlphaVantage();
+    private bullwatcher = new BullWatcher();
+    private cache = {}
+
+    public async fetchDailyDataAsync(ticker: string): Promise<void> {
         this.stockDailyHistory = null;
 
+        if (ticker in this.cache) {
+            this.stockDailyHistory = this.cache[ticker];
+            return;
+        }
+
+        let history: IStockDailyHistory = null;
         if (ticker.startsWith('^')) {
             // Indicies are not available through IEX, only AlphaVantage
-            return new AlphaVantage()
-                .getStockDaily(ticker)
-                .then((history: IStockDailyHistory) => {
-                    this.stockDailyHistory = history;
-                })
+            history = await this.alphavantage.getStockDaily(ticker)
         }
         else {
-            const url = `http://api.bullwatcher.com/${ticker}/price-history`;
-            return fetch(url)
-                .then((response) => response.json())
-                .then((json) => {
-                    this.stockDailyHistory = this._responseToDailyHistory(json, ticker);
-                });
-            }
-
-    }
-
-    private _responseToDailyHistory(json: any, ticker: string): IStockDailyHistory {
-        const dailyData: IStockDaily[] = [];
-
-        for (const daily of json) {
-            dailyData.push({
-                close: daily.close,
-                date: new Date(daily.date),
-                high: daily.high,
-                low: daily.low,
-                open: daily.open,
-                volume: daily.volume,
-            });
+            history = await this.bullwatcher.getStockDailyHistory(ticker);
         }
 
-        dailyData.sort((first: IStockDaily, second: IStockDaily) => first.date.valueOf() - second.date.valueOf());
-        return {
-            data: dailyData,
-            ticker: ticker.toUpperCase()
-        };
+        if (history !== null) {
+            this.cache[ticker] = history;
+            this.stockDailyHistory = history;
+        }
     }
 }

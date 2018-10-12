@@ -2,6 +2,7 @@ import { IAuthContext, IUserContext } from "src/models/auth-context";
 import { TimeWindow } from "src/models/common";
 import { ISector, ISectorPerformance } from "src/models/sectors";
 import { IStockCurrentPrice } from "src/models/stock-current";
+import { IStockDaily, IStockDailyHistory } from "src/models/stock-history";
 import { createStockMetadataFromBullwatcher, IStockMetadata } from "src/models/stock-metadata";
 import { IDailyPatternList, IUserPatternVote, PatternType } from "src/models/stock-patterns";
 import { IStockRanking } from "src/models/stock-rankings";
@@ -51,6 +52,29 @@ export class BullWatcher {
                 ticker: json.ticker,
             }
         });
+    }
+
+    public async getStockDailyHistory(ticker: string):  Promise<IStockDailyHistory> {
+        const url = this.baseUrl + `/${ticker}/price-history`;
+        const jsonArray: any[] = await this.getJson(url);
+
+        const dailyData: IStockDaily[] = [];
+        for (const daily of jsonArray) {
+            dailyData.push({
+                close: daily.close,
+                date: new Date(daily.date),
+                high: daily.high,
+                low: daily.low,
+                open: daily.open,
+                volume: daily.volume,
+            });
+        }
+
+        dailyData.sort((first: IStockDaily, second: IStockDaily) => first.date.valueOf() - second.date.valueOf());
+        return {
+            data: dailyData,
+            ticker: ticker.toUpperCase()
+        };
     }
 
     public getPatterns(date?: string): Promise<IDailyPatternList> {

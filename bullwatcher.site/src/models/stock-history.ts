@@ -1,5 +1,3 @@
-import { observable } from 'mobx';
-
 export interface IStockDailyHistory {
     data: IStockDaily[];
     ticker: string;
@@ -12,55 +10,4 @@ export interface IStockDaily {
     low: number;
     open: number;
     volume: number;
-}
-
-export class StockHistoryStore {
-    @observable public stockDailyHistory: IStockDailyHistory;
-
-    public fetchDailyDataAsync(ticker: string): Promise<void> {
-        this.stockDailyHistory = null;
-        // const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=6JPLGVEP5LPD9YMD&outputsize=full`;
-        const url = `https://api.iextrading.com/1.0/stock/${ticker}/chart/2y`
-        return fetch(url)
-            .then((response) => response.json())
-            .then((json) => {
-                this.stockDailyHistory = this._responseToDailyHistory(json, ticker);
-            });
-    }
-
-    private _responseToDailyHistory(json: any, ticker: string): IStockDailyHistory {
-        const dailyData: IStockDaily[] = [];
-
-        // const timeSeriesData = json['Time Series (Daily)'];
-        // for (const date in timeSeriesData) {
-        //     if (timeSeriesData.hasOwnProperty(date)) {
-        //         const daily = {
-        //             close: +timeSeriesData[date]['4. close'],
-        //             date: new Date(date),
-        //             high: +timeSeriesData[date]['2. high'],
-        //             low: +timeSeriesData[date]['3. low'],
-        //             open: +timeSeriesData[date]['1. open'],
-        //             volume: +timeSeriesData[date]['5. volume'],
-        //         }
-        //         dailyData.push(daily);
-        //     }
-        // }
-
-        for (const daily of json) {
-            dailyData.push({
-                close: daily.close,
-                date: new Date(daily.date),
-                high: daily.high,
-                low: daily.low,
-                open: daily.open,
-                volume: daily.volume,
-            });
-        }
-
-        dailyData.sort((first: IStockDaily, second: IStockDaily) => first.date.valueOf() - second.date.valueOf());
-        return {
-            data: dailyData,
-            ticker: ticker.toUpperCase()
-        };
-    }
 }
