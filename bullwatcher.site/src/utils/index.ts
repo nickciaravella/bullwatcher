@@ -1,4 +1,8 @@
 export {
+    calculatePercentChange
+} from './math'
+
+export {
     currencyString,
     numberWithCommas,
     numberWithIllions,

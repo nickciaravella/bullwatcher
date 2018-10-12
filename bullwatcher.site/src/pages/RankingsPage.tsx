@@ -78,7 +78,7 @@ export default class RankingsPage extends React.Component<IRankingsPageProps, IR
                         <option value={0}>None</option>
                         <option value={1000000000}>1 billion</option>
                         <option value={10000000000}>10 billion</option>
-                        <option value={50000000000}>50 million</option>
+                        <option value={50000000000}>50 billion</option>
                         <option value={100000000000}>100 billion</option>
                         <option value={500000000000}>500 billion</option>
                     </select>

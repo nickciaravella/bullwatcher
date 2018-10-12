@@ -4,14 +4,16 @@ import * as React from 'react';
 import TextBox from 'src/components/TextBox'
 import { AuthContextStore } from 'src/models/auth-store';
 import { IChartSettings } from 'src/models/chart-settings'
+import { IStockCurrentPrice } from 'src/models/stock-current';
 import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import { IStockMetadata } from 'src/models/stock-metadata';
 import { IUserWatchlist, IUserWatchlistItem } from 'src/models/user-watchlist';
+import { IWatchlistItemInfo, SortOrder } from 'src/pages/WatchlistPage/models';
 import SearchBox from 'src/SearchBox';
 import { BullWatcher } from 'src/services/bullwatcher';
-import StockChart from 'src/StockChart';
-import { IStockCurrentPrice } from '../../models/stock-current';
-import StockCurrentPrice from '../../StockCurrentPrice';
+// import StockChart from 'src/StockChart';
+// import StockCurrentPrice from 'src/StockCurrentPrice';
+import WatchlistTable from './WatchlistTable';
 
 interface IWatchlistPageProps {
     authContextStore: AuthContextStore;
@@ -26,18 +28,11 @@ interface IWatchlistPageState {
     watchlists: IUserWatchlist[];
 }
 
-enum SortOrder {
-    ALPHABETICAL = 'alphabetical',
-    CUSTOM = 'custom',
-    MARKET_CAP = 'marketCap',
-    PERCENT_CHANGE = 'percentChange',
-}
-
-interface IWatchlistItemInfo {
-    item: IUserWatchlistItem;
-    price: IStockCurrentPrice;
-}
-
+// ----------------------
+// TODO:
+// 1) Add a toggle for showing chart vs. not. Or make rows expandable to show the chart.
+// 2) Load data more asynchronously. Page is taking too long to load.
+// ----------------------
 @observer
 export default class WatchlistPage extends React.Component<IWatchlistPageProps, IWatchlistPageState> {
     private bullwatcher = new BullWatcher();
@@ -85,19 +80,19 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
             </form>
         )
 
-        const stockCharts: JSX.Element[] = []
-        for (const info of this.getSortedItems()) {
-            const item: IUserWatchlistItem = info.item;
-            const removeFromWatchlistFunc = () => this.removeFromWatchlist(item.stockMetadata.ticker);
-            stockCharts.push((
-                <div key={item.stockMetadata.ticker} style={{paddingBottom: '50px'}}>
-                    <h3>{item.stockMetadata.companyName} ( {item.stockMetadata.ticker} )</h3>
-                    <button onClick={removeFromWatchlistFunc}>Remove</button>
-                    <StockCurrentPrice currentPrice={info.price} />
-                    <StockChart ticker={item.stockMetadata.ticker} settings={this.props.chartSettings} />
-                </div>
-            ))
-        }
+        // const stockCharts: JSX.Element[] = []
+        // for (const info of this.getSortedItems()) {
+        //     const item: IUserWatchlistItem = info.item;
+        //     const removeFromWatchlistFunc = () => this.removeFromWatchlist(item.stockMetadata.ticker);
+        //     stockCharts.push((
+        //         <div key={item.stockMetadata.ticker} style={{paddingBottom: '50px'}}>
+        //             <h3>{item.stockMetadata.companyName} ( {item.stockMetadata.ticker} )</h3>
+        //             <button onClick={removeFromWatchlistFunc}>Remove</button>
+        //             <StockCurrentPrice currentPrice={info.price} />
+        //             <StockChart ticker={item.stockMetadata.ticker} settings={this.props.chartSettings} />
+        //         </div>
+        //     ))
+        // }
 
         return (
             <div>
@@ -115,7 +110,9 @@ export default class WatchlistPage extends React.Component<IWatchlistPageProps, 
                 <br />
                 { sortOrderPicker }
                 { addTickerForm }
-                { stockCharts }
+                <WatchlistTable watchlistItems={this.getSortedItems()}
+                                deleteItemFunc={this.removeFromWatchlist} />
+                {/* { stockCharts } */}
             </div>
         );
     }
