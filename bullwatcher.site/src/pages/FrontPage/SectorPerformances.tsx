@@ -31,8 +31,8 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
         return (
             <div>
                 <h1>Sector Performance</h1>
-                <table>
-                    <tbody>
+                <table className="table">
+                   <thead className="thead-dark">
                         <tr>
                             <th>Sector</th>
                             <th>1 week</th>
@@ -42,6 +42,8 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
                             <th>3 years</th>
                             <th>5 years</th>
                         </tr>
+                    </thead>
+                    <tbody>
                         {
                             this.state.sectors.length > 0 && this.getSectorRows()
                         }
