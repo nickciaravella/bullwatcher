@@ -29,9 +29,7 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
         const suggestionsList = [];
         for (const stockMetadata of suggestions) {
             suggestionsList.push((
-                <li key={stockMetadata.ticker}>
-                    {stockMetadata.companyName} <Link to={`/stocks/${stockMetadata.ticker}`}>{stockMetadata.ticker}</Link>
-                </li>
+                <Link className="list-group-item" to={`/stocks/${stockMetadata.ticker}`}>{stockMetadata.companyName} ({stockMetadata.ticker})</Link>
             ))
         }
         return (
@@ -41,15 +39,10 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
                         placeholder="Enter ticker"
                         onChange={this.handleInputChange}
                     />
+                    <ul className="list-group position-absolute text-left">
+                        {suggestionsList}
+                    </ul>
                 </form>
-                <div>
-                    {
-                        this.state.suggestions.length > 0 &&
-                        <ul>
-                            {suggestionsList}
-                        </ul>
-                      }
-                </div>
             </div>
 
         );

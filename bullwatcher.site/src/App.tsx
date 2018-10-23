@@ -2,6 +2,7 @@ import * as React from 'react';
 import './App.css';
 
 import Header from 'src/components/siteTemplate/Header'
+import NavBar from 'src/components/siteTemplate/NavBar';
 import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import RankingsPage from 'src/pages/RankingsPage';
 import StockDetailPage from 'src/pages/StockDetailPage';
@@ -15,7 +16,6 @@ import { ChartSettingsStore } from './models/chart-settings'
 import { StockMetadataStore } from './models/stock-metadata';
 import FlagsPage from './pages/FlagsPage';
 import FrontPage from './pages/FrontPage';
-import SearchBox from './SearchBox';
 
 interface IAppState {
     searchTicker: string;
@@ -34,17 +34,7 @@ export default class App extends React.Component<any, IAppState> {
             <BrowserRouter>
                 <div className="App">
                     <Header authContextStore={authContextStore} />
-                    <div>
-                        <SearchBox onSearchFunc={this.onTickerSearch} />
-                    </div>
-                    <div>
-                        <ul>
-                            <li><a href='/'>Home</a></li>
-                            <li><a href='/patterns/flags'>Flags</a></li>
-                            <li><a href='/rankings'>Rankings</a></li>
-                            <li><a href='/watchlists'>Watchlists</a></li>
-                        </ul>
-                    </div>
+                    <NavBar onTickerSearch={this.onTickerSearch} />
                     <div>
                         <button>Change Chart Settings</button>
                         <div style={{visibility: 'visible'}}>
