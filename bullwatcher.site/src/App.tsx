@@ -1,8 +1,7 @@
 import * as React from 'react';
 import './App.css';
 
-import logo from './logo.svg';
-
+import Header from 'src/components/siteTemplate/Header'
 import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import RankingsPage from 'src/pages/RankingsPage';
 import StockDetailPage from 'src/pages/StockDetailPage';
@@ -16,7 +15,6 @@ import { ChartSettingsStore } from './models/chart-settings'
 import { StockMetadataStore } from './models/stock-metadata';
 import FlagsPage from './pages/FlagsPage';
 import FrontPage from './pages/FrontPage';
-import LoginLogoutSection from './pages/LoginLogoutSection';
 import SearchBox from './SearchBox';
 
 interface IAppState {
@@ -35,12 +33,8 @@ export default class App extends React.Component<any, IAppState> {
         return (
             <BrowserRouter>
                 <div className="App">
-                    <header className="App-header">
-                        <img src={logo} className="App-logo" alt="logo" />
-                        <h1 className="App-title">Bull Watcher</h1>
-                    </header>
+                    <Header authContextStore={authContextStore} />
                     <div>
-                        <LoginLogoutSection authContextStore={authContextStore} />
                         <SearchBox onSearchFunc={this.onTickerSearch} />
                     </div>
                     <div>

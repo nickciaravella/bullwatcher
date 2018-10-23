@@ -16,10 +16,11 @@ export default class LoginLogoutSection extends React.Component<ILoginLogoutSect
     }
 
     public render() {
-        if (this.props.authContextStore.userContext) {
+        const { authContextStore } = this.props;
+        if (authContextStore.userContext) {
             return (
                 <div>
-                    <p>{`Logged in as: ${this.props.authContextStore.userContext.friendlyName} (${this.props.authContextStore.userContext.email})`}</p>
+                    <p>{authContextStore.userContext.friendlyName}</p>
                     <button onClick={this.onLogout}>Log out</button>
                 </div>
             )
@@ -29,7 +30,7 @@ export default class LoginLogoutSection extends React.Component<ILoginLogoutSect
             <div>
                 <GoogleLogin
                     clientId="1039407810630-2fue85vl9bnfkc4b1nbpmq6t8ei005vd.apps.googleusercontent.com"
-                    buttonText="Login"
+                    buttonText="Login with Google"
                     onSuccess={this.googleResponse}
                     onFailure={this.onFailure}
                 />

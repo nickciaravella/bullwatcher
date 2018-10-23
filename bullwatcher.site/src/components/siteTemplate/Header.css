@@ -1,0 +1,19 @@
+.Header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #222;
+    height: 100px;
+    padding: 25px;
+    color: white;
+}
+
+.Header-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.Header-title {
+  font-size: 2em;
+}
