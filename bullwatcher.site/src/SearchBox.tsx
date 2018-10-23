@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 
 import { IStockMetadata } from 'src/models/stock-metadata';
 import { BullWatcher } from 'src/services/bullwatcher';
@@ -14,6 +13,7 @@ interface ISearchBoxState {
 }
 
 export default class SearchBox extends React.Component<ISearchBoxProps, ISearchBoxState> {
+    private searchBox: HTMLInputElement = null;
 
     constructor(props: ISearchBoxProps) {
         super(props);
@@ -28,14 +28,16 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
         const { suggestions } = this.state;
         const suggestionsList = [];
         for (const stockMetadata of suggestions) {
+            const action = () => this.handleSuggestionClicked(stockMetadata.ticker);
             suggestionsList.push((
-                <Link className="list-group-item" to={`/stocks/${stockMetadata.ticker}`}>{stockMetadata.companyName} ({stockMetadata.ticker})</Link>
+                <button type="button" className="list-group-item list-group-item-action" onClick={action}>{stockMetadata.companyName} ({stockMetadata.ticker})</button>
             ))
         }
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
                     <input
+                        ref={el => this.searchBox = el}
                         placeholder="Enter ticker"
                         onChange={this.handleInputChange}
                     />
@@ -44,7 +46,6 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
                     </ul>
                 </form>
             </div>
-
         );
     }
 
@@ -61,8 +62,21 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
 
     private handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        console.log("Querying for: " + this.state.query);
         this.props.onSearchFunc(this.state.query);
+        this.searchBox.value = "";
+        this.setState((prevState: ISearchBoxState) => { return {
+            query: "",
+            suggestions: []
+        }});
+    }
+
+    private handleSuggestionClicked = (ticker: string) => {
+        this.props.onSearchFunc(ticker);
+        this.searchBox.value = "";
+        this.setState((prevState: ISearchBoxState) => { return {
+            query: "",
+            suggestions: []
+        }});
     }
 
     private async loadSuggestions(query: string) {
