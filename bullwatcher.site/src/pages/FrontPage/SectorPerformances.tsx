@@ -3,6 +3,7 @@ import * as React from 'react';
 import { TimeWindow } from 'src/models/common';
 import { ISectorPerformance } from 'src/models/sectors';
 import { BullWatcher } from 'src/services/bullwatcher';
+import { percentageString } from 'src/utils'
 
 
 interface ISectorPerformancesState {
@@ -30,9 +31,8 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
         }
         return (
             <div>
-                <h1>Sector Performance</h1>
                 <table className="table">
-                   <thead className="thead-dark">
+                   <thead className="thead-light">
                         <tr>
                             <th>Sector</th>
                             <th>1 week</th>
@@ -70,19 +70,36 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
             }
             rows.push((
                 <tr key={s.id}>
-                    <td style={{ padding: '10px' }}>{s.sectorName}</td>
-                    <td>{sectorMap[s.id][TimeWindow.ONE_WEEK] ? sectorMap[s.id][TimeWindow.ONE_WEEK].percentChange : '--'}</td>
-                    <td>{sectorMap[s.id][TimeWindow.ONE_MONTH] ? sectorMap[s.id][TimeWindow.ONE_MONTH].percentChange : '--'}</td>
-                    <td>{sectorMap[s.id][TimeWindow.THREE_MONTHS] ? sectorMap[s.id][TimeWindow.THREE_MONTHS].percentChange : '--'}</td>
-                    <td>{sectorMap[s.id][TimeWindow.ONE_YEAR] ? sectorMap[s.id][TimeWindow.ONE_YEAR].percentChange : '--'}</td>
-                    <td>{sectorMap[s.id][TimeWindow.THREE_YEARS] ? sectorMap[s.id][TimeWindow.THREE_YEARS].percentChange : '--'}</td>
-                    <td>{sectorMap[s.id][TimeWindow.FIVE_YEARS] ? sectorMap[s.id][TimeWindow.FIVE_YEARS].percentChange : '--'}</td>
+                    <td className="text-left">{s.sectorName}</td>
+                    {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_WEEK])}
+                    {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_MONTH])}
+                    {this.getSectorRow(sectorMap[s.id][TimeWindow.THREE_MONTHS])}
+                    {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_YEAR])}
+                    {this.getSectorRow(sectorMap[s.id][TimeWindow.THREE_YEARS])}
+                    {this.getSectorRow(sectorMap[s.id][TimeWindow.FIVE_YEARS])}
                 </tr>
             ))
             doneSectors.push(s.id);
         }
 
         return rows;
+    }
+
+    private getSectorRow(sectorPerf?: ISectorPerformance) {
+        if (!sectorPerf) {
+            return (<td />)
+        }
+
+        let bgColor = "bg-light";
+        let textColor = "text-dark";
+        if (sectorPerf.percentChange > 0) {
+            bgColor = "bg-success";
+            textColor = "text-light";
+        } else if (sectorPerf.percentChange < 0) {
+            bgColor = "bg-danger";
+            textColor = "text-light";
+        }
+        return (<td className={`${bgColor} ${textColor}`}>{percentageString(sectorPerf.percentChange)}</td>)
     }
 
     private loadData = async () => {

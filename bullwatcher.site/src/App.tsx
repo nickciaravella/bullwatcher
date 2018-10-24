@@ -46,7 +46,8 @@ export default class App extends React.Component<any, IAppState> {
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (
-                                   <FrontPage chartSettings={chartSettingsStore.chartSettings} />
+                                   <FrontPage chartSettings={chartSettingsStore.chartSettings}
+                                              stockCurrentPriceStore={stockCurrentPriceStore} />
                                 );
                             }} />
                             <Route path="/stocks/:id" render={(props) => { // tslint:disable-next-line jsx-no-lambda
