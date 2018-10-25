@@ -1,21 +1,20 @@
 import * as React from 'react';
 import './App.css';
 
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+
+import Footer from 'src/components/siteTemplate/Footer';
 import Header from 'src/components/siteTemplate/Header'
 import NavBar from 'src/components/siteTemplate/NavBar';
+import { AuthContextStore } from 'src/models/auth-store';
+import { ChartSettingsStore } from 'src/models/chart-settings'
 import { StockCurrentPriceStore } from 'src/models/stock-current-store';
+import { StockMetadataStore } from 'src/models/stock-metadata';
+import FlagsPage from 'src/pages/FlagsPage';
+import FrontPage from 'src/pages/FrontPage';
 import RankingsPage from 'src/pages/RankingsPage';
 import StockDetailPage from 'src/pages/StockDetailPage';
 import WatchlistPage from 'src/pages/WatchlistPage';
-
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
-
-import ChartSettingsPicker from './ChartSettingsPicker';
-import { AuthContextStore } from './models/auth-store';
-import { ChartSettingsStore } from './models/chart-settings'
-import { StockMetadataStore } from './models/stock-metadata';
-import FlagsPage from './pages/FlagsPage';
-import FrontPage from './pages/FrontPage';
 
 interface IAppState {
     searchTicker: string;
@@ -35,12 +34,6 @@ export default class App extends React.Component<any, IAppState> {
                 <div className="App">
                     <Header authContextStore={authContextStore} />
                     <NavBar onTickerSearch={this.onTickerSearch} />
-                    <div>
-                        <button>Change Chart Settings</button>
-                        <div style={{visibility: 'visible'}}>
-                            <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
-                        </div>
-                    </div>
                     {this.state && this.state.searchTicker && <Redirect to={"/stocks/" + this.state.searchTicker} />}
                     <div style={{ margin: 'auto', paddingTop: '50px', maxWidth: '1200px'}}>
                         <Switch>
@@ -88,6 +81,7 @@ export default class App extends React.Component<any, IAppState> {
                            }} />
                          </Switch>
                     </div>
+                    <Footer />
                 </div>
             </BrowserRouter>
         );
