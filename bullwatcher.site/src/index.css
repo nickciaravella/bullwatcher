@@ -4,6 +4,30 @@ body {
   font-family: sans-serif;
 }
 
+.text-1 {
+    font-size: 1em;
+}
+
+.text-125 {
+    font-size: 1.25em;
+}
+
+.text-15 {
+    font-size: 1.5em;
+}
+
+.text-2 {
+    font-size: 2em;
+}
+
+.text-25 {
+    font-size: 2.5em;
+}
+
+.text-3 {
+    font-size: 3em;
+}
+
 @keyframes App-logo-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

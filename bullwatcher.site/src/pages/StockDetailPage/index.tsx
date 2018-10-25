@@ -47,18 +47,28 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
         const { chartSettingsStore, stockMetadataStore, ticker } = this.props;
         const { price, rankings, sectorPerformances } = this.state;
         const stockMetadata: IStockMetadata = stockMetadataStore.stockMetadatas.get(ticker);
+
+        const companyName: string = stockMetadata ? stockMetadata.companyName : "";
+        const sectorName: string = stockMetadata ? `(${stockMetadata.sector})` : "";
         return (
-            <div>
-                {   stockMetadata &&
-                    <h1>{stockMetadata.companyName}</h1>
-                }
-                {   stockMetadata &&
-                    <h3>{stockMetadata.sector}</h3>
-                }
+            <div className="pt-3">
+                <h1 className="text-center">{companyName}</h1>
+                <div className="d-flex flex-row justify-content-between align-items-end">
+                    <div className="d-flex flex-column pb-1">
+                        <div>
+                            <span className="text-25 pr-3">{ticker.toUpperCase()}</span>
+                            <span className="text-secondary text-15">{sectorName}</span>
+                        </div>
+                    </div>
+                    { price &&
+                        <div>
+                            <StockCurrentPrice currentPrice={price} />
+                        </div>
+                    }
+                </div>
                 {
                     this.state.price && stockMetadata &&
                     <div>
-                        <StockCurrentPrice currentPrice={price} />
                         <StockChart ticker={ticker} settings={chartSettingsStore.chartSettings} />
                         <div className="pt-3">
                             <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
