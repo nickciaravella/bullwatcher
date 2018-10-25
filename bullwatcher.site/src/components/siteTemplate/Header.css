@@ -1,12 +1,24 @@
 .Header {
+    background-color: #222;
+    height: 100px;
+    padding: 25px;
+}
+
+.Header-content {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background-color: #222;
-    height: 100px;
-    padding: 25px;
     color: white;
+    margin: auto;
+    max-width: 1200px;
+    height: 100%;
+}
+
+.Header-logo-and-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .Header-logo {

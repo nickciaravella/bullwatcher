@@ -15,11 +15,13 @@ export default class Header extends React.Component<IHeaderProps, any> {
         const { authContextStore } = this.props;
         return (
             <header className="Header">
-                <div className="Header">
-                    <img src={logo} className="Header-logo" alt="logo" />
-                    <h1 className="Header-title">Bull Watcher</h1>
+                <div className="Header-content">
+                    <div className="Header-logo-and-title">
+                        <img src={logo} className="Header-logo" alt="logo" />
+                        <h1 className="Header-title">Bull Watcher</h1>
+                    </div>
+                    <LoginLogoutSection authContextStore={authContextStore} />
                 </div>
-                <LoginLogoutSection authContextStore={authContextStore} />
             </header>
         )
     }

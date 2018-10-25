@@ -3,7 +3,7 @@ import './App.css';
 
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-import Footer from 'src/components/siteTemplate/Footer';
+// import Footer from 'src/components/siteTemplate/Footer';
 import Header from 'src/components/siteTemplate/Header'
 import NavBar from 'src/components/siteTemplate/NavBar';
 import { AuthContextStore } from 'src/models/auth-store';
@@ -35,7 +35,7 @@ export default class App extends React.Component<any, IAppState> {
                     <Header authContextStore={authContextStore} />
                     <NavBar onTickerSearch={this.onTickerSearch} />
                     {this.state && this.state.searchTicker && <Redirect to={"/stocks/" + this.state.searchTicker} />}
-                    <div style={{ margin: 'auto', paddingTop: '50px', maxWidth: '1200px'}}>
+                    <div style={{ margin: 'auto', paddingTop: '15px', maxWidth: '1200px'}}>
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (
@@ -81,7 +81,6 @@ export default class App extends React.Component<any, IAppState> {
                            }} />
                          </Switch>
                     </div>
-                    <Footer />
                 </div>
             </BrowserRouter>
         );

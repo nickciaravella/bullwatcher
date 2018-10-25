@@ -105,7 +105,11 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
     private loadData = async () => {
         const sectorPerformances: ISectorPerformance[] = await this.service.getSectorPerformances();
         this.setState({
-            sectors: sectorPerformances
+            sectors: sectorPerformances.sort((a: ISectorPerformance, b: ISectorPerformance) => {
+                const aUpper = a.sectorName.toUpperCase();
+                const bUpper = b.sectorName.toUpperCase();
+                return aUpper < bUpper ? -1 : 1;
+            })
         })
     }
 }

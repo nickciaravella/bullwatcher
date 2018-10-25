@@ -41,7 +41,7 @@ export default class SearchBox extends React.Component<ISearchBoxProps, ISearchB
                         placeholder="Enter ticker"
                         onChange={this.handleInputChange}
                     />
-                    <ul className="list-group position-absolute text-left">
+                    <ul className="list-group position-absolute text-left" style={{ zIndex: 100}}>
                         {suggestionsList}
                     </ul>
                 </form>
