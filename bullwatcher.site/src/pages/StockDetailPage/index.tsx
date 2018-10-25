@@ -1,8 +1,10 @@
 import { observer } from 'mobx-react';
 import * as React from 'react';
 
-import { IChartSettings } from 'src/models/chart-settings'
-import { TimeWindow } from 'src/models/common';
+import StockStats from './StockStats';
+
+import ChartSettingsPicker from 'src/ChartSettingsPicker'
+import { ChartSettingsStore } from 'src/models/chart-settings'
 import { INews } from 'src/models/news';
 import { ISectorPerformance } from 'src/models/sectors';
 import { IStockCurrentPrice } from 'src/models/stock-current';
@@ -12,20 +14,19 @@ import { BullWatcher } from 'src/services/bullwatcher';
 import { Iex } from 'src/services/iex';
 import StockChart from 'src/StockChart';
 import StockCurrentPrice from 'src/StockCurrentPrice';
-import { currencyString, numberWithIllions, percentageString } from 'src/utils'
-
+import StockSectorComparison from './StockSectorComparison';
 
 interface IStockDetailPageProps {
     ticker: string;
-    chartSettings: IChartSettings;
-    stockMetadataStore: StockMetadataStore
+    chartSettingsStore: ChartSettingsStore;
+    stockMetadataStore: StockMetadataStore;
 }
 
 interface IStockDetailPageState {
     sectorPerformances: ISectorPerformance[];
     price?: IStockCurrentPrice;
     rankings: IStockRanking[];
-    news: INews[]
+    news: INews[];
 }
 
 @observer
@@ -43,8 +44,9 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
       }
 
     public render() {
-        const { price } = this.state;
-        const stockMetadata: IStockMetadata = this.props.stockMetadataStore.stockMetadatas.get(this.props.ticker);
+        const { chartSettingsStore, stockMetadataStore, ticker } = this.props;
+        const { price, rankings, sectorPerformances } = this.state;
+        const stockMetadata: IStockMetadata = stockMetadataStore.stockMetadatas.get(ticker);
         return (
             <div>
                 {   stockMetadata &&
@@ -56,43 +58,26 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                 {
                     this.state.price && stockMetadata &&
                     <div>
-                        <StockCurrentPrice currentPrice={this.state.price} />
-                        <StockChart ticker={this.props.ticker} settings={this.props.chartSettings} />
-                        <ul>
-                            <li>Market Cap: {numberWithIllions(stockMetadata.marketCap)}</li>
-                            <li>Volume: {numberWithIllions(price.volume)}</li>
-                            <li>Open: {currencyString(price.open)}</li>
-                            <li>High: {currencyString(price.high)}</li>
-                            <li>Low: {currencyString(price.low)}</li>
-                        </ul>
-                        { this.state.rankings.length > 0 &&
-                            <table>
-                                <tr>
-                                    <th/>
-                                    <th>1 week</th>
-                                    <th>1 month</th>
-                                    <th>3 months</th>
-                                    <th>1 year</th>
-                                    <th>3 years</th>
-                                </tr>
-                                <tr>
-                                    <td>{stockMetadata.companyName}</td>
-                                    <td>{this.getRankingForTimeWindow(TimeWindow.ONE_WEEK)}</td>
-                                    <td>{this.getRankingForTimeWindow(TimeWindow.ONE_MONTH)}</td>
-                                    <td>{this.getRankingForTimeWindow(TimeWindow.THREE_MONTHS)}</td>
-                                    <td>{this.getRankingForTimeWindow(TimeWindow.ONE_YEAR)}</td>
-                                    <td>{this.getRankingForTimeWindow(TimeWindow.THREE_YEARS)}</td>
-                                </tr>
-                                <tr>
-                                    <td>{this.getSectorNameForId(stockMetadata.sector)}</td>
-                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.ONE_WEEK)}</td>
-                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.ONE_MONTH)}</td>
-                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.THREE_MONTHS)}</td>
-                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.ONE_YEAR)}</td>
-                                    <td>{this.getSectorPerformanceForTimeWindow(stockMetadata.sector, TimeWindow.THREE_YEARS)}</td>
-                                </tr>
-                            </table>
-                        }
+                        <StockCurrentPrice currentPrice={price} />
+                        <StockChart ticker={ticker} settings={chartSettingsStore.chartSettings} />
+                        <div className="pt-3">
+                            <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
+                        </div>
+                        <div className="d-flex flex-row justify-content-between">
+                            <div className="w-50 mr-5 mt-5">
+                                <h4 className="text-left">Price Details</h4>
+                                <StockStats stockMetadata={stockMetadata} currentPrice={price} />
+                            </div>
+                            { rankings.length > 0 && sectorPerformances.length > 0 &&
+                                <div className="w-50 mr-5 mt-5">
+                                    <h4 className="text-left">Sector Comparison</h4>
+                                    <StockSectorComparison stockMetadata={stockMetadata}
+                                                           rankings={rankings}
+                                                           sectorPerformances={sectorPerformances} />
+                                </div>
+                            }
+                        </div>
+
                     {
                         this._renderNewsSection()
                     }
@@ -144,29 +129,5 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
             sectorPerformances,
             ticker: this.props.ticker
         }})
-    }
-
-    private getRankingForTimeWindow(timeWindow: TimeWindow): string {
-        const ranking = this.state.rankings.find(r => r.timeWindow === timeWindow);
-        if (!ranking) {
-            return '--';
-        }
-        return percentageString(ranking.value);
-    }
-
-    private getSectorNameForId(sector: string): string {
-        const performance = this.state.sectorPerformances.find(p => p.id === sector);
-        if (!performance) {
-            return "Unknown";
-        }
-        return performance.sectorName;
-    }
-
-    private getSectorPerformanceForTimeWindow(sector: string, timeWindow: TimeWindow): string {
-        const performance = this.state.sectorPerformances.find(p => p.id === sector && p.timeWindow === timeWindow);
-        if (!performance) {
-            return '--';
-        }
-        return percentageString(performance.percentChange);
     }
 }

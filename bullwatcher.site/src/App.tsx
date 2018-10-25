@@ -46,9 +46,9 @@ export default class App extends React.Component<any, IAppState> {
                             <Route path="/stocks/:id" render={(props) => { // tslint:disable-next-line jsx-no-lambda
                                 return (
                                     <StockDetailPage
-                                        ticker={props.match.params.id}
-                                        chartSettings={chartSettingsStore.chartSettings}
-                                        stockMetadataStore={stockMetadataStore} />
+                                        chartSettingsStore={chartSettingsStore}
+                                        stockMetadataStore={stockMetadataStore}
+                                        ticker={props.match.params.id} />
                                 );
                            }} />
                            <Route path="/watchlists" render={(props) => { // tslint:disable-next-line jsx-no-lambda
