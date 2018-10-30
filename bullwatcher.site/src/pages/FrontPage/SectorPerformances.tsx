@@ -1,9 +1,10 @@
 import * as React from 'react';
+import * as styles from 'src/styles'
 
 import { TimeWindow } from 'src/models/common';
 import { ISectorPerformance } from 'src/models/sectors';
 import { BullWatcher } from 'src/services/bullwatcher';
-import { percentageString } from 'src/utils'
+import { bgColorForPercentChange, percentageString } from 'src/utils'
 
 
 interface ISectorPerformancesState {
@@ -70,7 +71,7 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
             }
             rows.push((
                 <tr key={s.id}>
-                    <td className="text-left">{s.sectorName}</td>
+                    <td className={styles.classNames("text-left", styles.textColorPrimary)}>{s.sectorName}</td>
                     {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_WEEK])}
                     {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_MONTH])}
                     {this.getSectorRow(sectorMap[s.id][TimeWindow.THREE_MONTHS])}
@@ -90,16 +91,12 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
             return (<td />)
         }
 
-        let bgColor = "bg-light";
-        let textColor = "text-dark";
-        if (sectorPerf.percentChange > 0) {
-            bgColor = "bg-success";
-            textColor = "text-light";
-        } else if (sectorPerf.percentChange < 0) {
-            bgColor = "bg-danger";
-            textColor = "text-light";
-        }
-        return (<td className={`${bgColor} ${textColor}`}>{percentageString(sectorPerf.percentChange)}</td>)
+        const bgColor: string = bgColorForPercentChange(sectorPerf.percentChange);
+        return (
+            <td className={styles.classNames(bgColor)}>
+                {percentageString(sectorPerf.percentChange)}
+            </td>
+        )
     }
 
     private loadData = async () => {

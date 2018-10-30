@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IStockCurrentPrice } from 'src/models/stock-current';
-import { currencyString, percentageString} from 'src/utils'
+import { currencyString, percentageString, textColorForStockPriceChange} from 'src/utils'
 
 export interface IStockCurrentPriceProps {
     currentPrice: IStockCurrentPrice;
@@ -26,13 +26,7 @@ export default class StockCurrentPrice extends React.Component<IStockCurrentPric
         const todaysChange = currentPrice.currentPrice - currentPrice.lastClose;
         const todaysPercentChange = todaysChange / currentPrice.currentPrice * 100;
 
-        let textColor = "";
-        if (todaysChange > 0) {
-            textColor = "text-success";
-        } else if (todaysChange < 0) {
-            textColor = "text-danger";
-        }
-
+        const textColor = textColorForStockPriceChange(currentPrice.currentPrice, currentPrice.lastClose);
         return (
             <div className={textColor}>
                 <span className="text-25 pr-3">{currencyString(currentPrice.currentPrice)}</span>

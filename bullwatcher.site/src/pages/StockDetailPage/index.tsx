@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react';
 import * as React from 'react';
+import * as styles from 'src/styles';
 
 import StockStats from './StockStats';
 
@@ -49,7 +50,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
         const stockMetadata: IStockMetadata = stockMetadataStore.stockMetadatas.get(ticker);
 
         const companyName: string = stockMetadata ? stockMetadata.companyName : "";
-        const sectorName: string = stockMetadata ? `(${stockMetadata.sector})` : "";
+        const sectorName: string = stockMetadata && stockMetadata.sector !== "Unknown" ? `(${stockMetadata.sector})` : "";
         return (
             <div className="pt-3">
                 <h1 className="text-center">{companyName}</h1>
@@ -57,7 +58,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                     <div className="d-flex flex-column pb-1">
                         <div>
                             <span className="text-25 pr-3">{ticker.toUpperCase()}</span>
-                            <span className="text-secondary text-15">{sectorName}</span>
+                            <span className={styles.classNames("text-15", styles.textColorSecondary)}>{sectorName}</span>
                         </div>
                     </div>
                     { price &&
