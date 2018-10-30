@@ -6,7 +6,8 @@ export {
 } from './colors'
 
 export {
-    calculatePercentChange
+    calculatePercentChange,
+    roundToTwoPlaces
 } from './math'
 
 export {

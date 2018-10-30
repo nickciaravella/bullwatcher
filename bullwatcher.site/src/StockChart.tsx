@@ -55,7 +55,6 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 borderWidth: 1,
                 height: '50%',
                 spacing: [40,40,40,40],
-
             },
             credits: {
                 href: "http://www.bullwatcher.com",
@@ -130,6 +129,9 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 upColor: 'MediumSeaGreen',
                 yAxis: 0
             }],
+            title: {
+                text: null,
+            },
             xAxis: {
                 labels: {
                     style: {
