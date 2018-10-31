@@ -15,7 +15,7 @@ export function textColorForPercentChange(percentChange: number): string {
 }
 
 export function textColorForStockPriceChange(current: number, base: number): string {
-    const percentChange: number = calculatePercentChange(base, current);
+    const percentChange: number = calculatePercentChange(current, base);
     return textColorForPercentChange(percentChange);
 }
 
@@ -32,6 +32,6 @@ export function bgColorForPercentChange(percentChange: number): string {
 }
 
 export function bgColorForStockPriceChange(base: number, current: number): string {
-    const percentChange: number = calculatePercentChange(base, current);
+    const percentChange: number = calculatePercentChange(current, base);
     return bgColorForPercentChange(percentChange);
 }

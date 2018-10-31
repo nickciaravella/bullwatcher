@@ -85,12 +85,14 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                         [this.getChartInterval(this.props.settings.valueInterval), [1]]
                     ]
                 },
+                enableMouseTracking: false,
                 name: 'Volume',
                 type: 'column',
                 visible: indicators.indexOf(Indicator.Volume) !== -1,
                 yAxis: 1,
             }, {
                 color: "DarkSlateBlue",
+                enableMouseTracking: false,
                 linkedTo: 'price',
                 params: {
                     period: 10
@@ -99,6 +101,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 visible: indicators.indexOf(Indicator.ShortMovingAverage) !== -1
             }, {
                 color: "Maroon",
+                enableMouseTracking: false,
                 linkedTo: 'price',
                 params: {
                     period: 50
@@ -107,6 +110,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 visible: indicators.indexOf(Indicator.MediumMovingAverage) !== -1
             }, {
                 color: "DarkOliveGreen",
+                enableMouseTracking: false,
                 linkedTo: 'price',
                 params: {
                     period: 200
@@ -123,8 +127,11 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                     ]
                 },
                 id: 'price',
-                lineColor: chartType === ChartType.Candlestick ? "#888" : "white" ,
+                lineColor: chartType === ChartType.Candlestick ? "#888" : "white",
                 name: 'Price',
+                tooltip: {
+                    pointFormat: chartType === ChartType.Candlestick ? "{point.close}" : "{point.y}",
+                },
                 type: `${chartTypeStr}`,
                 upColor: 'MediumSeaGreen',
                 yAxis: 0
@@ -141,7 +148,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 range: this.getChartRange(timeRange),
             },
             yAxis: [{
-                crosshair: true,
+                crosshair: false,
                 gridLineColor: '#555',
                 height: '80%',
                 labels: {
