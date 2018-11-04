@@ -6,6 +6,14 @@ body {
   color: #eee;
 }
 
+.text-075 {
+    font-size: 0.75em;
+}
+
+.text-0875 {
+    font-size: 0.875em;
+}
+
 .text-1 {
     font-size: 1em;
 }

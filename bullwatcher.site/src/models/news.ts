@@ -1,7 +1,8 @@
 export interface INews {
-    date: Date;
+    description: string;
     headline: string;
+    newsUrl: string;
+    publishedDate: Date;
     source: string;
-    url: string;
-    thumbnailUrl?: string;
+    thumbnailUrl: string;
 }

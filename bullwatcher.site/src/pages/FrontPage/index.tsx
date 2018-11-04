@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import NewsList from 'src/components/NewsList';
 import SectorPerformances from './SectorPerformances';
 import StockBox from './StockBox';
 
@@ -25,7 +26,7 @@ export default class FrontPage extends React.Component<IFrontPageProps> {
         return (
             <div>
                 <div>
-                    <h1 className="text-left p-3">Todays Market</h1>
+                    <h1 className="p-3">Todays Market</h1>
                     <div className="d-flex justify-between flex-wrap" style={{ height: '750px'}}>
                         <div className="w-50 h-50 p-3">
                             <StockBox ticker="SPY"
@@ -49,9 +50,12 @@ export default class FrontPage extends React.Component<IFrontPageProps> {
                         </div>
                     </div>
                 </div>
-                <div>
-                    <h1 className="text-left pt-5 p-3">Sector Trends</h1>
+                <div className="pl-3">
+                    <h1 className="pt-5">Sector Trends</h1>
                     <SectorPerformances />
+                </div>
+                <div className="pt-5 pl-3">
+                    <NewsList />
                 </div>
             </div>
         );

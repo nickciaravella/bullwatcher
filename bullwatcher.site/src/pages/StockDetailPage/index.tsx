@@ -5,6 +5,7 @@ import * as styles from 'src/styles';
 import StockStats from './StockStats';
 
 import ChartSettingsPicker from 'src/ChartSettingsPicker'
+import NewsList from 'src/components/NewsList';
 import { ChartSettingsStore } from 'src/models/chart-settings'
 import { INews } from 'src/models/news';
 import { ISectorPerformance } from 'src/models/sectors';
@@ -12,7 +13,6 @@ import { IStockCurrentPrice } from 'src/models/stock-current';
 import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
 import { IStockRanking } from 'src/models/stock-rankings';
 import { BullWatcher } from 'src/services/bullwatcher';
-import { Iex } from 'src/services/iex';
 import StockChart from 'src/StockChart';
 import StockCurrentPrice from 'src/StockCurrentPrice';
 import StockSectorComparison from './StockSectorComparison';
@@ -88,36 +88,12 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                                 </div>
                             }
                         </div>
-
-                    {
-                        this._renderNewsSection()
-                    }
+                    <div>
+                        <NewsList ticker={this.props.ticker} />
+                    </div>
                 </div>
             }
             </div>
-        );
-    }
-
-    private _renderNewsSection() {
-        if (this.state.news.length === 0) {
-            return null;
-        }
-        return (
-            <div>
-                <h1>News</h1>
-                { this._renderNewsArticles() }
-            </div>
-        )
-    }
-
-    private _renderNewsArticles() {
-        return this.state.news.map((article: INews) =>
-            (
-                <div>
-                    <a href={article.url} target='_blank'>{article.headline}</a>
-                    <p>{article.source} | {article.date.toLocaleString()}</p>
-                </div>
-            )
         );
     }
 
@@ -130,7 +106,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
 
         this.props.stockMetadataStore.fetchDailyDataAsync(this.props.ticker);
         const price: IStockCurrentPrice = await new BullWatcher().getStockCurrentPrice(this.props.ticker);
-        const news: INews[] = await new Iex().getNews(this.props.ticker);
+        const news: INews[] = await new BullWatcher().getNews(this.props.ticker);
         const rankings: IStockRanking[] = await new BullWatcher().getSingleStockRankings(this.props.ticker);
         const sectorPerformances: ISectorPerformance[] = await new BullWatcher().getSectorPerformances();
         this.setState((prevState: IStockDetailPageState) => { return {

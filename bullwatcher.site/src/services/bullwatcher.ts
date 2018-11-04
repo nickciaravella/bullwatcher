@@ -1,5 +1,6 @@
 import { IAuthContext, IUserContext } from "src/models/auth-context";
 import { TimeWindow } from "src/models/common";
+import { INews } from "src/models/news";
 import { ISector, ISectorPerformance } from "src/models/sectors";
 import { IStockCurrentPrice } from "src/models/stock-current";
 import { IStockDaily, IStockDailyHistory } from "src/models/stock-history";
@@ -257,6 +258,24 @@ export class BullWatcher {
             position: json.position,
             stockMetadata: createStockMetadataFromBullwatcher(json.stock_metadata),
         }})
+    }
+
+    public async getNews(ticker?: string): Promise<INews[]> {
+        let url: string = this.baseUrl + '/news';
+        if (ticker) {
+            url += `/${ticker}`;
+        }
+
+        const responseJson: any = await this.getJson(url);
+        const jsonArray: any[] = responseJson.news_articles;
+        return jsonArray.map((json: any) => { return {
+            description: json.description,
+            headline: json.title,
+            newsUrl: json.article_url,
+            publishedDate: new Date(json.published_at),
+            source: json.source.name,
+            thumbnailUrl: json.image_url
+        }});
     }
 
     private async getJson(url: string): Promise<any | any[]> {

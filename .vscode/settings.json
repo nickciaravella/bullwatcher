@@ -1,6 +1,4 @@
 {
     "editor.tabSize": 4,
-    "editor.detectIndentation": false,
-    "python.pythonPath": "/usr/local/opt/python/bin/python3.6",
-    "python.linting.enabled": false,
+    "python.pythonPath": "bullwatcher.api/venv/bin/python"
 }
