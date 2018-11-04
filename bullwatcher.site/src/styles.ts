@@ -1,5 +1,7 @@
 export const classNames = (...names: string[]): string => names.join(" ");
 
+export const noStyle: string = "no-style";
+
 export const flexContainer: string = "d-flex";
 export const flexColumn: string = "flex-column";
 export const flexRow: string = "flex-row";

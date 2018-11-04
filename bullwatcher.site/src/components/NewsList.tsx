@@ -43,14 +43,16 @@ export default class NewsList extends React.Component<INewsListProps, INewsListS
         return this.state.news.map((article: INews) =>
             (
                 <div className={styles.classNames(styles.flexContainer, styles.flexRow, styles.flexAlignItemsStart, styles.pb4)}>
-                    <div className={styles.flexAlignSelfCenter}>
-                        <img src={article.thumbnailUrl} height="120" width="240" style={{objectFit: "cover"}}/>
-                    </div>
-                    <div className={styles.classNames(styles.flexContainer, styles.flexColumn, styles.pl4)}>
-                        <span className={styles.textSize125} >{article.headline}</span>
-                        <span className={styles.classNames(styles.textColorSecondary, styles.textSize0875)}>{article.source}, {article.publishedDate.toLocaleString()}</span>
-                        <span className={styles.pt3}>{article.description}</span>
-                    </div>
+                        <div className={styles.flexAlignSelfCenter}>
+                            <img src={article.thumbnailUrl} height="120" width="240" style={{objectFit: "cover"}}/>
+                        </div>
+                        <div className={styles.classNames(styles.flexContainer, styles.flexColumn, styles.pl4)}>
+                            <span className={styles.textSize125} >
+                                <a className={styles.noStyle} href={article.newsUrl} target="_blank">{article.headline}</a>
+                            </span>
+                            <span className={styles.classNames(styles.textColorSecondary, styles.textSize0875)}>{article.source}, {article.publishedDate.toLocaleString()}</span>
+                            <span className={styles.pt3}>{article.description}</span>
+                        </div>
                 </div>
             )
         );

@@ -51,7 +51,7 @@ export default class FrontPage extends React.Component<IFrontPageProps> {
                     </div>
                 </div>
                 <div className="pl-3">
-                    <h1 className="pt-5">Sector Trends</h1>
+                    <h1 className="pt-5 pb-3">Sector Trends</h1>
                     <SectorPerformances />
                 </div>
                 <div className="pt-5 pl-3">

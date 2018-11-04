@@ -6,6 +6,11 @@ body {
   color: #eee;
 }
 
+a.no-style {
+    text-decoration: inherit;
+    color: inherit;
+}
+
 .text-075 {
     font-size: 0.75em;
 }

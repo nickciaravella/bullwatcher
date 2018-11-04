@@ -42,7 +42,8 @@ def get_news(keywords: List[str], max_results: int) -> News:
                     published_at=dateutil.parser.parse(article['publishedAt']),
                     source=article['source'],
                     title=article['title'])
-        for article in response['articles'][:max_results]
+        for article in response['articles']
+        if article['urlToImage']
     ]
 
-    return News(articles=articles)
+    return News(articles=articles[:max_results])

@@ -7,12 +7,9 @@ from app.domain.stocks import StockMetadata
 
 def get_market_news() -> News:
     market_news_keywords: List[str] = [
-        "stock",
         "market",
         "nyse",
         "nasdaq",
-        "dow",
-        "s&p",
         "business"
     ]
     return newsapi.get_news(keywords=market_news_keywords, max_results=10)
