@@ -57,7 +57,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 spacing: [40,40,40,40],
             },
             credits: {
-                href: "http://www.bullwatcher.com",
+                href: "https://www.bullwatcher.com",
                 text: "bullwatcher.com",
             },
             navigator: {

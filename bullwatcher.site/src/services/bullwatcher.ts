@@ -9,7 +9,7 @@ import { IStockRanking } from "src/models/stock-rankings";
 import { IUserWatchlist, IUserWatchlistItem } from "src/models/user-watchlist";
 
 export class BullWatcher {
-    private baseUrl: string = `http://api.bullwatcher.com`;
+    private baseUrl: string = `https://api.bullwatcher.com`;
 
     public async login(authContext: IAuthContext): Promise<IUserContext> {
         const url: string = this.baseUrl + `/login`;

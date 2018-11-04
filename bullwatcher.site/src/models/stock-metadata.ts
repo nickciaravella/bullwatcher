@@ -22,7 +22,7 @@ export class StockMetadataStore {
         new ObservableMap<string, IStockMetadata>();
 
     public fetchDailyDataAsync(ticker: string): Promise<void> {
-        const url = `http://api.bullwatcher.com/${ticker}/metadata`;
+        const url = `https://api.bullwatcher.com/${ticker}/metadata`;
         return fetch(url)
             .then((response) => response.json())
             .then((json) => {
