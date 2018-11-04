@@ -1,21 +1,21 @@
 from typing import List
 
+import datetime
 import traceback
 
 from app.domain.exceptions import HttpError
 from app.domain.patterns import PatternVote
 from app.domain.watchlist import UserWatchlistItem
+from app.handlers import db_handler, news_handler, user_handler, watchlist_handler
 from app.handlers.stocks.sync import sync_handler
 from app.handlers.stocks import patterns_handler, rankings_handler, sectors_handler, stocks_handler
-from app.handlers import db_handler, user_handler, watchlist_handler
-from datetime import datetime
 from flask import jsonify, request
 from werkzeug.exceptions import HTTPException
 
 
 def setup_routes(app):
 
-    ### EXCEPTION HANDLING ###
+    # EXCEPTION HANDLING ###
     @app.errorhandler(HttpError)
     def handle_known_error(httpError: HttpError):
         json = {
@@ -44,7 +44,7 @@ def setup_routes(app):
         ))
 
 
-    ### USER ###
+    # USER ###
     @app.route('/login', methods=['POST'])
     def login():
         return jsonify(user_handler.login(request.json).to_json())
@@ -73,7 +73,7 @@ def setup_routes(app):
     @app.route('/users/<user_id>/watchlists/<int:watchlist_id>', methods=['DELETE'])
     def delete_user_watchlist(user_id: str, watchlist_id: int):
         watchlist_handler.delete_user_watchlist(user_id=user_id, watchlist_id=watchlist_id)
-        return ('',200)
+        return ('', 200)
 
     @app.route('/users/<user_id>/watchlists/<int:watchlist_id>/items', methods=['GET'])
     def get_user_watchlist_items(user_id: str, watchlist_id: int):
@@ -96,14 +96,14 @@ def setup_routes(app):
         ])
 
 
-    ### SYNC ###
+    # SYNC ###
     @app.route('/sync')
     def sync():
         result = sync_handler.sync()
         return jsonify(result)
 
 
-    ### STOCK ###
+    # STOCK ###
     @app.route('/<ticker>/price')
     def stock_price(ticker):
         stock_current = stocks_handler.get_stock_current(ticker.upper())
@@ -141,7 +141,7 @@ def setup_routes(app):
     @app.route('/patterns/flags/<date>')
     def get_patterns_for_date(date):
         try:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
+            date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
         except ValueError:
             return "Invalid date.", 400
 
@@ -152,9 +152,9 @@ def setup_routes(app):
         vote = PatternVote.from_json(request.json)
         return jsonify(patterns_handler.flag_vote(vote).to_json())
 
-    @app.route('/patterns/flags/votes/<user_id>/<date>')
-    def get_pattern_votes_for_user(user_id: str, date: str):
-        date: date = datetime.strptime(date, "%Y-%m-%d").date()
+    @app.route('/patterns/flags/votes/<user_id>/<date_str>')
+    def get_pattern_votes_for_user(user_id: str, date_str: str):
+        date: datetime.date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
         return jsonify([v.to_json() for v in patterns_handler.get_pattern_votes_for_user(user_id=user_id, date=date)])
 
     @app.route('/stock-tickers')
@@ -162,17 +162,29 @@ def setup_routes(app):
         return jsonify(db_handler.stock_tickers())
 
 
-    ### SECTORS ###
+    # SECTORS ###
     @app.route('/sectors/performances')
     def get_sector_performances():
         return jsonify([s.to_json() for s in sectors_handler.get_sector_performances()])
 
 
-    ### RANKINGS ###
+    # RANKINGS ###
     @app.route('/rankings/<ranking_type>/<time_window>')
     def get_rankings(ranking_type: str, time_window: str):
-        rankings = rankings_handler.get_rankings(ranking_type=ranking_type,
-                                                 time_window=time_window,
-                                                 min_market_cap=request.args.get('min_market_cap', default=None, type=int),
-                                                 sector=request.args.get('sector', default=None, type=str))
+        rankings = rankings_handler.get_rankings(
+            ranking_type=ranking_type,
+            time_window=time_window,
+            min_market_cap=request.args.get(
+                'min_market_cap', default=None, type=int),
+            sector=request.args.get('sector', default=None, type=str))
         return jsonify([r.to_json() for r in rankings])
+
+
+    # NEWS
+    @app.route('/news')
+    def get_market_news():
+        return jsonify(news_handler.get_market_news().to_json())
+
+    @app.route('/news/<ticker>')
+    def get_stock_news(ticker: str):
+        return jsonify(news_handler.get_stock_news(ticker=ticker).to_json())

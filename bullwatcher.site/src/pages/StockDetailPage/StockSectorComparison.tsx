@@ -41,7 +41,7 @@ export default class StockSectorComparison extends React.Component<IStockSectorC
                         type: 'column',
                     },
                     credits: {
-                        href: "http://www.bullwatcher.com",
+                        href: "https://www.bullwatcher.com",
                         text: "bullwatcher.com",
                     },
                     legend: {
