@@ -1,4 +1,5 @@
-import * as React from 'react'
+import * as React from 'react';
+import * as styles from 'src/styles';
 
 import { IStockCurrentPrice } from 'src/models/stock-current';
 import { IStockMetadata } from 'src/models/stock-metadata';
@@ -18,27 +19,27 @@ export default class StockStats extends React.Component<IStockStatsProps, any> {
     public render() {
         const { currentPrice, stockMetadata } = this.props;
         return (
-            <table className="table border">
+            <table className={styles.classNames(styles.table, styles.border, styles.bgColorChart)}>
                 <tbody>
                     <tr>
-                        <td className="text-right">Market Cap</td>
-                        <td className="text-left">{ numberWithIllions(stockMetadata.marketCap) }</td>
+                        <td className={styles.textRight}>Market Cap</td>
+                        <td className={styles.textLeft}>{ numberWithIllions(stockMetadata.marketCap) }</td>
                     </tr>
                     <tr>
-                        <td className="text-right">Volume</td>
-                        <td className="text-left">{ numberWithIllions(currentPrice.volume) }</td>
+                        <td className={styles.textRight}>Volume</td>
+                        <td className={styles.textLeft}>{ numberWithIllions(currentPrice.volume) }</td>
                     </tr>
                     <tr>
-                        <td className="text-right">Open</td>
-                        <td className="text-left">{ currencyString(currentPrice.open) }</td>
+                        <td className={styles.textRight}>Open</td>
+                        <td className={styles.textLeft}>{ currencyString(currentPrice.open) }</td>
                     </tr>
                     <tr>
-                        <td className="text-right">High</td>
-                        <td className="text-left">{ currencyString(currentPrice.high) }</td>
+                        <td className={styles.textRight}>High</td>
+                        <td className={styles.textLeft}>{ currencyString(currentPrice.high) }</td>
                     </tr>
                     <tr>
-                        <td className="text-right">Low</td>
-                        <td className="text-left">{ currencyString(currentPrice.low) }</td>
+                        <td className={styles.textRight}>Low</td>
+                        <td className={styles.textLeft}>{ currencyString(currentPrice.low) }</td>
                     </tr>
                 </tbody>
             </table>

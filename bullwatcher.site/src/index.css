@@ -63,6 +63,10 @@ a.no-style {
   background-color: #222;
 }
 
+.bg-color-chart {
+    background-color: #101010
+}
+
 .bg-color-red {
     background-color: #cc0000;
 }
