@@ -122,6 +122,8 @@ export class BullWatcher {
         const response: any = await fetch(url);
         const json: any = await response.json()
         return {
+            afterHoursDateTime: new Date(json.after_hours_updated_time),
+            afterHoursPrice: json.after_hours_price,
             currentPrice: json.current_price,
             currentPriceDateTime: new Date(json.last_updated_time),
             high: json.high,

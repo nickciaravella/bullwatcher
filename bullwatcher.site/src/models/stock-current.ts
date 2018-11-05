@@ -1,8 +1,10 @@
 export interface IStockCurrentPrice {
-    lastClose: number;
+    afterHoursDateTime: Date;
+    afterHoursPrice: number;
     currentPrice: number;
     currentPriceDateTime: Date;
     high: number;
+    lastClose: number;
     low: number;
     open: number;
     volume: number;

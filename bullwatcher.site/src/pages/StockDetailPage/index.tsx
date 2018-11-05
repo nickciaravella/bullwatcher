@@ -53,12 +53,14 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
         const sectorName: string = stockMetadata && stockMetadata.sector !== "Unknown" ? `(${stockMetadata.sector})` : "";
         return (
             <div className="pt-3">
-                <h1 className="text-center">{companyName}</h1>
                 <div className="d-flex flex-row justify-content-between align-items-end">
                     <div className="d-flex flex-column pb-1">
                         <div>
                             <span className="text-25 pr-3">{ticker.toUpperCase()}</span>
                             <span className={styles.classNames("text-15", styles.textColorSecondary)}>{sectorName}</span>
+                            <div>
+                                <span className="text-color-sec text-125">{companyName}</span>
+                            </div>
                         </div>
                     </div>
                     { price &&
