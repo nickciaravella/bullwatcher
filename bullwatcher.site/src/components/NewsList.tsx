@@ -44,7 +44,7 @@ export default class NewsList extends React.Component<INewsListProps, INewsListS
             (
                 <div className={styles.classNames(styles.flexContainer, styles.flexRow, styles.flexAlignItemsStart, styles.pb4)}>
                         <div className={styles.flexAlignSelfCenter}>
-                            <img src={article.thumbnailUrl} height="120" width="240" style={{objectFit: "cover"}}/>
+                            <img src={article.thumbnailUrl} height="120" width="240" style={{objectFit: "cover", backgroundColor: "white"}}/>
                         </div>
                         <div className={styles.classNames(styles.flexContainer, styles.flexColumn, styles.pl4)}>
                             <span className={styles.textSize125} >
