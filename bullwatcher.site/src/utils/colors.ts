@@ -2,6 +2,9 @@ import * as sytles from 'src/styles'
 
 import {calculatePercentChange} from './math'
 
+export const greenHex: string = "#009933";
+export const redHex: string = "#cc0000";
+
 export function textColorForPercentChange(percentChange: number): string {
     if (percentChange > 0) {
         return sytles.textColorGreen;

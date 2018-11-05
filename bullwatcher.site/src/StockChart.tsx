@@ -4,8 +4,9 @@ import * as React from 'react';
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 import * as HSIndicators from 'highcharts/indicators/indicators';
-import { ChartType, IChartSettings, Indicator, TimeRange, ValueInterval } from './models/chart-settings';
-import { StockHistoryStore } from './models/stock-history-store';
+import { ChartType, IChartSettings, Indicator, TimeRange } from 'src/models/chart-settings';
+import { StockHistoryStore } from 'src/models/stock-history-store';
+import { greenHex, redHex } from 'src/utils'
 
 HSIndicators(Highcharts);
 
@@ -77,20 +78,6 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 enabled: false
             },
             series: [{
-                color: 'Gray',
-                data: this.getStockDailyVolumeData(),
-                dataGrouping: {
-                    forced: true,
-                    units: [
-                        [this.getChartInterval(this.props.settings.valueInterval), [1]]
-                    ]
-                },
-                enableMouseTracking: false,
-                name: 'Volume',
-                type: 'column',
-                visible: indicators.indexOf(Indicator.Volume) !== -1,
-                yAxis: 1,
-            }, {
                 color: "DarkSlateBlue",
                 enableMouseTracking: false,
                 linkedTo: 'price',
@@ -118,23 +105,38 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                 type: 'sma',
                 visible: indicators.indexOf(Indicator.LongMovingAverage) !== -1
             }, {
-                color: chartType === ChartType.Candlestick ? 'Crimson' : "black",
+                color: chartType === ChartType.Candlestick ? redHex : "black",
                 data,
                 dataGrouping: {
-                    forced: true,
-                    units: [
-                        [this.getChartInterval(this.props.settings.valueInterval), [1]]
-                    ]
+                    enabled: false
+                    // forced: true,
+                    // units: [
+                    //     [this.getChartInterval(this.props.settings.valueInterval), [1]]
+                    // ]
                 },
                 id: 'price',
-                lineColor: chartType === ChartType.Candlestick ? "#888" : "white",
+                lineColor: chartType === ChartType.Candlestick ? redHex : "white",
                 name: 'Price',
                 tooltip: {
                     pointFormat: chartType === ChartType.Candlestick ? "{point.close}" : "{point.y}",
                 },
                 type: `${chartTypeStr}`,
-                upColor: 'MediumSeaGreen',
+                upColor: greenHex,
+                upLineColor: greenHex,
                 yAxis: 0
+            }, {
+                data: this.getStockDailyVolumeData(),
+                dataGrouping: {
+                    enabled: false
+                    // forced: true,
+                    // units: [
+                    //     [this.getChartInterval(this.props.settings.valueInterval), [1]]
+                    // ]
+                },
+                enableMouseTracking: false,
+                name: 'Volume',
+                type: 'column',
+                yAxis: 1,
             }],
             title: {
                 text: null,
@@ -169,12 +171,25 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                     },
                 },
                 top: '80%',
+            }, {
+                data: this.getStockDailyVolumeData(),
+                dataGrouping: {
+                    enabled: false
+                    // forced: true,
+                    // units: [
+                    //     [this.getChartInterval(this.props.settings.valueInterval), [1]]
+                    // ]
+                },
+                enableMouseTracking: false,
+                name: 'Volume',
+                type: 'column',
+                yAxis: 1,
             }]
         }
     }
 
-    private getStockDailyPriceData(chartType: ChartType, timeRange: TimeRange): [number[][], number, number] {
-        const dataArray: number[][] = []
+    private getStockDailyPriceData(chartType: ChartType, timeRange: TimeRange): [any[], number, number] {
+        const dataArray: any[] = []
 
         if (!this.store.stockDailyHistory) {
             return [dataArray, 0, 0];
@@ -186,7 +201,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         let maxYValue = 0;
 
         for (const stock of this.store.stockDailyHistory.data) {
-            let data: any[] = []
+            let data: any = []
 
             if (stock.date.valueOf() > minDate.valueOf()) {
                 if (stock.high > maxYValue) {
@@ -199,10 +214,19 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
 
             switch (chartType) {
                 case ChartType.Candlestick:
-                    data = [ stock.date.valueOf(), stock.open, stock.high, stock.low, stock.close ]
+                    data = {
+                        close: stock.close,
+                        high: stock.high,
+                        low: stock.low,
+                        open: stock.open,
+                        x: stock.date.valueOf(),
+                    }
                     break;
                 case ChartType.Line:
-                    data = [ stock.date.valueOf(), stock.close ]
+                    data = {
+                        x: stock.date.valueOf(),
+                        y: stock.close
+                    }
             }
             dataArray.push(data)
         }
@@ -210,18 +234,19 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
          return [dataArray, minYValue, maxYValue];
     }
 
-    private getStockDailyVolumeData(): number[][] {
-        const dataArray: number[][] = []
+    private getStockDailyVolumeData(): any[] {
+        const dataArray: any[] = []
 
         if (!this.store.stockDailyHistory) {
             return dataArray;
         }
 
         for (const stock of this.store.stockDailyHistory.data) {
-            dataArray.push([
-                stock.date.valueOf(),
-                stock.volume,
-            ])
+            dataArray.push({
+                color: stock.close > stock.open ? greenHex : redHex,
+                x: stock.date.valueOf(),
+                y: stock.volume,
+            })
         }
 
          return dataArray;
@@ -260,12 +285,12 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         return 0;
     }
 
-    private getChartInterval(interval: ValueInterval): string {
-        switch (interval) {
-            case ValueInterval.Daily: return 'day';
-            case ValueInterval.Weekly: return 'week';
-            case ValueInterval.Monthly: return 'month';
-       }
-       return '';
-    }
+    // private getChartInterval(interval: ValueInterval): string {
+    //     switch (interval) {
+    //         case ValueInterval.Daily: return 'day';
+    //         case ValueInterval.Weekly: return 'week';
+    //         case ValueInterval.Monthly: return 'month';
+    //    }
+    //    return '';
+    // }
 }

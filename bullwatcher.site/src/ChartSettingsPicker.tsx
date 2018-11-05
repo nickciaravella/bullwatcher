@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { observer } from 'mobx-react';
-import { ChartSettingsStore, ChartType, Indicator, TimeRange, ValueInterval } from './models/chart-settings';
+import { ChartSettingsStore, ChartType, Indicator, TimeRange } from './models/chart-settings';
 
 interface IChartSettingsPickerProps {
     chartSettingsStore: ChartSettingsStore
@@ -35,15 +35,15 @@ export default class ChartSettingsPicker extends React.Component<IChartSettingsP
                         <option value={TimeRange.OneYear}>1 year</option>
                         <option value={TimeRange.TwoYears}>2 years</option>
                     </select>
-                    <label>Interval</label>
+                    {/* <label>Interval</label>
                     <select value={this.props.chartSettingsStore.chartSettings.valueInterval} onChange={this.handleValueIntervalChange}>
                         <option value={ValueInterval.Daily}>Daily</option>
                         <option value={ValueInterval.Weekly}>Weekly</option>
                         <option value={ValueInterval.Monthly}>Monthly</option>
-                    </select>
+                    </select> */}
                     <label>Indicators</label>
-                    <label>Volume</label>
-                    <input type="checkbox" value={Indicator.Volume} checked={this.hasIndicator(Indicator.Volume)} onChange={this.handleIndicatorChange}/>
+                    {/* <label>Volume</label>
+                    <input type="checkbox" value={Indicator.Volume} checked={this.hasIndicator(Indicator.Volume)} onChange={this.handleIndicatorChange}/> */}
                     <label>Price Momentum</label>
                     <label>Long</label>
                     <input type="checkbox" value={Indicator.LongMovingAverage} checked={this.hasIndicator(Indicator.LongMovingAverage)} onChange={this.handleIndicatorChange} />
@@ -64,9 +64,9 @@ export default class ChartSettingsPicker extends React.Component<IChartSettingsP
         this.props.chartSettingsStore.chartSettings.timeRange = +event.currentTarget.value;
     }
 
-    private handleValueIntervalChange = (event: React.FormEvent<HTMLSelectElement>) => {
-        this.props.chartSettingsStore.chartSettings.valueInterval = +event.currentTarget.value;
-    }
+    // private handleValueIntervalChange = (event: React.FormEvent<HTMLSelectElement>) => {
+    //     this.props.chartSettingsStore.chartSettings.valueInterval = +event.currentTarget.value;
+    // }
 
     private hasIndicator = (indicator: Indicator): boolean => {
         return this.props.chartSettingsStore.chartSettings.indicators.indexOf(indicator) !== -1;

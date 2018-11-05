@@ -1,6 +1,8 @@
 export {
     bgColorForPercentChange,
     bgColorForStockPriceChange,
+    greenHex,
+    redHex,
     textColorForPercentChange,
     textColorForStockPriceChange
 } from './colors'
