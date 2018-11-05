@@ -61,23 +61,29 @@ class StockDaily:
 
 class StockCurrent:
     def __init__(self,
-                 last_updated_time: datetime,
+                 after_hours_price: float,
+                 after_hours_updated_time: datetime,
                  current_price: float,
-                 open_: float,
                  high: float,
+                 last_updated_time: datetime,
                  low: float,
-                 volume: int,
-                 previous_close: float):
-        self.last_updated_time = last_updated_time
-        self.current_price = current_price
-        self.open_ = open_
-        self.high = high
-        self.low = low
-        self.volume = volume
-        self.previous_close = previous_close
+                 open_: float,
+                 previous_close: float,
+                 volume: int) -> None:
+        self.after_hours_price: float = after_hours_price
+        self.after_hours_updated_time: datetime = after_hours_updated_time
+        self.current_price: float = current_price
+        self.high: float = high
+        self.last_updated_time: datetime = last_updated_time
+        self.low: float = low
+        self.open_: float = open_
+        self.previous_close: float = previous_close
+        self.volume: int = volume
 
-    def to_json(self):
+    def to_json(self) -> Dict[str, Any]:
         return {
+            'after_hours_price': self.after_hours_price,
+            'after_hours_updated_time': str(self.after_hours_updated_time),
             'last_updated_time': str(self.last_updated_time),
             'current_price': self.current_price,
             'open': self.open_,

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from app.domain.stocks import StockCurrent, StockDaily, StockMetadata
 from app.data_access import http
@@ -15,12 +15,17 @@ def get_stock_metadata(tickers):
         raise Exception('More than 100 tickers is not supported.')
 
     symbols = ','.join(tickers)
-    all_company_data = http.get_json(f'https://api.iextrading.com/1.0/stock/market/batch?symbols={symbols}&types=company,stats')
+    all_company_data = http.get_json(
+        f'https://api.iextrading.com/1.0/stock/market/batch?symbols={symbols}&types=company,stats'
+    )
 
     metadatas = []
     for symbol, data in all_company_data.items():
         metadatas.append(
-            StockMetadata(symbol.upper(), data['company']['companyName'], data['stats']['marketcap'], data['company']['sector'])
+            StockMetadata(symbol.upper(),
+                          data['company']['companyName'],
+                          data['stats']['marketcap'],
+                          data['company']['sector'])
         )
 
     return metadatas
@@ -36,9 +41,11 @@ def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDa
         raise Exception('More than 100 tickers is not supported.')
 
     symbols = ','.join(tickers)
-    all_dailies = http.get_json(f'https://api.iextrading.com/1.0/stock/market/batch?symbols={symbols}&types=chart,quote&range={range_}')
+    all_dailies = http.get_json(
+        f'https://api.iextrading.com/1.0/stock/market/batch?symbols={symbols}&types=chart,quote&range={range_}'
+    )
 
-    dailies = {}
+    dailies: Dict[str, List[StockDaily]] = {}
     for symbol, data in all_dailies.items():
         chart = data['chart']
         max_date = None
@@ -94,14 +101,16 @@ def get_stock_dailies(tickers: List[str], range_: str) -> Dict[str, List[StockDa
 
 
 def get_stock_current(ticker: str) -> StockCurrent:
-    quote: Dict[str, any] = http.get_json(f'https://api.iextrading.com/1.0/stock/{ticker}/quote')
+    quote: Dict[str, Any] = http.get_json(f'https://api.iextrading.com/1.0/stock/{ticker}/quote')
     return StockCurrent(
-        last_updated_time=datetime.utcfromtimestamp(quote['latestUpdate']/1000),
+        after_hours_price=quote['extendedPrice'],
+        after_hours_updated_time=datetime.utcfromtimestamp(quote['extendedPriceTime']/1000),
         current_price=quote['latestPrice'],
-        open_=quote['open'],
         high=quote['high'],
+        last_updated_time=datetime.utcfromtimestamp(quote['latestUpdate']/1000),
         low=quote['low'],
-        volume=quote['latestVolume'],
+        open_=quote['open'],
         previous_close=quote['previousClose'],
+        volume=quote['latestVolume'],
     )
 
