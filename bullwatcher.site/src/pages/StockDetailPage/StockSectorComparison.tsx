@@ -4,7 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 
 import { TimeWindow } from 'src/models/common'
-import { ISectorPerformance } from 'src/models/sectors';
+import { ISector, ISectorPerformance } from 'src/models/sectors';
 import { IStockMetadata } from 'src/models/stock-metadata';
 import { IStockRanking } from 'src/models/stock-rankings';
 import { roundToTwoPlaces } from 'src/utils'
@@ -51,12 +51,12 @@ export default class StockSectorComparison extends React.Component<IStockSectorC
                     },
                     series: [{
                         colors: ["Green","Green","Red","Red","Green"],
-                        data: this.getStockData(stockMetadata.sector),
+                        data: this.getStockData(stockMetadata.sector.id),
                         name: stockMetadata.ticker,
                     }, {
                         color: "DarkGray",
-                        data: this.getSectorData(stockMetadata.sector),
-                        name: this.getSectorNameForId(stockMetadata.sector),
+                        data: this.getSectorData(stockMetadata.sector.id),
+                        name: stockMetadata.sector.sectorName,
                     }],
                     title:{
                         text: null,
@@ -125,14 +125,6 @@ export default class StockSectorComparison extends React.Component<IStockSectorC
         return roundToTwoPlaces(ranking.value);
     }
 
-    private getSectorNameForId(sector: string): string {
-        const performance = this.props.sectorPerformances.find(p => p.id === sector);
-        if (!performance) {
-            return "Unknown";
-        }
-        return performance.sectorName;
-    }
-
     private getSectorPerformanceForTimeWindow(sector: string, timeWindow: TimeWindow): number {
         const performance = this.props.sectorPerformances.find(p => p.id === sector && p.timeWindow === timeWindow);
         if (!performance) {
@@ -141,10 +133,10 @@ export default class StockSectorComparison extends React.Component<IStockSectorC
         return roundToTwoPlaces(performance.percentChange);
     }
 
-    private getMaxAndMinPercentChange(sector: string): [number, number] {
+    private getMaxAndMinPercentChange(sector: ISector): [number, number] {
         const allPercents: number[] = []
         for (const timeWindow of this.TIME_WINDOWS) {
-            allPercents.push(this.getSectorPerformanceForTimeWindow(sector, timeWindow))
+            allPercents.push(this.getSectorPerformanceForTimeWindow(sector.id, timeWindow))
             allPercents.push(this.getRankingForTimeWindow(timeWindow))
         }
         return [Math.min(...allPercents), Math.max(...allPercents)]

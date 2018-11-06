@@ -52,7 +52,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
         const stockMetadata: IStockMetadata = stockMetadataStore.stockMetadatas.get(ticker);
 
         const companyName: string = stockMetadata ? stockMetadata.companyName : "";
-        const sectorName: string = stockMetadata && stockMetadata.sector !== "Unknown" ? `(${stockMetadata.sector})` : "";
+        const sectorName: string = stockMetadata && stockMetadata.sector.sectorName !== "Unknown" ? `(${stockMetadata.sector.sectorName})` : "";
         return (
             <div className="pt-3">
                 <div className="d-flex flex-row justify-content-between align-items-end">

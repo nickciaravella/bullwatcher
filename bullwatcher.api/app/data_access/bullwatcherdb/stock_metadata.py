@@ -101,7 +101,7 @@ def get_stock_metadata(ticker: str):
         return None
 
 
-def _convert_model_to_domain(db_metadata: models.StockMetadata) -> StockMetadata:
+def _convert_model_to_domain(db_metadata) -> StockMetadata:
     return StockMetadata(
         ticker=db_metadata.ticker,
         company_name=db_metadata.company_name,

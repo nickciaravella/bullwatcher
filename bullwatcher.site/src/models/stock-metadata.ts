@@ -1,4 +1,6 @@
 import { observable, ObservableMap } from 'mobx';
+
+import { ISector } from 'src/models/sectors';
 import { ONE_BILLION, ONE_MILLION } from 'src/utils';
 
 
@@ -6,7 +8,7 @@ export interface IStockMetadata {
     ticker: string;
     companyName: string;
     marketCap: number;
-    sector: string;
+    sector: ISector;
 }
 
 export function marketCapCategory(marketCap: number): string {
@@ -28,7 +30,10 @@ export function createStockMetadataFromBullwatcher(json: any): IStockMetadata {
     return {
         companyName: json.company_name,
         marketCap: json.market_cap,
-        sector: json.sector,
+        sector: {
+            id: json.sector.id,
+            sectorName: json.sector.name
+        },
         ticker: json.ticker,
     }
 }
