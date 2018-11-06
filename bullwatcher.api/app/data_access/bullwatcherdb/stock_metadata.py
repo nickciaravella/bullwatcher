@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from application import db
 from app.data_access.bullwatcherdb.common import commit_with_rollback
+from app.data_access.bullwatcherdb.sectors import convert_db_sector_to_domain
 from app.database import conversion, models
 from app.domain.stocks import StockMetadata
 from sqlalchemy import func, or_
@@ -32,7 +33,7 @@ def get_all_stock_metadata():
     ).all()
 
     converted: List[StockMetadata] = [
-        StockMetadata(m.ticker, m.company_name, m.market_cap, m.sector)
+        _convert_model_to_domain(db_metadata=m)
         for m in metadatas
     ]
 
@@ -55,7 +56,7 @@ def search_stock_metadata_by_prefix(prefix: str, max_results: int):
         .all()
 
     converted: List[StockMetadata] = [
-        StockMetadata(m.ticker, m.company_name, m.market_cap, m.sector)
+        _convert_model_to_domain(db_metadata=m)
         for m in metadatas
     ]
 
@@ -73,7 +74,7 @@ def get_batch_stock_metadata(tickers):
     )
 
     metadatas = [
-        StockMetadata(m.ticker, m.company_name, m.market_cap, m.sector)
+        _convert_model_to_domain(db_metadata=m)
         for m in db_metadatas
     ]
 
@@ -95,6 +96,15 @@ def get_stock_metadata(ticker: str):
     print('END   -- Time: ' + str(end - start))
 
     if db_metadata:
-        return StockMetadata(db_metadata.ticker, db_metadata.company_name, db_metadata.market_cap, db_metadata.sector)
+        return _convert_model_to_domain(db_metadata=db_metadata)
     else:
         return None
+
+
+def _convert_model_to_domain(db_metadata: models.StockMetadata) -> StockMetadata:
+    return StockMetadata(
+        ticker=db_metadata.ticker,
+        company_name=db_metadata.company_name,
+        market_cap=db_metadata.market_cap,
+        sector=convert_db_sector_to_domain(db_metadata.sector)
+    )

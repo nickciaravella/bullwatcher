@@ -36,6 +36,8 @@ _SECTOR_ID_TO_NAME_MAP: Dict[str, str] = {
 class Sector:
 
     def __init__(self, id: str) -> None:
+        # NOTE: ID does not have to be in the SectorIds map.
+        # This is to accommodate new Ids, and Ids from varying sources.
         self.id: str = id
         self.name: str = self.get_name_for_id(self.id)
 

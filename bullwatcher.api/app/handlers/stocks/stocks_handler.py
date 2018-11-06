@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional
 
 from app.data_access import bullwatcherdb, iex
+from app.domain.sectors import Sector
 from app.domain.rankings import Ranking
 from app.domain.stocks import StockMetadata, StockDaily, StockCurrent
 
@@ -29,6 +30,7 @@ def get_stock_metadata(ticker) -> Optional[StockMetadata]:
         if metadatas:
             metadata = metadatas[0]
             bullwatcherdb.save_batch_stock_metadata([metadata])
+            metadata.sector = Sector(id=bullwatcherdb.convert_db_sector_to_domain(metadata.sector))
 
     return metadata
 
