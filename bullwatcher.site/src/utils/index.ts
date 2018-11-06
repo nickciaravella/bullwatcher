@@ -16,5 +16,8 @@ export {
     currencyString,
     numberWithCommas,
     numberWithIllions,
-    percentageString
+    percentageString,
+    ONE_BILLION,
+    ONE_MILLION,
+    ONE_THOUSAND
 } from './numbers'

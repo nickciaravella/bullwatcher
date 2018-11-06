@@ -1,4 +1,5 @@
 import { observable, ObservableMap } from 'mobx';
+import { ONE_BILLION, ONE_MILLION } from 'src/utils';
 
 
 export interface IStockMetadata {
@@ -6,6 +7,21 @@ export interface IStockMetadata {
     companyName: string;
     marketCap: number;
     sector: string;
+}
+
+export function marketCapCategory(marketCap: number): string {
+    // https://www.fool.com/knowledge-center/market-capitalization.aspx
+    if (marketCap > 200 * ONE_BILLION) {
+        return "Mega";
+    } else if (marketCap > 10 * ONE_BILLION) {
+        return "Large";
+    } else if (marketCap > 2 * ONE_BILLION) {
+        return "Mid";
+    } else if (marketCap > 300 * ONE_MILLION) {
+        return "Small";
+    } else {
+        return "Micro";
+    }
 }
 
 export function createStockMetadataFromBullwatcher(json: any): IStockMetadata {

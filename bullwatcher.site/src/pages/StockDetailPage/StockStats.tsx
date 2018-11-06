@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as styles from 'src/styles';
 
 import { IStockCurrentPrice } from 'src/models/stock-current';
-import { IStockMetadata } from 'src/models/stock-metadata';
+import { IStockMetadata, marketCapCategory } from 'src/models/stock-metadata';
 import { currencyString, numberWithIllions } from 'src/utils'
 
 
@@ -23,7 +23,7 @@ export default class StockStats extends React.Component<IStockStatsProps, any> {
                 <tbody>
                     <tr>
                         <td className={styles.textRight}>Market Cap</td>
-                        <td className={styles.textLeft}>{ numberWithIllions(stockMetadata.marketCap) }</td>
+                        <td className={styles.textLeft}>{ marketCapCategory(stockMetadata.marketCap) } ({numberWithIllions(stockMetadata.marketCap)})</td>
                     </tr>
                     <tr>
                         <td className={styles.textRight}>Volume</td>

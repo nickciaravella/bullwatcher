@@ -1,3 +1,7 @@
+export const ONE_THOUSAND = 1000;
+export const ONE_MILLION = ONE_THOUSAND * ONE_THOUSAND;
+export const ONE_BILLION = ONE_MILLION * ONE_THOUSAND;
+
 export function percentageString(value: number): string {
     return `${numberWithCommas(Math.round(value * 100) / 100)}%`;
 }
