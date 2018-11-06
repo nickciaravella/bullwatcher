@@ -1,20 +1,20 @@
 from typing import Any, Dict
 from datetime import datetime
-
+from app.domain.sectors import Sector
 
 class StockMetadata:
     def __init__(self, ticker, company_name, market_cap, sector):
         self.ticker = ticker
         self.company_name = company_name
         self.market_cap = market_cap
-        self.sector = sector
+        self.sector: Sector = Sector(id=sector)
 
     def to_json(self):
         return {
             'ticker': self.ticker,
             'company_name': self.company_name,
             'market_cap': self.market_cap,
-            'sector': self.sector
+            'sector': self.sector.to_json()
         }
 
     @classmethod
@@ -23,7 +23,7 @@ class StockMetadata:
             ticker=json['ticker'],
             company_name=json['company_name'],
             market_cap=json['market_cap'],
-            sector=json['sector']
+            sector=Sector.from_json(json['sector'])
         )
 
 

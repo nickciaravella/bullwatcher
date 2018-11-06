@@ -30,9 +30,6 @@ def get_stock_metadata(ticker) -> Optional[StockMetadata]:
             metadata = metadatas[0]
             bullwatcherdb.save_batch_stock_metadata([metadata])
 
-    if metadata:
-        metadata.sector = bullwatcherdb.convert_db_sector_to_domain(metadata.sector)
-
     return metadata
 
 

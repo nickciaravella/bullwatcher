@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import json
 import os
@@ -35,16 +35,16 @@ def _make_request(url):
 # https://www.alphavantage.co/documentation/#sector
 def get_sector_performances() -> List[SectorPerformance]:
     key_to_sector_id: Dict[str, SectorId] = {
-        "Information Technology": SectorId.TECHNOLOGY,
+        "Communication Services": SectorId.TELECOMMUNICATION_SERVICES,
         "Consumer Discretionary": SectorId.CONSUMER_DISCRETIONARY,
+        "Consumer Staples": SectorId.CONSUMER_STAPLES,
         "Energy": SectorId.ENERGY,
-        "Health Care": SectorId.HEALTH_CARE,
         "Financials": SectorId.FINANCIALS,
+        "Health Care": SectorId.HEALTH_CARE,
         "Industrials": SectorId.INDUSTRIALS,
+        "Information Technology": SectorId.TECHNOLOGY,
         "Materials": SectorId.MATERIALS,
         "Real Estate": SectorId.REAL_ESTATE,
-        "Consumer Staples": SectorId.CONSUMER_STAPLES,
-        "Telecommunication Services": SectorId.TELECOMMUNICATION_SERVICES,
         "Utilities": SectorId.UTILITIES
     }
 
@@ -57,7 +57,7 @@ def get_sector_performances() -> List[SectorPerformance]:
         "Rank I: 5 Year Performance": TimeWindow.FIVE_YEARS
     }
 
-    sector_json: any = http.get_json(get_url('SECTOR'))
+    sector_json: Any = http.get_json(get_url('SECTOR'))
 
     sector_performances: List[SectorPerformance] = []
     for time_window_key in sector_json:
@@ -71,7 +71,6 @@ def get_sector_performances() -> List[SectorPerformance]:
             sector_performances.append(
                 SectorPerformance(id=key_to_sector_id[sector_key],
                                   time_window=key_to_time_window[time_window_key],
-                                  name=sector_key,
                                   percent_change=float(sector_json[time_window_key][sector_key].rstrip('%')))
             )
 

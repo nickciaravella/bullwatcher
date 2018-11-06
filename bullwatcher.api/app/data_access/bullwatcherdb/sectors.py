@@ -25,7 +25,6 @@ def get_sector_performances() -> Tuple[datetime.datetime, List[SectorPerformance
 
     return max_update_time, [
         SectorPerformance(id=m.id,
-                          name=m.name,
                           time_window=m.time_window,
                           percent_change=m.percent_change)
         for m in all_models
@@ -41,18 +40,19 @@ def update_sector_performances(sector_performances: List[SectorPerformance]):
     commit_with_rollback(db.session)
 
     db_models = [
-        models.SectorPerformance(id=sector.id,
-                                 name=sector.name,
-                                 time_window=sector.time_window,
-                                 percent_change=sector.percent_change,
+        models.SectorPerformance(id=sector_perf.sector.id,
+                                 name=sector_perf.sector.name,
+                                 time_window=sector_perf.time_window,
+                                 percent_change=sector_perf.percent_change,
                                  last_updated_at=now)
-        for sector in sector_performances
+        for sector_perf in sector_performances
     ]
 
     insert_values = []
-    for sector in sector_performances:
+    for sector_perf in sector_performances:
         insert_values.append(
-            f'(\'{sector.id}\', \'{sector.time_window}\', \'{sector.name}\', {sector.percent_change}, \'{str(datetime.datetime.utcnow())}\')'
+            f'(\'{sector_perf.sector.id}\', \'{sector_perf.time_window}\', \'{sector_perf.sector.name}\', '
+            f'{sector_perf.percent_change}, \'{str(datetime.datetime.utcnow())}\')'
         )
 
     if insert_values:
