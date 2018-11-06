@@ -10,6 +10,7 @@ import { ChartSettingsStore } from 'src/models/chart-settings'
 import { INews } from 'src/models/news';
 import { ISectorPerformance } from 'src/models/sectors';
 import { IStockCurrentPrice } from 'src/models/stock-current';
+import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import { IStockMetadata, StockMetadataStore } from 'src/models/stock-metadata';
 import { IStockRanking } from 'src/models/stock-rankings';
 import { BullWatcher } from 'src/services/bullwatcher';
@@ -20,6 +21,7 @@ import StockSectorComparison from './StockSectorComparison';
 interface IStockDetailPageProps {
     ticker: string;
     chartSettingsStore: ChartSettingsStore;
+    stockCurrentPriceStore: StockCurrentPriceStore;
     stockMetadataStore: StockMetadataStore;
 }
 
@@ -45,7 +47,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
       }
 
     public render() {
-        const { chartSettingsStore, stockMetadataStore, ticker } = this.props;
+        const { chartSettingsStore, stockCurrentPriceStore, stockMetadataStore, ticker } = this.props;
         const { price, rankings, sectorPerformances } = this.state;
         const stockMetadata: IStockMetadata = stockMetadataStore.stockMetadatas.get(ticker);
 
@@ -72,7 +74,10 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                 {
                     this.state.price && stockMetadata &&
                     <div>
-                        <StockChart ticker={ticker} settings={chartSettingsStore.chartSettings} />
+                        <StockChart ticker={ticker}
+                                    stockCurrentStore={stockCurrentPriceStore}
+                                    settings={chartSettingsStore.chartSettings}
+                        />
                         <div className="pt-3">
                             <ChartSettingsPicker chartSettingsStore={chartSettingsStore} />
                         </div>

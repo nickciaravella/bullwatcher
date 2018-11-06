@@ -42,7 +42,8 @@ export default class NewsList extends React.Component<INewsListProps, INewsListS
     private renderListItems() {
         return this.state.news.map((article: INews) =>
             (
-                <div className={styles.classNames(styles.flexContainer, styles.flexRow, styles.flexAlignItemsStart, styles.pb4)}>
+                <div key={article.headline}
+                     className={styles.classNames(styles.flexContainer, styles.flexRow, styles.flexAlignItemsStart, styles.pb4)}>
                         <div className={styles.flexAlignSelfCenter}>
                             <img src={article.thumbnailUrl} height="120" width="240" style={{objectFit: "cover", backgroundColor: "white"}}/>
                         </div>

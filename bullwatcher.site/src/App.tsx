@@ -46,6 +46,7 @@ export default class App extends React.Component<any, IAppState> {
                                 return (
                                     <StockDetailPage
                                         chartSettingsStore={chartSettingsStore}
+                                        stockCurrentPriceStore={stockCurrentPriceStore}
                                         stockMetadataStore={stockMetadataStore}
                                         ticker={props.match.params.id} />
                                 );

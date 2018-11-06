@@ -5,13 +5,16 @@ import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 import * as HSIndicators from 'highcharts/indicators/indicators';
 import { ChartType, IChartSettings, Indicator, TimeRange } from 'src/models/chart-settings';
+import { StockCurrentPriceStore } from 'src/models/stock-current-store';
 import { StockHistoryStore } from 'src/models/stock-history-store';
 import { greenHex, redHex } from 'src/utils'
+import { IStockCurrentPrice } from './models/stock-current';
 
 HSIndicators(Highcharts);
 
 interface IStockChartProps {
     settings: IChartSettings;
+    stockCurrentStore?: StockCurrentPriceStore;
     ticker: string;
 }
 
@@ -25,11 +28,17 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
 
         this.store = new StockHistoryStore();
         this.store.fetchDailyDataAsync(this.props.ticker);
+        if (this.props.stockCurrentStore) {
+            this.props.stockCurrentStore.getStockCurrentPrice(this.props.ticker);
+        }
     }
 
     public componentDidUpdate (prevProps: IStockChartProps) {
         if (this.props.ticker !== prevProps.ticker) {
             this.store.fetchDailyDataAsync(this.props.ticker);
+            if (this.props.stockCurrentStore) {
+                this.props.stockCurrentStore.getStockCurrentPrice(this.props.ticker);
+            }
         }
     }
 
@@ -197,6 +206,10 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
 
         const minDate: Date = new Date();
         minDate.setDate(minDate.getDate() - this.getDaysForTimeRange(timeRange))
+
+        const maxDate: Date = new Date();
+        maxDate.setDate(minDate.getDate());
+
         let minYValue = 999999999;
         let maxYValue = 0;
 
@@ -228,10 +241,34 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                         y: stock.close
                     }
             }
-            dataArray.push(data)
+            dataArray.push(data);
+            maxDate.setDate(stock.date > maxDate ? stock.date.getDate() : maxDate.getDate());
         }
 
-         return [dataArray, minYValue, maxYValue];
+        if (this.props.stockCurrentStore && this.props.stockCurrentStore.currentPriceByTicker.has(this.props.ticker)) {
+            const stockCurrentPrice: IStockCurrentPrice = this.props.stockCurrentStore.currentPriceByTicker.get(this.props.ticker);
+            if (stockCurrentPrice.currentPriceDateTime.getDate() > maxDate.getDate()) {
+                switch (chartType) {
+                    case ChartType.Candlestick:
+                        dataArray.push({
+                            close: stockCurrentPrice.currentPrice,
+                            high: stockCurrentPrice.high,
+                            low: stockCurrentPrice.low,
+                            open: stockCurrentPrice.open,
+                            x: stockCurrentPrice.currentPriceDateTime.valueOf(),
+                        })
+                        break;
+                    case ChartType.Line:
+                        dataArray.push({
+                            x: stockCurrentPrice.currentPriceDateTime.valueOf(),
+                            y: stockCurrentPrice.currentPrice
+                        });
+                        break;
+                }
+            }
+        }
+
+        return [dataArray, minYValue, maxYValue];
     }
 
     private getStockDailyVolumeData(): any[] {
