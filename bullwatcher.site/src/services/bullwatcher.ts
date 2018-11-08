@@ -1,3 +1,5 @@
+import * as moment from 'moment-timezone';
+
 import { IAuthContext, IUserContext } from "src/models/auth-context";
 import { TimeWindow } from "src/models/common";
 import { INews } from "src/models/news";
@@ -63,7 +65,7 @@ export class BullWatcher {
         for (const daily of jsonArray) {
             dailyData.push({
                 close: daily.close,
-                date: new Date(daily.date),
+                date: moment.tz(daily.date, 'America/New_York').toDate(),
                 high: daily.high,
                 low: daily.low,
                 open: daily.open,
@@ -122,10 +124,10 @@ export class BullWatcher {
         const response: any = await fetch(url);
         const json: any = await response.json()
         return {
-            afterHoursDateTime: new Date(json.after_hours_updated_time),
+            afterHoursDateTime: moment.tz(json.after_hours_updated_time, 'UTC').toDate(),
             afterHoursPrice: json.after_hours_price,
             currentPrice: json.current_price,
-            currentPriceDateTime: new Date(json.last_updated_time),
+            currentPriceDateTime: moment.tz(json.last_updated_time, 'UTC').toDate(),
             high: json.high,
             lastClose: json.previous_close,
             low: json.low,

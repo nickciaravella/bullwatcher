@@ -1,4 +1,5 @@
 import { observer } from 'mobx-react';
+import * as moment from 'moment-timezone';
 import * as React from 'react';
 
 import HighchartsReact from 'highcharts-react-official';
@@ -207,8 +208,7 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
         const minDate: Date = new Date();
         minDate.setDate(minDate.getDate() - this.getDaysForTimeRange(timeRange))
 
-        const maxDate: Date = new Date();
-        maxDate.setDate(minDate.getDate());
+        let maxDate: Date = new Date(0);
 
         let minYValue = 999999999;
         let maxYValue = 0;
@@ -242,29 +242,37 @@ export default class StockChart extends React.Component<IStockChartProps, any> {
                     }
             }
             dataArray.push(data);
-            maxDate.setDate(stock.date > maxDate ? stock.date.getDate() : maxDate.getDate());
+            maxDate = maxDate > stock.date ? maxDate : stock.date;
         }
 
         if (this.props.stockCurrentStore && this.props.stockCurrentStore.currentPriceByTicker.has(this.props.ticker)) {
             const stockCurrentPrice: IStockCurrentPrice = this.props.stockCurrentStore.currentPriceByTicker.get(this.props.ticker);
-            if (stockCurrentPrice.currentPriceDateTime.getDate() > maxDate.getDate()) {
-                switch (chartType) {
-                    case ChartType.Candlestick:
-                        dataArray.push({
-                            close: stockCurrentPrice.currentPrice,
-                            high: stockCurrentPrice.high,
-                            low: stockCurrentPrice.low,
-                            open: stockCurrentPrice.open,
-                            x: stockCurrentPrice.currentPriceDateTime.valueOf(),
-                        })
-                        break;
-                    case ChartType.Line:
-                        dataArray.push({
-                            x: stockCurrentPrice.currentPriceDateTime.valueOf(),
-                            y: stockCurrentPrice.currentPrice
-                        });
-                        break;
-                }
+
+            const currentPriceDay = moment(stockCurrentPrice.currentPriceDateTime).tz('America/New_York').startOf('day');
+            const maxDayInChart =  moment(maxDate).tz('America/New_York').startOf('day');
+            console.log(`CurrentPrice: ${currentPriceDay.toLocaleString()}, MaxInChart: ${maxDayInChart.toLocaleString()}`);
+
+            if (maxDayInChart.isSame(currentPriceDay)) {
+                console.log("Replacing last day in chart with current price.");
+                dataArray.pop()
+            }
+
+            switch (chartType) {
+                case ChartType.Candlestick:
+                    dataArray.push({
+                        close: stockCurrentPrice.currentPrice,
+                        high: stockCurrentPrice.high,
+                        low: stockCurrentPrice.low,
+                        open: stockCurrentPrice.open,
+                        x: stockCurrentPrice.currentPriceDateTime.valueOf(),
+                    })
+                    break;
+                case ChartType.Line:
+                    dataArray.push({
+                        x: stockCurrentPrice.currentPriceDateTime.valueOf(),
+                        y: stockCurrentPrice.currentPrice
+                    });
+                    break;
             }
         }
 
