@@ -25,24 +25,24 @@ export default class FrontPage extends React.Component<IFrontPageProps> {
         const { stockCurrentPriceStore } = this.props;
         return (
             <div>
-                <div className="pt-3 pb-3">
+                <div className="pt-3 pl-3 pb-3">
                     <div className="d-flex justify-between flex-wrap" style={{ height: '600px'}}>
-                        <div className="w-50 h-50 p-4">
+                        <div className="w-50 h-50 pt-4 pb-4 pr-4">
                             <StockBox ticker="SPY"
                                     stockName="SPDR S&P 500 ETF Trust"
                                     stockCurrentPriceStore={stockCurrentPriceStore} />
                         </div>
-                        <div className="w-50 h-50 p-4">
+                        <div className="w-50 h-50 pt-4 pb-4 pl-4">
                             <StockBox ticker="DIA"
                                     stockName="SPDR Dow Jones Industrial Average ETF"
                                     stockCurrentPriceStore={stockCurrentPriceStore} />
                         </div>
-                        <div className="w-50 h-50 p-4">
+                        <div className="w-50 h-50 pt-4 pb-4 pr-4">
                             <StockBox ticker="VTI"
                                         stockName="Vanguard Total Stock Market ETF"
                                         stockCurrentPriceStore={stockCurrentPriceStore} />
                         </div>
-                        <div className="w-50 h-50 p-4">
+                        <div className="w-50 h-50 pt-4 pb-4 pl-4">
                             <StockBox ticker="QQQ"
                                     stockName="Invesco QQQ Trust"
                                     stockCurrentPriceStore={stockCurrentPriceStore} />
