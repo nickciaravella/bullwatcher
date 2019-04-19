@@ -29,5 +29,9 @@ export const textColorRed: string = "text-color-red";
 export const textLeft: string = "text-left";
 export const textRight: string = "text-right";
 
+export const textSize3: string = "text-3";
+export const textSize25: string = "text-25";
+export const textSize2: string = "text-2";
+export const textSize15: string = "text-15";
 export const textSize125: string = "text-125";
 export const textSize0875: string = "text-0875";

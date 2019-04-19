@@ -4,7 +4,7 @@ import * as styles from 'src/styles'
 import { TimeWindow } from 'src/models/common';
 import { ISectorPerformance } from 'src/models/sectors';
 import { BullWatcher } from 'src/services/bullwatcher';
-import { bgColorForPercentChange, percentageString } from 'src/utils'
+import { percentageString, textColorForPercentChange } from 'src/utils'
 
 
 interface ISectorPerformancesState {
@@ -31,17 +31,17 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
             return null;
         }
         return (
-            <div>
-                <table className="table">
-                   <thead className="thead-light">
+            <div className="pt-3 pb-4 bg-color-sec">
+                <table className="table table-borderless ml-3">
+                   <thead>
                         <tr>
-                            <th>Sector</th>
-                            <th>1 week</th>
-                            <th>1 month</th>
-                            <th>3 months</th>
-                            <th>1 year</th>
-                            <th>3 years</th>
-                            <th>5 years</th>
+                            <td className='pb-4'>SECTOR</td>
+                            <td className='pb-4'>1 WEEK</td>
+                            <td className='pb-4'>1 MONTH</td>
+                            <td className='pb-4'>3 MONTHS</td>
+                            <td className='pb-4'>1 YEAR</td>
+                            <td className='pb-4'>3 YEARS</td>
+                            <td className='pb-4'>5 YEARS</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,7 +71,9 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
             }
             rows.push((
                 <tr key={s.id}>
-                    <td className={styles.classNames("text-left", styles.textColorPrimary)}>{s.sectorName}</td>
+                    <td className={styles.classNames(styles.textLeft, styles.textColorPrimary)}>
+                        {s.sectorName.toUpperCase()}
+                    </td>
                     {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_WEEK])}
                     {this.getSectorRow(sectorMap[s.id][TimeWindow.ONE_MONTH])}
                     {this.getSectorRow(sectorMap[s.id][TimeWindow.THREE_MONTHS])}
@@ -91,9 +93,9 @@ export default class SectorPerformances extends React.Component<any, ISectorPerf
             return (<td />)
         }
 
-        const bgColor: string = bgColorForPercentChange(sectorPerf.percentChange);
+        const textColor: string = textColorForPercentChange(sectorPerf.percentChange);
         return (
-            <td className={styles.classNames(bgColor)}>
+            <td className={styles.classNames(textColor)}>
                 {percentageString(sectorPerf.percentChange)}
             </td>
         )

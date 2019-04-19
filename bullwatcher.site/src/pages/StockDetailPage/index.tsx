@@ -96,6 +96,7 @@ export default class StockDetailPage extends React.Component<IStockDetailPagePro
                             }
                         </div>
                     <div>
+                        <h1 className="pt-5 pb-3">News</h1>
                         <NewsList ticker={this.props.ticker} />
                     </div>
                 </div>

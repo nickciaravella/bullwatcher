@@ -34,7 +34,7 @@ export default class App extends React.Component<any, IAppState> {
                     <Header authContextStore={authContextStore} />
                     <NavBar onTickerSearch={this.onTickerSearch} />
                     {this.state && this.state.searchTicker && <Redirect to={"/stocks/" + this.state.searchTicker} />}
-                    <div style={{ margin: 'auto', paddingTop: '15px', maxWidth: '1200px'}}>
+                    <div style={{ margin: 'auto', paddingTop: '15px', maxWidth: '1000px'}}>
                         <Switch>
                             <Route exact={true} path="/" render={() => { // tslint:disable-next-line jsx-no-lambda
                                 return (

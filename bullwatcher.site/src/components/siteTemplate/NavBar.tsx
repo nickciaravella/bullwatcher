@@ -14,16 +14,15 @@ class NavBar extends React.Component<RouteComponentProps<INavBarProps> & INavBar
         const { location, onTickerSearch } = this.props;
         const params = new URLSearchParams(location.search);
         const isPreview: boolean = params.get('preview') &&  params.get('preview') === "true" ? true : false;
-        console.log(isPreview);
         return (
-            <div className="pl-4 border bg-light" >
-                <div className="d-flex flex-row align-items-center" style={{ maxWidth: "1200px", margin: "auto"}}>
+            <div className="pl-4 nav-bar-border bg-color-sec" >
+                <div className="d-flex flex-row align-items-center" style={{ maxWidth: "1100px", margin: "auto"}}>
                     <SearchBox onSearchFunc={onTickerSearch} />
-                    <nav className="navbar d-flex flex-row justify-content-between navbar-expand-sm bg-light">
+                    <nav className="navbar d-flex flex-row justify-content-between navbar-expand-sm bg-transparent">
                     {
                         isPreview &&
-                        <ul className="nav  ml-3">
-                            <li className="nav-item"><Link className="nav-link" to='/'>Overview</Link></li>
+                        <ul className="nav ml-3">
+                            <li className="nav-item"><Link className="nav-link" to='/'>OVERVIEW</Link></li>
                             <li className="nav-item"><Link className="nav-link" to='/patterns/flags'>Flags</Link></li>
                             <li className="nav-item"><Link className="nav-link" to='/rankings'>Rankings</Link></li>
                             <li className="nav-item"><Link className="nav-link" to='/watchlists'>Watchlists</Link></li>
@@ -32,7 +31,7 @@ class NavBar extends React.Component<RouteComponentProps<INavBarProps> & INavBar
                     {
                         !isPreview &&
                         <ul className="nav  ml-3">
-                            <li className="nav-item"><Link className="nav-link" to='/'>Overview</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-color-pri" to='/'>OVERVIEW</Link></li>
                         </ul>
                     }
                    </nav>

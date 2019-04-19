@@ -3,11 +3,12 @@ import * as styles from 'src/styles'
 
 import { IStockCurrentPrice } from 'src/models/stock-current';
 import { StockCurrentPriceStore } from 'src/models/stock-current-store';
+import downArrow from 'src/resources/down_arrow.png';
 import {
     bgColorForStockPriceChange,
     calculatePercentChange,
     currencyString,
-     percentageString } from 'src/utils'
+     percentageString } from 'src/utils';
 
 interface IStockBoxProps {
     ticker: string;
@@ -44,19 +45,20 @@ export default class StockBox extends React.Component<IStockBoxProps, IStockBoxS
 
         return (
             <a href={`stocks/${ticker}`} style={{textDecoration: "none"}}>
-            <div className={styles.classNames("card d-flex flex-column h-100 w-100 text-left border", styles.textColorPrimary, bgColor)}>
-                <h1 className="ml-5 mt-5 mb-3">{ticker}</h1>
+            <div className={styles.classNames("card d-flex flex-column justify-content-end h-100 w-100 text-left", styles.textColorPrimary, bgColor)}
+                 style={{backgroundImage: `url(${downArrow})`, backgroundRepeat: "no-repeat", backgroundPosition: "right", backgroundSize: "contain", backgroundBlendMode: "lighten", backgroundColor: bgColor}}>
+                <p className="text-2 ml-4 mt-5 mb-0">{ticker}</p>
                 {
                     stockName &&
-                    <h5 className="ml-5 mb-5">{stockName}</h5>
+                    <p className="ml-4 mb-4">{stockName.toUpperCase()}</p>
                 }
                 {
                     currentPrice &&
                     <div>
-                        <h3 className="ml-5">{currencyString(currentPrice.currentPrice)}</h3>
-                        <h3 className="ml-5">
+                        <p className="text-2 ml-4 mb-0">{currencyString(currentPrice.currentPrice)}</p>
+                        <p className="ml-4 mb-4">
                             {percentChange} ({dollarChange})
-                        </h3>
+                        </p>
                     </div>
                 }
             </div>

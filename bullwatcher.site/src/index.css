@@ -2,13 +2,17 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  background-color: #222;
+  background-color: #262626;
   color: #eee;
 }
 
 a.no-style {
     text-decoration: inherit;
     color: inherit;
+}
+
+.nav-bar-border {
+    border-bottom: 5px solid #006837;
 }
 
 .text-075 {
@@ -44,38 +48,39 @@ a.no-style {
 }
 
 .text-color-pri {
-    color: #eee
+    color: #eee;
 }
 
 .text-color-sec {
-    color: #aaa
+    color: #aaa;
 }
 
 .text-color-red {
-    color: #cc0000;
+    color: #de4343;
 }
 
 .text-color-green {
-    color: #009933
+    color: #029851;
 }
 
 .bg-color-pri {
-  background-color: #222;
+  background-color: #262626;
+}
+
+.bg-color-sec {
+  background-color: #404040;
 }
 
 .bg-color-chart {
-    background-color: #101010
+    background-color: #101010;
 }
 
 .bg-color-red {
-    background-color: #cc0000;
+    background-color: #C53737;
 }
 
 .bg-color-green {
-    background-color: #009933
+    background-color: #006837;
 }
 
-@keyframes App-logo-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
+

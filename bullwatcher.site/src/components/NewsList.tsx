@@ -33,7 +33,6 @@ export default class NewsList extends React.Component<INewsListProps, INewsListS
 
         return (
             <div>
-                <h1 className={styles.pb3}>News</h1>
                 { this.renderListItems() }
             </div>
         )
